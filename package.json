@@ -1,0 +1,11 @@
+{
+    "name" : "bogus-driver",
+    "type" : "module",
+    "description" : "for windows env, change for unix",
+
+    "scripts" : {
+        "install":"(cd server && npm install) && (cd ../client && npm install)",
+        "start":"(cd server && start npm start) && (cd ../client && start npm start)"
+    }
+
+}

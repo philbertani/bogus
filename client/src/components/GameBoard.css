@@ -1,0 +1,7 @@
+.GameBoard {
+    position: relative;
+    background-color: white;
+    opacity: 100;
+    z-index: 10;
+    margin: 1%;
+}

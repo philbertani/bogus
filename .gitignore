@@ -1,0 +1,23 @@
+# Ignore all node_modules
+node_modules/*
+server/node_modules/*
+client/node_modules/*
+
+dist/
+
+public/bundle.js
+public/bundle.js.map
+
+# NPM errors
+npm-debug.log
+
+# OSX
+.DS_Store
+
+# Vim stuff
+*.swp
+
+.DS_Store
+
+package.lock.json
+package-lock.json

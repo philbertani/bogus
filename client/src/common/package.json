@@ -1,0 +1,6 @@
+{
+    "name": "bogus-common",
+    "version": "0.0.1",
+    "description": "stuff frontend and backend can share",
+    "type": "module"
+}
