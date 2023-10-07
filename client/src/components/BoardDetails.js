@@ -7,10 +7,12 @@ function blank2dArray(M, N, stuffing = 0) {
   //that wouldcreate the same reference for the same column on every row
 }
 export function BoardDetails({ props }) {
-  const { game, boardDims, cubeRefs, foundWords, setFoundWords } = props;
+  const { game, boardDims, cubeRefs, reset, setReset, foundWords, setFoundWords } = props;
   const [output, setOutput] = React.useState([]);
   const counter = React.useRef(0);
   const { M, N } = game.rank;
+
+  //have to move all this sh.t up the flagpole, useState is such a waste of time
   const [cubeStyles, setCubeStyles] = React.useState(blank2dArray(N, M, null));
   const [selected, setSelected] = React.useState([]);
   const [allSelected, setAllSelected] = React.useState(blank2dArray(N, M));
@@ -19,6 +21,19 @@ export function BoardDetails({ props }) {
   const lineHeight = React.useRef(0);
   const fontSize = React.useRef(0);
   //console.log(game.words);
+
+  React.useEffect(()=>{
+    //we do not need to access any of these from higher up, but we do 
+    //need to know when to reset from above
+    if ( reset ) {
+      console.log("resetting arrays");
+      setCubeStyles(blank2dArray(N, M, null));
+      setSelected([]);
+      setAllSelected(blank2dArray(N, M));
+      setSearchString("");
+      setReset(false);
+    }
+  },[reset, setReset, M, N]);
 
   React.useEffect(() => {
     counter.current++;
@@ -30,24 +45,23 @@ export function BoardDetails({ props }) {
       let row = [];
       for (let i = 0; i < M; i++) {
         let boxStyle = {
-          textAlign: "center",
           color: "#FFFFFF",
           position: "absolute",
-        };
-        boxStyle.top = top;
-        boxStyle.left = left;
-        boxStyle.height = (marginFac * boardDims.height) / N + "px";
-        lineHeight.current = (0.9 * marginFac * boardDims.height) / N;
-        boxStyle.width = (marginFac * boardDims.width) / M + "px";
-        boxStyle.boxSizing = "borderBox";
-        boxStyle.borderRadius = "10px";
-        boxStyle.fontSize = (0.6 * boardDims.height) / N + "px";
-        boxStyle.fontWeight = "700";
-        fontSize.current = (0.6 * boardDims.height) / N + "px";
-        boxStyle.fontFamily = "Times New Roman, Times, serif";
-        boxStyle.backgroundImage = "radial-gradient(#400040,#A000F0)";
-        boxStyle.userSelect = "none";
+          boxSizing: "borderBox",
+          borderRadius: "10px",
+          fontWeight: "700",
+          fontFamily: "Times New Roman, Times, serif",
+          backgroundImage: "radial-gradient(#400040,#A000F0)",
+          userSelect: "none",
+          top:top,
+          left:left,
+          height:(marginFac * boardDims.height) / N + "px",
+          width:(marginFac * boardDims.width) / M + "px",
+          fontSize: (0.6 * boardDims.height) / N + "px"
+        }
 
+        fontSize.current = (0.6 * boardDims.height) / N + "px";
+        lineHeight.current = (0.9 * marginFac * boardDims.height) / N;
         left += boardDims.width / M;
         row.push(boxStyle);
       }
@@ -101,9 +115,7 @@ export function BoardDetails({ props }) {
       newSelected[i][j] = 1;
       setSelected([i, j]);
       setAllSelected(newSelected);
-
       setSearchString((prev) => prev + game.board[i][j]);
-
       setCubeStyles(newStyles);
     }
 

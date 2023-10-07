@@ -14,6 +14,8 @@ export default function App() {
   const [fooEvents, setFooEvents] = useState([]);
   const [mainGame, setMainGame] = React.useState(new bogusMain( ()=>{}, {words:["none"], definitions:["none"]} ) );
   const [doneOne, setDoneOne] = React.useState(false);
+  const [reset, setReset] = React.useState(false);
+  const [foundWords, setFoundWords] = React.useState( {} );
 
   useEffect(() => {
 
@@ -38,6 +40,8 @@ export default function App() {
       mainGame.words = [...msg.words];
       setMainGame( mainGame );
       setDoneOne(true);
+      setFoundWords({});
+      setReset(true);
       console.log('setting mainGame');
     }
 
@@ -56,9 +60,13 @@ export default function App() {
     };
   }, [mainGame]);
 
+  const props={game:mainGame,reset,setReset,foundWords,setFoundWords};
   return (
     [
-      doneOne && <GameBoard key="k05" game={mainGame} />,
+      doneOne && <GameBoard key="k05" props={props}
+       // game={mainGame} reset={reset} setReset={setReset}
+       // foundWords={foundWords} setFoundWords={setFoundWords}
+      />,
       
       <div key="k00" className="App">
         <ConnectionState key="k01" isConnected={ isConnected } />

@@ -3,7 +3,9 @@ import './GameBoard.css'
 import {useWindowSize} from './useWindowSize.js'
 import {BoardDetails} from './BoardDetails'
 
-export function GameBoard( {game} ) {
+export function GameBoard( {props} ) {
+
+  const {game,reset,setReset,foundWords,setFoundWords} = props;
   const [boardDims, setBoardDims] = React.useState({});
 
   const boardRef = React.useRef();
@@ -11,7 +13,7 @@ export function GameBoard( {game} ) {
 
   const { M, N } = game.rank;
   const cubeRefs = React.useRef(Array(M).fill(Array(N).fill(null)));
-  const [foundWords, setFoundWords] = React.useState( {} );
+  //const [foundWords, setFoundWords] = React.useState( {} );
 
   React.useEffect(() => {
     //const currentBoardDims = boardRef.current.getBoundingClientRect();
@@ -29,7 +31,7 @@ export function GameBoard( {game} ) {
     setBoardDims({ width: newWidth, height: newHeight });
   }, [windowSize]);
 
-  let props = { game, boardRef, boardDims, cubeRefs, foundWords, setFoundWords };
+  let props2 = { game, boardRef, boardDims, cubeRefs, reset, setReset, foundWords, setFoundWords };
   return (
     !isNaN(boardDims.width) && [
       <div
@@ -38,10 +40,10 @@ export function GameBoard( {game} ) {
         key="g01"
         className="GameBoard"
       >
-        <BoardDetails props={props} />
+        <BoardDetails props={props2} />
       </div>,
       <div style={{marginLeft:"1vw",backgroundColor:"#A0B0FF", maxWidth: boardDims.width,
-        overflow:"scroll", wordBreak:"break-word"}} key="foundWords">
+        overflow:"scroll", wordBreak:"break-word", borderRadius:"5px"}} key="foundWords">
         <h3 style={{margin:"0",marginLeft:"1vw"}}>Words Found: {Object.keys(foundWords).length} </h3>
         <div style={{margin:"1vw"}}>{JSON.stringify(foundWords)}</div></div>
     ]
