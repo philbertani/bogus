@@ -40,10 +40,10 @@ export function GameBoard( {game} ) {
       >
         <BoardDetails props={props} />
       </div>,
-      <div style={{marginLeft:"1vw",backgroundColor:"grey", maxWidth: boardDims.width,
+      <div style={{marginLeft:"1vw",backgroundColor:"#A0B0FF", maxWidth: boardDims.width,
         overflow:"scroll", wordBreak:"break-word"}} key="foundWords">
-        <h3 style={{margin:"0"}}>Words Found: {Object.keys(foundWords).length} </h3>
-        {JSON.stringify(foundWords)}</div>
+        <h3 style={{margin:"0",marginLeft:"1vw"}}>Words Found: {Object.keys(foundWords).length} </h3>
+        <div style={{margin:"1vw"}}>{JSON.stringify(foundWords)}</div></div>
     ]
   );
 }

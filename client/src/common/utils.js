@@ -6,6 +6,8 @@ function cloneArray(x) {
 
 function bsearch(A,x,debug=false) {
 
+    if ( !A ) return [ false, false , false, -1, 'no match', 0, 'none'];
+
     let p0=0, p1=A.length-1, closest=-1
     let count = 0
     while (p0<=p1) {

@@ -24,7 +24,7 @@ const ld = {
   ],
 
   new: [
-    "QQQQQQ",
+    //"QQQQQQ",
     "AAEEGN",
     "ABBJOO",
     "ACHOPS",
