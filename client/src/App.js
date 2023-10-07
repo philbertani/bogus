@@ -30,7 +30,13 @@ export default function App() {
         localStorage.setItem("bogusId",uuid);
         userId = uuid;
       } 
-      socket.emit('current board',userId); //since we are connected ask for the current board
+      let sessionId = sessionStorage.getItem("bogusId");
+      if ( !sessionId ) {
+        const uuid = uuidv4();
+        sessionStorage.setItem("bogusId",uuid);
+        sessionId = uuid;        
+      }
+      socket.emit('current board',{userId,sessionId}); //since we are connected ask for the current board
     }
 
     function onDisconnect() {

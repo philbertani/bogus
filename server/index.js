@@ -19,10 +19,18 @@ import bogusMain from "../client/src/common/bogus.js"
 import { loadDictionary } from "./loadDictionary.js";
 
 const bogus = new bogusMain( ()=>{console.log("finished")} );
-loadDictionary.call(bogus, ()=>{console.log("finished loadDictionary"); bogus.newBoard()});
+
+loadDictionary.call(bogus, ()=>{
+    console.log("finished loadDictionary");
+    //const manualBoard = [['C','O','G','O'],['I','E','I','T'],['N','T','K','R'],['Y','N','O','I']];
+    //bogus.debugBoard(manualBoard);
+  }
+);
 
 console.log('loading');
 const users = {};
+const socketMap = {};
+let numUsers = 0;
 
 //const io = require('socket.io')(http);
 const io = new Server(http,{cors:{origin:"*",methods:["GET","POST"]}});
@@ -36,6 +44,12 @@ io.on('connection', (socket) => {
   //socket.emit("current board", {board:bogus.board, words:bogus.wordsFound});
   console.log('connected a user',socket.id);
 
+});
+
+io.on("connection", (socket) => {
+  socket.on("disconnect", (reason) => {
+    console.log("disconnected: ",socket.id)
+  });
 });
 
 io.on('connection', (socket) => {
@@ -59,13 +73,23 @@ io.on('connection', (socket) => {
         ?{board:bogus.board,output:bogus.output}
         :bogus.newBoard(), words:bogus.wordsFound} );
 
-    console.log("user uuid:",msg,Date.now());
-    if (users[msg]) {
-      console.log(msg,"has connected previously", users[msg]);
+    let seqno;
+ 
+    if (users[msg.userId]) {
+      console.log(msg.userId,"has connected previously");
+      seqno = users[msg.userId].seqno;
     }
     else {
-      users[msg] = Date.now();
+      seqno = numUsers;
+      numUsers ++;
+
     }
+    users[msg.userId] = {sessionId:msg.sessionId, connTime:Date.now(), seqno:seqno, socketId:socket.id}; 
+    console.log(msg.userId,users[msg.userId]);
+    socketMap[socket.id] = msg.userId;
+
+    console.log("socket map", socketMap);
+
   });
 });
 

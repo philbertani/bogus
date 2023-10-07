@@ -2,6 +2,7 @@ import * as data from "./data.js";
 import { cloneArray, bsearch } from "./utils.js";
 
 class bogusMain {
+
   board = [];
   output = [];
   words;
@@ -61,9 +62,11 @@ class bogusMain {
     visited[i][j] = true;
     const letter = grid[i][j];
     str = str + letter;
+
     //this.allStr.push(str)
     //this.uniquePaths.add(str)  //useful for debugging
     const search = this.isWord(str);
+    //console.log(str, search);
     //search[0] is true if we found a closest match, search[1] is true if exact word match
 
     if (search[1] && str.length >= this.minLetters) {
@@ -90,6 +93,30 @@ class bogusMain {
 
     str = "" + str[str.length - letter.length];
     visited[i][j] = false;
+  }
+
+  debugBoard(manualBoard) {
+    console.log("******* start debugging manual board ************");
+    this.board = cloneArray(manualBoard);
+    console.log(this.board);
+    //this.findWordsDriver();
+
+    console.log (this.isWord('GO'));
+
+    this.wordsFound = new Set();
+    const visited = Array.from(Array(this.rank.M), () =>
+    new Array(this.rank.N).fill(false));
+
+    this.allStr = [];
+    let str="";
+    let k=0;
+    this.findWords(cloneArray(this.board), visited, 0, 2, str, k);    
+
+    console.log(this.wordsFound);
+    console.log(this.allStr);
+
+    console.log("****************** end **************************")
+    this.board = [];
   }
 
   newBoard() {
