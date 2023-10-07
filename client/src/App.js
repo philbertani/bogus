@@ -40,6 +40,7 @@ export default function App() {
     }
 
     function onDisconnect() {
+      socket.disconnect();
       setIsConnected(false);
     }
 
@@ -60,11 +61,17 @@ export default function App() {
       console.log('setting mainGame');
     }
 
+    function onDupe(msg) {
+      console.log('duplicate process');
+      onDisconnect();
+    }
+
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
     socket.on('chat message', onFooEvent);
     socket.on('new board', onNewBoard);
     socket.on('current board', onNewBoard);
+    socket.on('duplicate',onDupe);
 
     return () => {
       socket.off('connect', onConnect);
@@ -72,6 +79,7 @@ export default function App() {
       socket.off('chat message', onFooEvent);
       socket.off('new board', onNewBoard);
       socket.off('current board', onNewBoard);
+      socket.off('duplicate', onDupe);
     };
   }, [mainGame]);
 

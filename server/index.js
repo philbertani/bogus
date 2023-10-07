@@ -30,6 +30,7 @@ loadDictionary.call(bogus, ()=>{
 console.log('loading');
 const users = {};
 const socketMap = {};
+const userIdSocket = {};
 let numUsers = 0;
 
 //const io = require('socket.io')(http);
@@ -48,7 +49,19 @@ io.on('connection', (socket) => {
 
 io.on("connection", (socket) => {
   socket.on("disconnect", (reason) => {
-    console.log("disconnected: ",socket.id)
+    //on disconnect all we have is the socket id
+    console.log("disconnected: ",socket.id);
+    const userId = socketMap[socket.id];
+    if (userId) {
+      users[userId].sessionId = null;
+    }
+    else {
+      //weird
+      console.log('could not find a userId for socket:',socket.id);
+    }
+    delete socketMap[socket.id];
+    delete userIdSocket[userId];
+
   });
 });
 
@@ -82,11 +95,19 @@ io.on('connection', (socket) => {
     else {
       seqno = numUsers;
       numUsers ++;
-
     }
     users[msg.userId] = {sessionId:msg.sessionId, connTime:Date.now(), seqno:seqno, socketId:socket.id}; 
     console.log(msg.userId,users[msg.userId]);
+
     socketMap[socket.id] = msg.userId;
+
+    if ( userIdSocket[msg.userId]) {
+      console.log('already has an active socket');
+      io.to(socket.id).emit("duplicate");
+    }
+    else {
+      userIdSocket[msg.userId] = socket.id;
+    }
 
     console.log("socket map", socketMap);
 
