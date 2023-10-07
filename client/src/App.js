@@ -6,7 +6,9 @@ import { MyForm } from './components/MyForm';
 import { Events} from './components/Events';
 import { GameBoard } from './components/GameBoard';
 import bogusMain from './common/bogus.js';
-import {cloneArray} from './common/utils.js'
+import {cloneArray} from './common/utils.js';
+import {v4 as uuidv4} from 'uuid';
+
 import './App.css';
 
 export default function App() {
@@ -21,7 +23,14 @@ export default function App() {
 
     function onConnect(msg) {
       setIsConnected(true);
-      socket.emit('current board'); //since we are connected ask for the current board
+
+      let userId = localStorage.getItem("bogusId");
+      if ( !userId ) {
+        const uuid = uuidv4();
+        localStorage.setItem("bogusId",uuid);
+        userId = uuid;
+      } 
+      socket.emit('current board',userId); //since we are connected ask for the current board
     }
 
     function onDisconnect() {

@@ -22,6 +22,7 @@ const bogus = new bogusMain( ()=>{console.log("finished")} );
 loadDictionary.call(bogus, ()=>{console.log("finished loadDictionary"); bogus.newBoard()});
 
 console.log('loading');
+const users = {};
 
 //const io = require('socket.io')(http);
 const io = new Server(http,{cors:{origin:"*",methods:["GET","POST"]}});
@@ -33,7 +34,8 @@ app.get('/', (req, res) => {
 
 io.on('connection', (socket) => {
   //socket.emit("current board", {board:bogus.board, words:bogus.wordsFound});
-  console.log('connected a user')
+  console.log('connected a user',socket.id);
+
 });
 
 io.on('connection', (socket) => {
@@ -56,6 +58,14 @@ io.on('connection', (socket) => {
       {game: (bogus.board.length!==0)
         ?{board:bogus.board,output:bogus.output}
         :bogus.newBoard(), words:bogus.wordsFound} );
+
+    console.log("user uuid:",msg,Date.now());
+    if (users[msg]) {
+      console.log(msg,"has connected previously", users[msg]);
+    }
+    else {
+      users[msg] = Date.now();
+    }
   });
 });
 
