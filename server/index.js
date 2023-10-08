@@ -29,11 +29,10 @@ loadDictionary.call(bogus, ()=>{
 
 console.log('loading');
 const users = {};
-const socketMap = {};
-const userIdSocket = {};
+const socketMap = {};  //map  of socket ids to unique user ids
+const userIdSockets = {}; //list of sockets open by unique user id (should be no more than 2)
 let numUsers = 0;
 
-//const io = require('socket.io')(http);
 const io = new Server(http,{cors:{origin:"*",methods:["GET","POST"]}});
 
 app.use(cors());
@@ -42,9 +41,7 @@ app.get('/', (req, res) => {
 });
 
 io.on('connection', (socket) => {
-  //socket.emit("current board", {board:bogus.board, words:bogus.wordsFound});
   console.log('connected a user',socket.id);
-
 });
 
 io.on("connection", (socket) => {
@@ -59,10 +56,21 @@ io.on("connection", (socket) => {
       //weird
       console.log('could not find a userId for socket:',socket.id);
     }
-    delete socketMap[socket.id];
-    delete userIdSocket[userId];
 
+    const userSockets = userIdSockets[userId];
+    const newSocketList = [];
+    for ( const userSocket of userSockets) {
+      if ( userSocket.id === socket.id ) {
+        //this is the one to delete
+        delete socketMap[socket.id];
+      }
+      else {
+        newSocketList.push(userSocket);
+      }
+    }
+    userIdSockets[userId] = newSocketList;
   });
+
 });
 
 io.on('connection', (socket) => {
@@ -87,35 +95,41 @@ io.on('connection', (socket) => {
         :bogus.newBoard(), words:bogus.wordsFound} );
 
     let seqno;
- 
+    const time = Date.now();
     if (users[msg.userId]) {
-      console.log(msg.userId,"has connected previously");
+      console.log(time,msg.userId,"has connected previously");
       seqno = users[msg.userId].seqno;
     }
     else {
       seqno = numUsers;
       numUsers ++;
     }
-    users[msg.userId] = {sessionId:msg.sessionId, connTime:Date.now(), seqno:seqno, socketId:socket.id}; 
-    console.log(msg.userId,users[msg.userId]);
+    users[msg.userId] = {sessionId:msg.sessionId, connTime:time, seqno:seqno, socketId:socket.id}; 
 
-    socketMap[socket.id] = msg.userId;
+    if ( userIdSockets[msg.userId] && userIdSockets[msg.userId].length > 0 ) {
+      console.log(time,'already has an active socket');
 
-    if ( userIdSocket[msg.userId]) {
-      console.log('already has an active socket');
-      io.to(socket.id).emit("duplicate");
+      if ( socketMap[socket.id] ) {
+        console.log('already in socket map');
+      }
+      else {
+        socketMap[socket.id] = msg.userId;
+        io.to(socket.id).emit("duplicate");
+      }
+  
+      userIdSockets[msg.userId].push({id:socket.id,active:false});
     }
     else {
-      userIdSocket[msg.userId] = socket.id;
+      userIdSockets[msg.userId] = [{id:socket.id,active:true}];
+      socketMap[socket.id] = msg.userId;
     }
-
-    console.log("socket map", socketMap);
 
   });
 });
 
 const host = process.env.HOST || '112.35.81.115' //'localhost';
 const port = process.env.PORT || 5000;
+
 //we need http so express can serve the client side app
 http.listen(port, host, () => {
   //need to define HOST as actual IP address to connect with other computers
