@@ -14,11 +14,24 @@ import './App.css';
 export default function App() {
   const [isConnected, setIsConnected] = useState(socket.connected);
   const [fooEvents, setFooEvents] = useState([]);
-  const [mainGame, setMainGame] = React.useState(new bogusMain( ()=>{}, {words:["none"], definitions:["none"]} ) );
+  const [mainGame, setMainGame] = React.useState(new bogusMain( {words:["none"], definitions:["none"]} ) );
   const [doneOne, setDoneOne] = React.useState(false);
   const [reset, setReset] = React.useState(false);
-  const [foundWords, setFoundWords] = React.useState( {} );
+  const [foundWords, setFoundWords] = React.useState( {} );  //we need to persist this across page refreshes and reconnects
   const [isDuplicateProcess, setIsDuplicateProcess] = React.useState(false);
+  const [checkConnection, setCheckConnection] = React.useState(false);
+
+  useEffect ( ()=>{
+
+    if (checkConnection) {
+      console.log("trying to reconnect");
+      //on disconnect we needed to actually close the socket to force the server to remove it
+      //reinitialize the socket connection so it will automatically try to reconnect
+      socket.connect();
+      setCheckConnection(false);
+    }
+
+  } ,[checkConnection] );
 
   useEffect(() => {
 
@@ -37,12 +50,14 @@ export default function App() {
         sessionStorage.setItem("bogusId",uuid);
         sessionId = uuid;        
       }
+      setReset(true);
       socket.emit('current board',{userId,sessionId}); //since we are connected ask for the current board
     }
 
     function onDisconnect() {
       socket.disconnect();
       setIsConnected(false);
+      setCheckConnection(true);
     }
 
     function onFooEvent(value) {
@@ -97,7 +112,6 @@ export default function App() {
         <ConnectionManager key="k03" />
         <MyForm key="k04"/>
       </div>
-
 
     ]
   );

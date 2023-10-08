@@ -4,10 +4,11 @@ export function loadDictionary(cb) {
 
   const loadData = async (cb) => {
     const { words, definitions } = await loadDict();
-    this.words = words;
-    this.definitions = definitions;
-    console.log("num words is:", this.words.length);
+    //this.words = words;
+    //this.definitions = definitions;
+    console.log("num words is:", words.length);
     cb(); //execute the callback
+    return { words, definitions };
   };
 
   const loadDict = async () => {
@@ -23,5 +24,5 @@ export function loadDictionary(cb) {
     }
   };
 
-  loadData(cb);
+  return loadData(cb);
 }

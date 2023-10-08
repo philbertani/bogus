@@ -13,7 +13,6 @@ export function GameBoard( {props} ) {
 
   const { M, N } = game.rank;
   const cubeRefs = React.useRef(Array(M).fill(Array(N).fill(null)));
-  //const [foundWords, setFoundWords] = React.useState( {} );
 
   React.useEffect(() => {
     //const currentBoardDims = boardRef.current.getBoundingClientRect();

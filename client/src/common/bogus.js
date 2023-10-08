@@ -13,16 +13,15 @@ class bogusMain {
 
   minLetters = data.minLetters;
 
-  constructor(cb, dictionary = {}) {
+  constructor(dictionary ) {
     //for server we pass in the whole dictionary
     //for clients we pass in just the words we know are in the word grid
     if (!dictionary.words) {
-      console.log("loading full dictionary for server using loadDictionary.js");
-      //this.loadData(cb);  //pass a callback to loadData so calling function can do stuff when finished
+      //throw new Error("No Words, Halting Evrything");
+      console.log("creating bogus with no words");
     } else {
       this.words = dictionary.words;
       this.definitions = dictionary.definitions;
-      cb();
     }
     return this;
   }
@@ -133,11 +132,11 @@ class bogusMain {
     //randomize the sequence of iteration through the dice
     const randomOrder = Array.from({length:letters.length},()=>Math.random());
     const order = Array.from({length:letters.length},(x,i)=>i);
-    console.log(randomOrder);
-    console.log(order);
+    //console.log(randomOrder);
+    //console.log(order);
 
     order.sort( (l,r)=>randomOrder[l]-randomOrder[r]);
-    console.log(order);
+    //console.log(order);
 
     this.board = [];
     this.output = [];
@@ -161,7 +160,7 @@ class bogusMain {
       }
     }
 
-    console.log(this.board);
+    //console.log(this.board);
     console.log(this.output);
   }
 
