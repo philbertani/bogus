@@ -2,10 +2,10 @@ import React from 'react';
 
 export function Events({ events }) {
   return (
-    <ul> {
+    <div style={{margin:0}}> {
       events.map( (event, index) =>
-        <li key={ index }>{ event }</li>
+        <p style={{margin:0}} key={ index }>{ event }</p>
       )
-    } </ul>
+    } </div>
   );
 }

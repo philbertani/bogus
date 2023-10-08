@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { socket } from './socket';
 import { ConnectionState } from './components/ConnectionState';
-import { ConnectionManager } from './components/ConnectionManager';
 import { MyForm } from './components/MyForm';
 import { Events} from './components/Events';
 import { GameBoard } from './components/GameBoard';
@@ -23,7 +22,7 @@ export default function App() {
 
   useEffect ( ()=>{
 
-    if (checkConnection) {
+    if (checkConnection && !isDuplicateProcess ) {
       console.log("trying to reconnect");
       //on disconnect we needed to actually close the socket to force the server to remove it
       //reinitialize the socket connection so it will automatically try to reconnect
@@ -31,7 +30,7 @@ export default function App() {
       setCheckConnection(false);
     }
 
-  } ,[checkConnection] );
+  } ,[checkConnection, isDuplicateProcess] );
 
   useEffect(() => {
 
@@ -57,7 +56,10 @@ export default function App() {
     function onDisconnect() {
       socket.disconnect();
       setIsConnected(false);
-      setCheckConnection(true);
+
+      if ( !isDuplicateProcess) {
+        setCheckConnection(true);
+      }
     }
 
     function onFooEvent(value) {
@@ -80,7 +82,8 @@ export default function App() {
     function onDupe(msg) {
       console.log('duplicate process');
       setIsDuplicateProcess(true);
-      onDisconnect();
+      //onDisconnect();
+      socket.disconnect();
     }
 
     socket.on('connect', onConnect);
@@ -98,7 +101,7 @@ export default function App() {
       socket.off('current board', onNewBoard);
       socket.off('duplicate', onDupe);
     };
-  }, [mainGame]);
+  }, [mainGame, isDuplicateProcess]);
 
   const props={game:mainGame,reset,setReset,foundWords,setFoundWords};
   return (
@@ -106,10 +109,9 @@ export default function App() {
       (doneOne && !isDuplicateProcess ) && <GameBoard key="k05" props={props}/> ,
       isDuplicateProcess && <div>You already are Connected</div>,
  
-      <div key="k00" className="App">
+      <div style={{margin:"1vw"}}key="k00" className="App">
         <ConnectionState key="k01" isConnected={ isConnected } />
         <Events key="k02" events={ fooEvents } />
-        <ConnectionManager key="k03" />
         <MyForm key="k04"/>
       </div>
 

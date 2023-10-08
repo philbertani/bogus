@@ -1,6 +1,6 @@
 import React from 'react';
 import './GameBoard.css'
-import {useWindowSize} from './useWindowSize.js'
+import {useWindowSize} from './uiHooks.js'
 import {BoardDetails} from './BoardDetails'
 
 export function GameBoard( {props} ) {

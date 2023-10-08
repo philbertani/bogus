@@ -18,6 +18,8 @@ import { loadDictionary } from "./loadDictionary.js";
 import { ioManager } from "./ioManager.js"
  
 async function initialize()  {
+  //if we can not load the dictionary we are dead in the water, so key 
+  //everything off it
   //loadDictionary.call(bogus, ()=>{
   const dict = await loadDictionary( ()=>{
     console.log("finished loadDictionary");
@@ -46,6 +48,7 @@ async function mainLoop(dict) {
     res.sendFile(path.join(__dirname, "index.html"));
   });
 
+  //this has both the io and gameRooms which contains the game logic
   const ioM = new ioManager(http, dict);
 
   const host = process.env.HOST || "112.35.81.115"; //'localhost';

@@ -1,4 +1,6 @@
 import React from "react";
+import { useMouseButton } from "./uiHooks";
+
 //this file is starting to look real ugly
 
 function blank2dArray(M, N, stuffing = 0) {
@@ -11,6 +13,7 @@ export function BoardDetails({ props }) {
   const [output, setOutput] = React.useState([]);
   const counter = React.useRef(0);
   const { M, N } = game.rank;
+  const mouseButtonDown = useMouseButton();
 
   //have to move all this sh.t up the flagpole, useState is such a waste of time
   const [cubeStyles, setCubeStyles] = React.useState(blank2dArray(N, M, null));
@@ -123,6 +126,10 @@ export function BoardDetails({ props }) {
       ev.preventDefault();
       //this state management stuff could be nasty performance wise
       let newStyles = deepClone(cubeStyles); //this is ugly
+
+      if (mouseButtonDown) {
+        //console.log("mouse down yippee", mouseButtonDown);
+      }
 
       //set all other fontSizes back to normal
       for (let j = 0; j < N; j++) {
