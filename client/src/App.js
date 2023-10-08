@@ -18,6 +18,7 @@ export default function App() {
   const [doneOne, setDoneOne] = React.useState(false);
   const [reset, setReset] = React.useState(false);
   const [foundWords, setFoundWords] = React.useState( {} );
+  const [isDuplicateProcess, setIsDuplicateProcess] = React.useState(false);
 
   useEffect(() => {
 
@@ -63,6 +64,7 @@ export default function App() {
 
     function onDupe(msg) {
       console.log('duplicate process');
+      setIsDuplicateProcess(true);
       onDisconnect();
     }
 
@@ -86,17 +88,17 @@ export default function App() {
   const props={game:mainGame,reset,setReset,foundWords,setFoundWords};
   return (
     [
-      doneOne && <GameBoard key="k05" props={props}
-       // game={mainGame} reset={reset} setReset={setReset}
-       // foundWords={foundWords} setFoundWords={setFoundWords}
-      />,
-      
+      (doneOne && !isDuplicateProcess ) && <GameBoard key="k05" props={props}/> ,
+      isDuplicateProcess && <div>You already are Connected</div>,
+ 
       <div key="k00" className="App">
         <ConnectionState key="k01" isConnected={ isConnected } />
         <Events key="k02" events={ fooEvents } />
         <ConnectionManager key="k03" />
         <MyForm key="k04"/>
       </div>
+
+
     ]
   );
 }
