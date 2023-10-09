@@ -201,7 +201,7 @@ export function BoardDetails({ props }) {
     const search = game.isWord(searchString, false);
 
     //console.log(game.output);
-    console.log(searchString, search);
+    //console.log(searchString, search);
 
     if (!search[1]) {
       //set colors to Red ish
