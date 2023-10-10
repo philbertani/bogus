@@ -8,6 +8,7 @@ function blank2dArray(M, N, stuffing = 0) {
   //do NOT use: Array(N).fill(Array(M).fill(0));
   //that wouldcreate the same reference for the same column on every row
 }
+
 export function BoardDetails({ props }) {
   const { game, boardDims, cubeRefs, reset, setReset, foundWords, setFoundWords } = props;
   const [output, setOutput] = React.useState([]);
@@ -24,6 +25,7 @@ export function BoardDetails({ props }) {
   const lineHeight = React.useRef(0);
   const fontSize = React.useRef(0);
   const selectedRef = React.useRef([]);
+  const pathRef = React.useRef([]);
 
   //console.log(game.words);
 
@@ -84,6 +86,9 @@ export function BoardDetails({ props }) {
 
     if (counter.current % 100 === 0) console.log(counter.current);
 
+    //need to regenerate pathRef to track new letter positions
+
+
     //we have to let React manage the styles using useState
     setCubeStyles(tmpStyles);
   }, [M, N, boardDims, cubeRefs, game.board, game.rank]);
@@ -91,6 +96,11 @@ export function BoardDetails({ props }) {
   
   function deepClone(B) {
     return JSON.parse(JSON.stringify(B));
+  }
+
+  function SN( str ) {
+    //parseFloat ?
+    return Number(str.replace('px',''));
   }
 
   React.useEffect(() => {
@@ -107,10 +117,57 @@ export function BoardDetails({ props }) {
       if (selected.length === 0) {
         newStyles[i][j].backgroundImage = "radial-gradient(#FFFF00,#F000FF)";
         newStyles[i][j].color = "#A000F0";
-      } else {
+      } 
+      else {
         if (game.isValidMove(i, j, selected) && allSelected[i][j] === 0) {
-          newStyles[i][j].backgroundImage = "radial-gradient(#FFFF00,#F000FF)";
-          newStyles[i][j].color = "#A000F0";
+
+          const [iOld,jOld] = selected;
+          const style = newStyles[i][j];
+          const prevStyle = newStyles[iOld][jOld];
+
+          style.backgroundImage = "radial-gradient(#FFFF00,#F000FF)";
+          style.color = "#A000F0";
+
+          const y = style.top + SN(style.height)/2;
+          const x = style.left + SN(style.width)/2;
+          const yOld = prevStyle.top + SN(style.height)/2;
+          const xOld = prevStyle.left + SN(style.width)/2;
+
+          let transformText = "rotate(0deg)";
+  
+          const left = Math.min(x,xOld);
+          let top  = Math.min(y,yOld);
+
+          if (j===jOld) {  //same column so we at 90 degrees
+            top += SN(style.height)/2;
+            transformText = "translate(-50%,50%) rotate(90deg) ";
+          }
+
+          if ( i !== iOld && j !== jOld ) {
+            console.log(i,iOld, j,jOld);
+            top += SN(style.height)/2;
+            
+            if ( i> iOld && j>jOld) {
+              transformText = "rotate(45deg) scale(1.4)"; 
+            }
+            else if (i > iOld && j<jOld) {
+              transformText = "rotate(135deg) scale(1.4)";
+            }
+            else if ( i < iOld && j>jOld) {
+              transformText = "rotate(-45deg) scale(1.4)";
+            }
+            else if ( i < iOld && j<jOld) {
+              transformText = "rotate(45deg) scale(1.4)";
+            }
+          }
+        
+          pathRef.current.push(
+            <div 
+              style={{transform:transformText,position:"absolute",top:top,left:left,zIndex:50,
+              width:"10vw",height:".5vh",backgroundImage:"linear-gradient(#000000,#FFFF00)",opacity:"80%"}}>
+            </div>
+          )
+
         } else {
           for (let j = 0; j < N; j++) {
             for (let i = 0; i < M; i++) {
@@ -124,7 +181,9 @@ export function BoardDetails({ props }) {
           newSelected = blank2dArray(M, N);
           setSearchString("");
           selectedRef.current = [];
+          pathRef.current = [];
         }
+
       }
 
       newSelected[i][j] = 1;
@@ -197,6 +256,9 @@ export function BoardDetails({ props }) {
         );
       }
     }
+
+    //console.log("path is", pathRef.current);
+    tmpOutput.push(...pathRef.current);
 
     setOutput(tmpOutput);
   }, [
