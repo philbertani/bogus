@@ -103,6 +103,53 @@ export function BoardDetails({ props }) {
     return Number(str.replace('px',''));
   }
 
+  function resetPath() {
+
+  }
+
+  function addPathDiv(style,prevStyle,i,j,iOld,jOld) {
+    const y = style.top + SN(style.height)/2;
+    const x = style.left + SN(style.width)/2;
+    const yOld = prevStyle.top + SN(style.height)/2;
+    const xOld = prevStyle.left + SN(style.width)/2;
+
+    let transformText = "rotate(0deg)";
+
+    const left = Math.min(x,xOld);
+    let top  = Math.min(y,yOld);
+
+    if (j===jOld) {  //same column so we at 90 degrees
+      top += SN(style.height)/2;
+      transformText = "translate(-50%,50%) rotate(90deg) ";
+    }
+
+    else if ( i !== iOld && j !== jOld ) {
+      console.log(i,iOld, j,jOld);
+      top += SN(style.height)/2;
+      
+      if ( i> iOld && j>jOld) {
+        transformText = "rotate(45deg) scale(1.4)"; 
+      }
+      else if (i > iOld && j<jOld) {
+        transformText = "rotate(135deg) scale(1.4)";
+      }
+      else if ( i < iOld && j>jOld) {
+        transformText = "rotate(-45deg) scale(1.4)";
+      }
+      else if ( i < iOld && j<jOld) {
+        transformText = "rotate(45deg) scale(1.4)";
+      }
+    }
+
+    return (
+      <div 
+        style={{transform:transformText,position:"absolute",top:top,left:left,zIndex:50,
+        width:"10vw",height:".5vh",backgroundImage:"linear-gradient(#000000,#FFFF00)",opacity:"80%"}}>
+      </div>
+    )
+   
+  }
+
   React.useEffect(() => {
 
     function handleClick(ev, i, j) {
@@ -111,7 +158,6 @@ export function BoardDetails({ props }) {
       ev.preventDefault();
 
       let newStyles = deepClone(cubeStyles); //this is ugly
-
       let newSelected = deepClone(allSelected);
 
       if (selected.length === 0) {
@@ -119,54 +165,17 @@ export function BoardDetails({ props }) {
         newStyles[i][j].color = "#A000F0";
       } 
       else {
+
         if (game.isValidMove(i, j, selected) && allSelected[i][j] === 0) {
 
           const [iOld,jOld] = selected;
           const style = newStyles[i][j];
-          const prevStyle = newStyles[iOld][jOld];
+          const prevStyle = cubeStyles[iOld][jOld];
 
           style.backgroundImage = "radial-gradient(#FFFF00,#F000FF)";
           style.color = "#A000F0";
 
-          const y = style.top + SN(style.height)/2;
-          const x = style.left + SN(style.width)/2;
-          const yOld = prevStyle.top + SN(style.height)/2;
-          const xOld = prevStyle.left + SN(style.width)/2;
-
-          let transformText = "rotate(0deg)";
-  
-          const left = Math.min(x,xOld);
-          let top  = Math.min(y,yOld);
-
-          if (j===jOld) {  //same column so we at 90 degrees
-            top += SN(style.height)/2;
-            transformText = "translate(-50%,50%) rotate(90deg) ";
-          }
-
-          if ( i !== iOld && j !== jOld ) {
-            console.log(i,iOld, j,jOld);
-            top += SN(style.height)/2;
-            
-            if ( i> iOld && j>jOld) {
-              transformText = "rotate(45deg) scale(1.4)"; 
-            }
-            else if (i > iOld && j<jOld) {
-              transformText = "rotate(135deg) scale(1.4)";
-            }
-            else if ( i < iOld && j>jOld) {
-              transformText = "rotate(-45deg) scale(1.4)";
-            }
-            else if ( i < iOld && j<jOld) {
-              transformText = "rotate(45deg) scale(1.4)";
-            }
-          }
-        
-          pathRef.current.push(
-            <div 
-              style={{transform:transformText,position:"absolute",top:top,left:left,zIndex:50,
-              width:"10vw",height:".5vh",backgroundImage:"linear-gradient(#000000,#FFFF00)",opacity:"80%"}}>
-            </div>
-          )
+          pathRef.current.push(addPathDiv(style,prevStyle,i,j,iOld,jOld));
 
         } else {
           for (let j = 0; j < N; j++) {
