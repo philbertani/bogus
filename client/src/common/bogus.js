@@ -5,6 +5,7 @@ class bogusMain {
 
   board = [];
   output = [];
+  indexMap = [];
   words;
   definitions;
   rank = data.rank;
@@ -23,6 +24,18 @@ class bogusMain {
       this.words = dictionary.words;
       this.definitions = dictionary.definitions;
     }
+
+    //map from sequential order to board i,j indices so we just have
+    //to do this double loop once
+    for (let j=0; j<this.N; j++) {
+      for (let i=0; i<this.M; i++) {
+        this.indexMap.push({i,j});
+      }
+    }
+
+    //console.log("trying generator function");
+    //this.loop();
+
     return this;
   }
 
@@ -121,7 +134,36 @@ class bogusMain {
   newBoard() {
     this.makeBoard();
     this.findWordsDriver();
+
+    //console.log("trying generator function");
+    //this.loop( (i,j)=>{ console.log(this.board[i][j])} );
+
     return {board:this.board,output:this.output};
+  }
+
+  boardsAreSame(otherBoard) {
+
+    console.log(this.board, otherBoard)
+    this.loop( (i,j)=> { 
+      console.log( i,j );
+    })
+    return false;
+
+  }
+
+  *nextIndex(n) {
+    while (n<this.M*this.N) {
+      yield this.indexMap[n++];
+    }
+  }
+  
+  loop(cb) {
+    let n=0;
+    for (let X of this.nextIndex(n)) {
+      console.log(X);
+      if (cb) cb(X.i,X.j);
+    }
+    return null;
   }
 
   makeBoard() {

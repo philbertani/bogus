@@ -23,6 +23,8 @@ export function BoardDetails({ props }) {
 
   const lineHeight = React.useRef(0);
   const fontSize = React.useRef(0);
+  const selectedRef = React.useRef([]);
+
   //console.log(game.words);
 
   React.useEffect(()=>{
@@ -35,6 +37,7 @@ export function BoardDetails({ props }) {
       setAllSelected(blank2dArray(N, M));
       setSearchString("");
       setReset(false);
+      selectedRef.current = [];
     }
   },[reset, setReset, M, N]);
 
@@ -63,6 +66,13 @@ export function BoardDetails({ props }) {
           fontSize: (0.6 * boardDims.height) / N + "px"
         }
 
+        if (cubeStyles[j][i]) {
+          //if cubeStyles elements have been set already then preserve the 
+          //colors which may have changed due to selection or found words
+          boxStyle.backgroundImage = cubeStyles[j][i].backgroundImage;
+          boxStyle.color = cubeStyles[j][i].color;
+        }
+
         fontSize.current = (0.6 * boardDims.height) / N + "px";
         lineHeight.current = (0.9 * marginFac * boardDims.height) / N;
         left += boardDims.width / M;
@@ -78,11 +88,12 @@ export function BoardDetails({ props }) {
     setCubeStyles(tmpStyles);
   }, [M, N, boardDims, cubeRefs, game.board, game.rank]);
 
-  React.useEffect(() => {
+  
+  function deepClone(B) {
+    return JSON.parse(JSON.stringify(B));
+  }
 
-    function deepClone(B) {
-      return JSON.parse(JSON.stringify(B));
-    }
+  React.useEffect(() => {
 
     function handleClick(ev, i, j) {
       //this state management stuff could be nasty performance wise
@@ -112,6 +123,7 @@ export function BoardDetails({ props }) {
           newStyles[i][j].color = "#A000F0";
           newSelected = blank2dArray(M, N);
           setSearchString("");
+          selectedRef.current = [];
         }
       }
 
@@ -120,16 +132,13 @@ export function BoardDetails({ props }) {
       setAllSelected(newSelected);
       setSearchString((prev) => prev + game.board[i][j]);
       setCubeStyles(newStyles);
+      selectedRef.current.push({i,j});
     }
 
     function handleMouseOver(ev, ix, jx, flag) {
       ev.preventDefault();
       //this state management stuff could be nasty performance wise
       let newStyles = deepClone(cubeStyles); //this is ugly
-
-      if (mouseButtonDown) {
-        //console.log("mouse down yippee", mouseButtonDown);
-      }
 
       //set all other fontSizes back to normal
       for (let j = 0; j < N; j++) {
@@ -142,6 +151,11 @@ export function BoardDetails({ props }) {
         newStyles[ix][jx].fontSize = (0.8 * boardDims.height) / N + "px";
 
       setCubeStyles(newStyles);
+
+      if (mouseButtonDown) {
+        //console.log("mouse down yippee", mouseButtonDown);
+        //handleClick(ev,ix,jx)
+      }
     }
 
     let tmpOutput = [];
@@ -215,7 +229,19 @@ export function BoardDetails({ props }) {
         newWords[searchString] = 1;
       }
 
-      setFoundWords(newWords)
+      //console.log(selectedRef.current);
+
+      let newStyles = deepClone(cubeStyles); //this is ugly
+      for (const Index of selectedRef.current) {
+        const {i,j} = Index;
+        const style = newStyles[i][j];
+        style.backgroundImage = 
+          "radial-gradient(#FFFF00,#00FFFF)";
+        style.color = "#E000E0";
+      }
+
+      setCubeStyles(newStyles);
+      setFoundWords(newWords);
     
     }
   }, [searchString, game, setFoundWords]);

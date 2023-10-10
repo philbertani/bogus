@@ -67,14 +67,17 @@ export default function App() {
     }
 
     function onNewBoard(msg) {
-      //we do not want the previous state accumulated; just the new board and words
-      //setBoard(msg.board);
+
+      //if the boards are the same then do not clear the found words array
+      //if ( !mainGame.boardsAreSame(msg.game.board) ) { setFoundWords({});}
+      //we need to save found words in local storage or on server
+
       mainGame.board = cloneArray(msg.game.board);
       mainGame.output = cloneArray(msg.game.output);
       mainGame.words = [...msg.words];
       setMainGame( mainGame );
       setDoneOne(true);
-      setFoundWords({});
+ 
       setReset(true);
       console.log('setting mainGame');
     }

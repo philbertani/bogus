@@ -13,6 +13,7 @@ export function GameBoard( {props} ) {
 
   const { M, N } = game.rank;
   const cubeRefs = React.useRef(Array(M).fill(Array(N).fill(null)));
+  const [hidden, setHidden] = React.useState(true);
 
   React.useEffect(() => {
     //const currentBoardDims = boardRef.current.getBoundingClientRect();
@@ -41,8 +42,12 @@ export function GameBoard( {props} ) {
       >
         <BoardDetails props={props2} />
       </div>,
-      <div style={{marginLeft:"1vw",backgroundColor:"#A0B0FF", maxWidth: boardDims.width,
-        overflow:"scroll", wordBreak:"break-word", borderRadius:"5px"}} key="foundWords">
+      <div key="h01" hidden={hidden} style={{opacity:"80%",margin:"1vw", position:"absolute", top:0, zIndex:20,
+        backgroundColor:"yellow",width:boardDims.width, height:boardDims.height}}>
+        User Info
+      </div>,
+      <div key="i01" style={{marginLeft:"1vw",backgroundColor:"#A0B0FF", maxWidth: boardDims.width,
+        overflow:"scroll", wordBreak:"break-word", borderRadius:"5px"}} >
         <h3 style={{margin:"0",marginLeft:"1vw"}}>Words Found: {Object.keys(foundWords).length} </h3>
         <div style={{margin:"1vw"}}>{JSON.stringify(foundWords)}</div></div>
     ]
