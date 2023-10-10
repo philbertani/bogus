@@ -40,6 +40,7 @@ export function BoardDetails({ props }) {
       setSearchString("");
       setReset(false);
       selectedRef.current = [];
+      setFoundWords({});
     }
   },[reset, setReset, M, N]);
 
@@ -163,7 +164,7 @@ export function BoardDetails({ props }) {
     return (
       <div 
         style={{transform:transformText,position:"absolute",top:top,left:left,zIndex:50,
-        width:width,height:height,backgroundImage:"linear-gradient(#000000,#FFFFFF)",opacity:"50%"}}>
+        width:width,height:height,backgroundImage:"linear-gradient(#000000,#FFFFFF)",opacity:"30%"}}>
       </div>
     )
    
