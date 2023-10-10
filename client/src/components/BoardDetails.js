@@ -88,6 +88,7 @@ export function BoardDetails({ props }) {
 
     //need to regenerate pathRef to track new letter positions
 
+    resetPath();
 
     //we have to let React manage the styles using useState
     setCubeStyles(tmpStyles);
@@ -104,7 +105,20 @@ export function BoardDetails({ props }) {
   }
 
   function resetPath() {
+    const refs = selectedRef.current;
+    pathRef.current = [];
 
+    //console.log('xxxxxxxx',refs);
+    for (let n=1; n<refs.length; n++) {
+      const {i,j} = refs[n];
+      const {i:iOld,j:jOld} = refs[n-1];
+
+      const style = cubeStyles[i][j];
+      const prevStyle = cubeStyles[iOld][jOld];
+
+      pathRef.current.push(addPathDiv(style,prevStyle,i,j,iOld,jOld));
+      
+    }
   }
 
   function addPathDiv(style,prevStyle,i,j,iOld,jOld) {
@@ -117,6 +131,7 @@ export function BoardDetails({ props }) {
 
     const left = Math.min(x,xOld);
     let top  = Math.min(y,yOld);
+    let height = "1vh";
 
     if (j===jOld) {  //same column so we at 90 degrees
       top += SN(style.height)/2;
@@ -124,27 +139,31 @@ export function BoardDetails({ props }) {
     }
 
     else if ( i !== iOld && j !== jOld ) {
-      console.log(i,iOld, j,jOld);
-      top += SN(style.height)/2;
+      top += SN(style.height)/1.9;  //should be 2 but it is off by some factor 
       
+      height = ".7vh";
+      //const sc = 1.42;
       if ( i> iOld && j>jOld) {
-        transformText = "rotate(45deg) scale(1.4)"; 
+        transformText = "rotate(45deg) scale(1.42)"; 
       }
       else if (i > iOld && j<jOld) {
-        transformText = "rotate(135deg) scale(1.4)";
+        transformText = "rotate(135deg) scale(1.42)";
       }
       else if ( i < iOld && j>jOld) {
-        transformText = "rotate(-45deg) scale(1.4)";
+        transformText = "rotate(-45deg) scale(1.42)";
       }
       else if ( i < iOld && j<jOld) {
-        transformText = "rotate(45deg) scale(1.4)";
+        transformText = "rotate(45deg) scale(1.42)";
       }
     }
+
+    const width = boardDims.width/N;
+    //const height = boardDims.height/M;
 
     return (
       <div 
         style={{transform:transformText,position:"absolute",top:top,left:left,zIndex:50,
-        width:"10vw",height:".5vh",backgroundImage:"linear-gradient(#000000,#FFFF00)",opacity:"80%"}}>
+        width:width,height:height,backgroundImage:"linear-gradient(#000000,#FFFFFF)",opacity:"50%"}}>
       </div>
     )
    
@@ -322,7 +341,7 @@ export function BoardDetails({ props }) {
     
     }
   }, [searchString, game, setFoundWords]);
-  //React is wrong about adding foundWords here: it cause infinite renders
+  //React is wrong about adding foundWords and cubeStyles here: it causes infinite renders
 
   return <div>{output}</div>;
 }
