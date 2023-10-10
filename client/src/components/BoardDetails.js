@@ -211,6 +211,7 @@ export function BoardDetails({ props }) {
     searchString,
   ]);
 
+
   React.useEffect(() => {
     const search = game.isWord(searchString, false);
 
@@ -229,15 +230,20 @@ export function BoardDetails({ props }) {
         newWords[searchString] = 1;
       }
 
-      //console.log(selectedRef.current);
+      let newBackgroundImage =  "radial-gradient(#FFFF00,#00FFFF)";
+      let newColor =  "#E000E0";
+      if (foundWords[searchString]) {
+        //if we already found this word color it grey-ish
+        newBackgroundImage = "radial-gradient(#FFFFFF,#000000)";
+        newColor = "#101010";
+      }
 
       let newStyles = deepClone(cubeStyles); //this is ugly
       for (const Index of selectedRef.current) {
         const {i,j} = Index;
         const style = newStyles[i][j];
-        style.backgroundImage = 
-          "radial-gradient(#FFFF00,#00FFFF)";
-        style.color = "#E000E0";
+        style.backgroundImage = newBackgroundImage;
+        style.color = newColor;
       }
 
       setCubeStyles(newStyles);
