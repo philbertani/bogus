@@ -5,3 +5,12 @@
     z-index: 10;
     margin: 1%;
 }
+
+.wordList::-webkit-scrollbar {
+    display:none;
+}
+
+.wordList {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
