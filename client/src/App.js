@@ -115,7 +115,6 @@ export default function App() {
       <div style={{margin:"1vw"}}key="k00" className="App">
         <ConnectionState key="k01" isConnected={ isConnected } />
         <Events key="k02" events={ fooEvents } />
-        <MyForm key="k04"/>
       </div>
 
     ]

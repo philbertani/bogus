@@ -2,6 +2,7 @@ import React from "react";
 import "./GameBoard.css";
 import { useWindowSize } from "./uiHooks.js";
 import { BoardDetails } from "./BoardDetails";
+import {bsearch} from "../common/utils.js";
 
 export function GameBoard({ props }) {
   const { game, reset, setReset, foundWords, setFoundWords } = props;
@@ -37,9 +38,22 @@ export function GameBoard({ props }) {
     const words = Object.keys(foundWords); //.reverse();
     const mostRecent = words[words.length-1];
 
-    for (const word of words.sort()) {
+    const sortedWords = words.sort();
+    const search = bsearch(sortedWords, mostRecent);
+
+    console.log("most recent",search);
+
+    //have the word list scroll to the closest match and center it in the div
+    for (const word of sortedWords) {
+      let bgColor = "inherit";
+      let color = "black";
+      let backgroundImage = "";
+      if (word.localeCompare(mostRecent)===0) {
+        backgroundImage =  "linear-gradient(#FFFF00,#00FFFF)";
+        color =  "#A000A0";
+      }
       newWordOutput.push(
-        <div style={{fontSize:"2em"}}>{word}</div>
+        <div style={{ margin:"0px", textAlign:"center",color:color, backgroundImage:backgroundImage, backgroundColor:bgColor, fontSize:"2em"}}>{word}</div>
       )
     }
 
@@ -83,6 +97,9 @@ export function GameBoard({ props }) {
       >
         User Info
       </div>,
+      <h3 style={{ maxWidth: boardDims.width, textAlign:"center", margin:"0" }}>
+        Words Found: {Object.keys(foundWords).length}{" "}
+      </h3>,
       <div
         key="i01"
         className="wordList"
@@ -90,7 +107,7 @@ export function GameBoard({ props }) {
           marginLeft: "1vw",
           backgroundColor: "#A0B0FF",
           maxWidth: boardDims.width,
-          height: .8*(window.innerHeight-boardDims.height),
+          height: .75*(window.innerHeight-boardDims.height),
           overflow: "auto",
           whiteSpace: "nowrap",
           wordBreak: "break-word",
@@ -98,9 +115,6 @@ export function GameBoard({ props }) {
           overflowY: "scroll"
         }}
       >
-        <h3 style={{ margin: "0", marginLeft: "1vw" }}>
-          Words Found: {Object.keys(foundWords).length}{" "}
-        </h3>
         <div style={{ margin: "1vw" }}>
           {wordOutput}
         </div>

@@ -275,6 +275,7 @@ export function BoardDetails({ props }) {
                 width: "70%",
                 height: "70%",
                 borderRadius: "10px",
+                zIndex:100
               }}
               onMouseOver={(ev) => handleMouseOver(ev, i, j, true)}
               onMouseOut={(ev) => handleMouseOver(ev, i, j, false)}

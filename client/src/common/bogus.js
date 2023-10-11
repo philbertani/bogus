@@ -57,7 +57,15 @@ class bogusMain {
     this.wordsFound = Array.from(this.wordsFound).sort();  //don't forget the sort for bsearch!!!
     
     console.log("num words found: ", this.wordsFound.length);
-    console.log( this.wordsFound );
+
+    for (let i=0; i<this.wordsFound.length; i+=6) {
+      let output = "";
+      for (let j=0; j<6; j++) {
+        if ( i+j < this.wordsFound.length )
+          output += i + j + " " + this.wordsFound[i+j] + "\t";
+      }
+      console.log(output +"\n");
+    }
   }
 
   isWord(str,debug=false) {
