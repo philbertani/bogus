@@ -44,7 +44,7 @@ export class ioManager {
 
     io.on("connection", (socket) => {
       socket.on("new board", (msg) => {
-        //io.emit("new board", { game: bogus.newBoard(), words: bogus.wordsFound });
+        //io.emit("new board", { game: bogus.newBoard(), words: bogus.wordsFound, defs: bogus.definitions });
       });
     });
 
@@ -127,6 +127,7 @@ export class ioManager {
             output: gameRoom.output,
           },
           words: gameRoom.game.wordsFound,
+          defs: gameRoom.game.defsFound
         });
         
       });

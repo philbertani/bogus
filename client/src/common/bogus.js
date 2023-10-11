@@ -58,14 +58,33 @@ class bogusMain {
     
     console.log("num words found: ", this.wordsFound.length);
 
+    //javascript array methods are great but sometimes you need to loop through one big
+    //array and do lots of stuff and have multiple outputs for efficiency sake, so: for loop
+    this.defsFound = [];
     for (let i=0; i<this.wordsFound.length; i+=6) {
       let output = "";
       for (let j=0; j<6; j++) {
-        if ( i+j < this.wordsFound.length )
-          output += i + j + " " + this.wordsFound[i+j] + "\t";
+        if ( i+j < this.wordsFound.length ) {
+          const k = i + j;
+          const word = this.wordsFound[k];
+          const index = bsearch(this.words,word);
+          //console.log(index);
+          if (index[1]===false) {
+            //should not happen
+            console.log("something is wrong with the data:", )
+            this.defsFound.push('xxx');
+          }
+          else {
+            const ii = index[3];  //final index of bsearch is returned in element 3 
+            this.defsFound.push(this.definitions[ii]);
+          }
+          output += k + " " + this.wordsFound[k] + "\t";
+        }
       }
       console.log(output +"\n");
     }
+
+    //console.log("zzz", this.wordsFound[40],this.defsFound[40]);
   }
 
   isWord(str,debug=false) {

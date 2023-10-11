@@ -34,7 +34,7 @@ export function GameBoard({ props }) {
 
   React.useEffect(() => {
     const newWordOutput = [];
-    const words = Object.keys(foundWords); //.reverse(); //game.foundWords
+    const words = Object.keys(foundWords); //.reverse(); //game.wordsFound
     const mostRecent = words[words.length - 1];
 
     const sortedWords = words.sort();
