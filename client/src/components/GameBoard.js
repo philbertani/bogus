@@ -2,7 +2,7 @@ import React from "react";
 import "./GameBoard.css";
 import { useWindowSize } from "./uiHooks.js";
 import { BoardDetails } from "./BoardDetails";
-import {bsearch} from "../common/utils.js";
+import { bsearch } from "../common/utils.js";
 
 export function GameBoard({ props }) {
   const { game, reset, setReset, foundWords, setFoundWords } = props;
@@ -14,7 +14,7 @@ export function GameBoard({ props }) {
   const { M, N } = game.rank;
   const cubeRefs = React.useRef(Array(M).fill(Array(N).fill(null)));
   const [hidden, setHidden] = React.useState(true);
-  const [wordOutput,setWordOutput] = React.useState([]);
+  const [wordOutput, setWordOutput] = React.useState([]);
 
   React.useEffect(() => {
     //const currentBoardDims = boardRef.current.getBoundingClientRect();
@@ -33,33 +33,52 @@ export function GameBoard({ props }) {
   }, [windowSize]);
 
   React.useEffect(() => {
-
     const newWordOutput = [];
-    const words = Object.keys(foundWords); //.reverse();
-    const mostRecent = words[words.length-1];
+    const words = Object.keys(foundWords); //.reverse(); //game.foundWords
+    const mostRecent = words[words.length - 1];
 
     const sortedWords = words.sort();
     const search = bsearch(sortedWords, mostRecent);
 
-    console.log("most recent",search);
+    //console.log("most recent", search);
+
+    if (isNaN(boardDims.height)) return;
 
     //have the word list scroll to the closest match and center it in the div
     for (const word of sortedWords) {
       let bgColor = "inherit";
       let color = "black";
       let backgroundImage = "";
-      if (word.localeCompare(mostRecent)===0) {
-        backgroundImage =  "linear-gradient(#FFFF00,#00FFFF)";
-        color =  "#A000A0";
+      if (word.localeCompare(mostRecent) === 0) {
+        backgroundImage = "linear-gradient(#FFFF00,#00FFFF)";
+        color = "#A000A0";
       }
-      newWordOutput.push(
-        <div style={{ margin:"0px", textAlign:"center",color:color, backgroundImage:backgroundImage, backgroundColor:bgColor, fontSize:"2em"}}>{word}</div>
-      )
+      newWordOutput.push([
+        <div
+          key={"key"+word}
+          style={{
+            margin: ".5vh",
+            marginBottom: "0px",
+            marginTop: "0px",
+            textAlign: "center",
+            color: color,
+            backgroundImage: backgroundImage,
+            backgroundColor: bgColor,
+            fontSize: boardDims.height/20,
+            height: "fit-content",
+            width:"fit-content",
+          }}
+        >
+          {word}
+        </div>,
+        <p key={"p"+word}
+          style={{lineHeight:boardDims.height/20+"px",margin:0,fontSize:boardDims.height/40,height:boardDims.height/20}}>{"\u2727"}</p>
+      ]
+      );
     }
 
     setWordOutput(newWordOutput);
-
-  }, [foundWords]);
+  }, [foundWords, boardDims.height, game.words]);
 
   let props2 = {
     game,
@@ -97,7 +116,10 @@ export function GameBoard({ props }) {
       >
         User Info
       </div>,
-      <h3 style={{ maxWidth: boardDims.width, textAlign:"center", margin:"0" }}>
+      <h3
+        key={"header01"}
+        style={{ maxWidth: boardDims.width, textAlign: "center", margin: "0" }}
+      >
         Words Found: {Object.keys(foundWords).length}{" "}
       </h3>,
       <div
@@ -107,24 +129,16 @@ export function GameBoard({ props }) {
           marginLeft: "1vw",
           backgroundColor: "#A0B0FF",
           maxWidth: boardDims.width,
-          height: .75*(window.innerHeight-boardDims.height),
+          height: 0.75 * (window.innerHeight - boardDims.height),
           overflow: "auto",
           whiteSpace: "nowrap",
           wordBreak: "break-word",
           borderRadius: "5px",
-          overflowY: "scroll"
+          overflowY: "scroll",
         }}
       >
-        <div style={{ margin: "1vw" }}>
-          {wordOutput}
-        </div>
+        <div key={"wordList"} style={{ display:"flex",flexDirection:"row", flexWrap:"wrap",margin: "1vw" }}>{wordOutput}</div>
       </div>,
     ]
   );
 }
-
-/*
-<div style={{ margin: "1vw" }}>
-{JSON.stringify(Object.keys(foundWords).reverse())}
-</div>
-*/
