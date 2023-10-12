@@ -19,7 +19,9 @@ export function BoardDetails({ props }) {
     setReset,
     foundWords,
     setFoundWords,
-    isTouchDevice
+    isTouchDevice,
+    searchString,
+    setSearchString
   } = props;
   const [output, setOutput] = React.useState([]);
   const counter = React.useRef(0);
@@ -30,7 +32,7 @@ export function BoardDetails({ props }) {
   const [cubeStyles, setCubeStyles] = React.useState(blank2dArray(N, M, null));
   const [selected, setSelected] = React.useState([]);
   const [allSelected, setAllSelected] = React.useState(blank2dArray(N, M));
-  const [searchString, setSearchString] = React.useState("");
+  //const [searchString, setSearchString] = React.useState("");
   const [path, setPath] = React.useState([]);
 
   const lineHeight = React.useRef(0);
@@ -190,20 +192,30 @@ export function BoardDetails({ props }) {
   }
 
   React.useEffect(() => {
-    function handleClick(ev, i, j) {
-      //this state management stuff could be nasty performance wise
+
+    function handleClick(ev, i, j, mbd=false) {
+      //if mdb is true this is being called from
+      //handleMouseOver with mouseButtonDown
 
       ev.preventDefault();
 
       let newStyles = deepClone(cubeStyles); //this is ugly
       let newSelected = deepClone(allSelected);
 
+      console.log('zzz',i,j,selected,game.isValidMove(i,j,selected),allSelected[i][j]);
+
+      const [iOld, jOld] = selected;
+
+      let flag = true;
+
       if (selected.length === 0) {
         newStyles[i][j].backgroundImage = "radial-gradient(#FFFF00,#F000FF)";
         newStyles[i][j].color = "#A000F0";
       } else {
-        if (game.isValidMove(i, j, selected) && allSelected[i][j] === 0) {
-          const [iOld, jOld] = selected;
+        const validMove = game.isValidMove(i, j, selected);
+
+        if ( validMove &&  allSelected[i][j] === 0) {
+
           const style = newStyles[i][j];
           const prevStyle = cubeStyles[iOld][jOld];
 
@@ -211,7 +223,12 @@ export function BoardDetails({ props }) {
           style.color = "#A000F0";
 
           pathRef.current.push(addPathDiv(style, prevStyle, i, j, iOld, jOld));
-        } else {
+        }
+        else if ( mbd && mouseButtonDown && (i===iOld && j===jOld) ) {
+          console.log(searchString);
+          flag = false;
+        }
+        else {
           for (let j = 0; j < N; j++) {
             for (let i = 0; i < M; i++) {
               newStyles[i][j].backgroundImage =
@@ -228,18 +245,20 @@ export function BoardDetails({ props }) {
         }
       }
 
+      if (flag) {
       newSelected[i][j] = 1;
       setSelected([i, j]);
       setAllSelected(newSelected);
       setSearchString((prev) => prev + game.board[i][j]);
       setCubeStyles(newStyles);
       selectedRef.current.push({ i, j });
+      }
     }
 
     function handleMouseOver(ev, ix, jx, flag) {
 
       if (isTouchDevice) return;
-      
+
       ev.preventDefault();
       //this state management stuff could be nasty performance wise
       let newStyles = deepClone(cubeStyles); //this is ugly
@@ -258,7 +277,7 @@ export function BoardDetails({ props }) {
 
       if (mouseButtonDown) {
         //console.log("mouse down yippee", mouseButtonDown);
-        //handleClick(ev,ix,jx)
+        handleClick(ev,ix,jx,true)
       }
     }
 

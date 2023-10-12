@@ -17,6 +17,7 @@ export function GameBoard({ props }) {
   const [wordOutput, setWordOutput] = React.useState([]);
 
   const wordRefs = React.useRef(Array(game.words.length).fill(null));
+  const [searchString, setSearchString] = React.useState("");
 
   React.useEffect(() => {
     //const currentBoardDims = boardRef.current.getBoundingClientRect();
@@ -101,10 +102,13 @@ export function GameBoard({ props }) {
     setReset,
     foundWords,
     setFoundWords,
-    isTouchDevice
+    isTouchDevice,
+    searchString,
+    setSearchString
   };
   return (
     !isNaN(boardDims.width) && [
+      <div key="searchString">{searchString}</div>,
       <div
         ref={boardRef}
         style={{ width: boardDims.width, height: boardDims.height }}
@@ -129,6 +133,7 @@ export function GameBoard({ props }) {
       >
         User Info
       </div>,
+   
       <h3
         key={"header01"}
         style={{ maxWidth: boardDims.width, textAlign: "center", margin: "0" }}

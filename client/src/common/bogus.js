@@ -239,6 +239,9 @@ class bogusMain {
     //another inelegant function
     let iOk = false;
     let jOk = false;
+
+    if (i===iOld && j===jOld) return false;
+    
     if ( iOld===0 ) {
         if ( i-iOld <= 1 ) {
             iOk = true;
