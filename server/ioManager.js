@@ -32,7 +32,7 @@ export class ioManager {
   setHandlers(io) {
     
     io.on("connection", (socket) => {
-      console.log("connected a user", socket.id);
+      console.log("connected a user on socket:", socket.id);
     });
 
     io.on("connection", (socket) => {
@@ -121,7 +121,7 @@ export class ioManager {
         socket.join( gameRoom.id );
 
         //figure out which game room this person belongs to
-        io.to(gameRoom.id).emit("current board", {
+        io.to(socket.id).emit("current board", {
           game: {
             board: gameRoom.board,
             output: gameRoom.output,

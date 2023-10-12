@@ -38,15 +38,14 @@ initialize();
 async function mainLoop(dict) {
 
   console.log("in main loop");
-  const users = {};
-  const socketMap = {}; //map  of socket ids to unique user ids
-  const userIdSockets = {}; //list of sockets open by unique user id (should be no more than 2)
-  let numUsers = 0;
 
   app.use(cors());
   app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "index.html"));
+    res.sendFile(path.join(__dirname, "..", "client/build/index.html"));
   });
+
+  app.use(express.static(path.join(__dirname, "..", "public")));
+  app.use(express.static(path.join(__dirname, "..", "client/build")));
 
   //this has both the io and gameRooms which contains the game logic
   const ioM = new ioManager(http, dict);

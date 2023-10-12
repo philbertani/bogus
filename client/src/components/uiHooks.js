@@ -1,4 +1,5 @@
 import {useState, useEffect} from "react"
+
 export function useWindowSize() {
   const [windowSize, setWindowSize] = useState({
     width: undefined,
@@ -33,4 +34,3 @@ export function useMouseButton() {
   }, []);
   return mouseButtonDown;
 }
-

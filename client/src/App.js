@@ -1,16 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useDebugValue } from 'react';
 import { socket } from './socket';
 import { ConnectionState } from './components/ConnectionState';
-import { MyForm } from './components/MyForm';
+//import { MyForm } from './components/MyForm';
 import { Events} from './components/Events';
 import { GameBoard } from './components/GameBoard';
 import bogusMain from './common/bogus.js';
 import {cloneArray} from './common/utils.js';
-import {v4 as uuidv4} from 'uuid';
+//import {v4 as uuidv4} from 'uuid';
+import {nanoid} from 'nanoid';
 
 import './App.css';
 
+
 export default function App() {
+
   const [isConnected, setIsConnected] = useState(socket.connected);
   const [fooEvents, setFooEvents] = useState([]);
   const [mainGame, setMainGame] = React.useState(new bogusMain( {words:["none"], definitions:["none"]} ) );
@@ -19,6 +22,8 @@ export default function App() {
   const [foundWords, setFoundWords] = React.useState( {} );  //we need to persist this across page refreshes and reconnects
   const [isDuplicateProcess, setIsDuplicateProcess] = React.useState(false);
   const [checkConnection, setCheckConnection] = React.useState(false);
+
+  const [isTouchDevice, setIsTouchDevice] = React.useState(false);
 
   useEffect ( ()=>{
 
@@ -39,13 +44,13 @@ export default function App() {
 
       let userId = localStorage.getItem("bogusId");
       if ( !userId ) {
-        const uuid = uuidv4();
+        const uuid = nanoid(8); //uuidv4();
         localStorage.setItem("bogusId",uuid);
         userId = uuid;
       } 
       let sessionId = sessionStorage.getItem("bogusId");
       if ( !sessionId ) {
-        const uuid = uuidv4();
+        const uuid = nanoid(8);
         sessionStorage.setItem("bogusId",uuid);
         sessionId = uuid;        
       }
@@ -75,17 +80,24 @@ export default function App() {
       mainGame.board = cloneArray(msg.game.board);
       mainGame.output = cloneArray(msg.game.output);
       mainGame.words = [...msg.words];
+      mainGame.definitions = [...msg.defs];
+
+      //console.log(mainGame.definitions);
+      window.bogus = mainGame;  //remove this when we are live on the internet obviously
+
       setMainGame( mainGame );
       setDoneOne(true);
  
       setReset(true);
       console.log('setting mainGame');
+
+      setIsTouchDevice(window.matchMedia("(pointer: coarse)").matches);
+    
     }
 
     function onDupe(msg) {
       console.log('duplicate process');
       setIsDuplicateProcess(true);
-      //onDisconnect();
       socket.disconnect();
     }
 
@@ -106,7 +118,7 @@ export default function App() {
     };
   }, [mainGame, isDuplicateProcess]);
 
-  const props={game:mainGame,reset,setReset,foundWords,setFoundWords};
+  const props={game:mainGame,reset,setReset,foundWords,setFoundWords,isTouchDevice};
   return (
     [
       (doneOne && !isDuplicateProcess ) && <GameBoard key="k05" props={props}/> ,

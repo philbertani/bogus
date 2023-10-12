@@ -5,16 +5,18 @@ import { BoardDetails } from "./BoardDetails";
 import { bsearch } from "../common/utils.js";
 
 export function GameBoard({ props }) {
-  const { game, reset, setReset, foundWords, setFoundWords } = props;
+  const { game, reset, setReset, foundWords, setFoundWords, isTouchDevice } = props;
   const [boardDims, setBoardDims] = React.useState({});
 
   const boardRef = React.useRef();
   const windowSize = useWindowSize();
 
   const { M, N } = game.rank;
-  const cubeRefs = React.useRef(Array(M).fill(Array(N).fill(null)));
+  const cubeRefs = React.useRef(Array(M).fill(()=>Array(N).fill(null)));
   const [hidden, setHidden] = React.useState(true);
   const [wordOutput, setWordOutput] = React.useState([]);
+
+  const wordRefs = React.useRef(Array(game.words.length).fill(null));
 
   React.useEffect(() => {
     //const currentBoardDims = boardRef.current.getBoundingClientRect();
@@ -33,16 +35,17 @@ export function GameBoard({ props }) {
   }, [windowSize]);
 
   React.useEffect(() => {
-    const newWordOutput = [];
-    const words = Object.keys(foundWords); //.reverse(); //game.wordsFound
-    const mostRecent = words[words.length - 1];
-
-    const sortedWords = words.sort();
-    const search = bsearch(sortedWords, mostRecent);
-
-    //console.log("most recent", search);
 
     if (isNaN(boardDims.height)) return;
+
+    const newWordOutput = [];
+    const words = Object.keys(foundWords);   //.reverse(); //game.words
+    const mostRecent = words[words.length - 1];
+
+    const sortedWords = words.sort();  //keep it in alphabet order 
+    const search = bsearch(sortedWords, mostRecent);  //highlight the current word
+
+    const index = search[3];
 
     //have the word list scroll to the closest match and center it in the div
     for (const word of sortedWords) {
@@ -55,7 +58,8 @@ export function GameBoard({ props }) {
       }
       newWordOutput.push([
         <div
-          key={"key"+word}
+          ref={(el) => (wordRefs.current[index] = el)}
+          key={"key" + word}
           style={{
             margin: ".5vh",
             marginBottom: "0px",
@@ -64,17 +68,25 @@ export function GameBoard({ props }) {
             color: color,
             backgroundImage: backgroundImage,
             backgroundColor: bgColor,
-            fontSize: boardDims.height/20,
+            fontSize: boardDims.height / 20,
             height: "fit-content",
-            width:"fit-content",
+            width: "fit-content",
           }}
         >
           {word}
         </div>,
-        <p key={"p"+word}
-          style={{lineHeight:boardDims.height/20+"px",margin:0,fontSize:boardDims.height/40,height:boardDims.height/20}}>{"\u2727"}</p>
-      ]
-      );
+        <p
+          key={"p" + word}
+          style={{
+            lineHeight: boardDims.height / 20 + "px",
+            margin: 0,
+            fontSize: boardDims.height / 40,
+            height: boardDims.height / 20,
+          }}
+        >
+          {"\u2727"}
+        </p>,
+      ]);
     }
 
     setWordOutput(newWordOutput);
@@ -89,6 +101,7 @@ export function GameBoard({ props }) {
     setReset,
     foundWords,
     setFoundWords,
+    isTouchDevice
   };
   return (
     !isNaN(boardDims.width) && [

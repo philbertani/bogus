@@ -19,6 +19,7 @@ export function BoardDetails({ props }) {
     setReset,
     foundWords,
     setFoundWords,
+    isTouchDevice
   } = props;
   const [output, setOutput] = React.useState([]);
   const counter = React.useRef(0);
@@ -236,6 +237,9 @@ export function BoardDetails({ props }) {
     }
 
     function handleMouseOver(ev, ix, jx, flag) {
+
+      if (isTouchDevice) return;
+      
       ev.preventDefault();
       //this state management stuff could be nasty performance wise
       let newStyles = deepClone(cubeStyles); //this is ugly
@@ -298,6 +302,9 @@ export function BoardDetails({ props }) {
       }
     }
 
+    //we are going to need to detect mobile and touch events or else 
+    //many ui events just act stupid
+    
     //console.log("path is", pathRef.current);
     tmpOutput.push(...pathRef.current);
 
