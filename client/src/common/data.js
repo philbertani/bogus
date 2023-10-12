@@ -1,7 +1,7 @@
 // ld = letter distribution
 
 const rank = {M:4, N:4}
-const minLetters = 3
+const minLetters = 4
 
 const ld = {
   old: [

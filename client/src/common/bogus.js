@@ -6,13 +6,18 @@ class bogusMain {
   board = [];
   output = [];
   indexMap = [];
+  wordsFound;
+  defsFound;
   words;
   definitions;
   rank = data.rank;
   M = data.rank.M;
   N = data.rank.N;
+  BOARDTYPES = {NORMAL:0,TORUS:1};
+  boardType = this.BOARDTYPES.NORMAL;
 
   minLetters = data.minLetters;
+  wordFindingFunctions = {};
 
   constructor(dictionary ) {
     //for server we pass in the whole dictionary
@@ -24,6 +29,10 @@ class bogusMain {
       this.words = dictionary.words;
       this.definitions = dictionary.definitions;
     }
+
+    //assign functions to different elements of array
+    this.wordFindingFunctions[this.BOARDTYPES.NORMAL] = this.findWords;
+    this.wordFindingFunctions[this.BOARDTYPES.TORUS] = this.findWords2;
 
     //map from sequential order to board i,j indices so we just have
     //to do this double loop once
@@ -39,7 +48,8 @@ class bogusMain {
     return this;
   }
 
-  findWordsDriver() {
+  findWordsDriver(wordFindingFunction=this.findWords) {
+
     this.allStr = [];
     this.uniquePaths = new Set();
     this.wordsFound = new Set();
@@ -50,7 +60,7 @@ class bogusMain {
           new Array(this.rank.N).fill(false));
         let str="";
         let k=0;
-        this.findWords(cloneArray(this.board), visited, i, j, str, k);
+        wordFindingFunction.call(this, cloneArray(this.board), visited, i, j, str, k);
       }
     }
 
@@ -116,8 +126,9 @@ class bogusMain {
 
     //do not interchange the order of the loops here
     //the board displayed will not match the words found!!!
-    for (let row = i - 1; row <= i + 1 && row < M; row++) {
-      for (let col = j - 1; col <= j + 1 && col < N; col++) {
+    for (let row = i-1; row <= i+1 && row < M; row++) {
+      for (let col = j-1; col <= j+1 && col < N; col++) {
+
         if (row >= 0 && col >= 0 && !visited[row][col]) {
           const checkNext = str + grid[row][col];
           const search = this.isWord(checkNext);
@@ -134,13 +145,67 @@ class bogusMain {
     visited[i][j] = false;
   }
 
+  findWords2(grid, visited, i, j, str, k) {
+    //this is the smarter search loop, using the dictionary to bail out if the
+    //accumulated string including the next letter is not part of the beginning
+    //of a word or a whole word
+
+    //for torus we need to maintain the sign of i and j through recursion
+    k++;
+    const ix = pmod(i,4);
+    const jx = pmod(j,4);
+
+    visited[ix][jx] = true;
+    const letter = grid[ix][jx];
+    str = str + letter;
+
+    //this.allStr.push(str)
+    //this.uniquePaths.add(str)  //useful for debugging
+    const search = this.isWord(str);
+    //console.log(str);  //, search);
+    //search[0] is true if we found a closest match, search[1] is true if exact word match
+
+    if (search[1] && str.length >= this.minLetters) {
+      this.wordsFound.add(str);
+    }
+
+    //const [M, N] = [this.rank.M, this.rank.N];
+
+    function pmod(x,y) {
+      //% for negative numbers still gives negative, 
+      //need to add the modulus back to result
+      const a = x%y;
+      return a<0 ? a+y : a;
+    }
+
+    for (let row = i-1; row <= i+1 ; row++) {
+      for (let col = j - 1; col <= j + 1 ; col++) {
+        const rx = pmod(row,4);
+        const cx = pmod(col,4);
+
+        if (!visited[rx][cx]) {
+          const checkNext = str + grid[rx][cx];
+          const search = this.isWord(checkNext);
+          if (search[0]) {
+            //if we DON'T do this we get extra searching on the order
+            //of 500k to 1MM per grid element!!! 10k more per path, nasty unchecked recursion
+            this.findWords2(grid, visited, row, col, str, k);
+          }
+        }
+      }
+    }
+
+    str = "" + str[str.length - letter.length];
+    visited[ix][jx] = false;
+  }
+
   debugBoard(manualBoard) {
     console.log("******* start debugging manual board ************");
     this.board = cloneArray(manualBoard);
     console.log(this.board);
-    //this.findWordsDriver();
 
-    console.log (this.isWord('GO'));
+    //this.findWordsDriver();
+    //console.log (this.isWord('GO'));
 
     this.wordsFound = new Set();
     const visited = Array.from(Array(this.rank.M), () =>
@@ -149,7 +214,7 @@ class bogusMain {
     this.allStr = [];
     let str="";
     let k=0;
-    this.findWords(cloneArray(this.board), visited, 0, 2, str, k);    
+    this.findWords(cloneArray(this.board), visited, 3, 0, str, k);    
 
     console.log(this.wordsFound);
     console.log(this.allStr);
@@ -159,8 +224,12 @@ class bogusMain {
   }
 
   newBoard() {
+    
     this.makeBoard();
-    this.findWordsDriver();
+
+    const BOARDTYPE = this.BOARDTYPES.NORMAL;
+    //const BOARDTYPE = this.boardTypes[TORUS];
+    this.findWordsDriver(this.wordFindingFunctions[BOARDTYPE]);
 
     //console.log("trying generator function");
     //this.loop( (i,j)=>{ console.log(this.board[i][j])} );
