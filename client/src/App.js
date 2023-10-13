@@ -94,7 +94,7 @@ export default function App() {
       const td = window.matchMedia("(pointer: coarse)").matches;
 
       //not working
-      if (td) {  setTimeout(()=>{window.screen.orientation.lock("portrait")},2000); }
+      //if (td) {  setTimeout(()=>{window.screen.orientation.lock("portrait")},2000); }
       setIsTouchDevice(td);
     
     }

@@ -196,6 +196,8 @@ export function BoardDetails({ props }) {
   React.useEffect(() => {
 
     function handleClick(ev, i, j, mbd=false) {
+      //not really onClick anymore because we need to use mousedown event
+
       //if mdb is true this is being called from
       //handleMouseOver with mouseButtonDown
 
@@ -206,11 +208,11 @@ export function BoardDetails({ props }) {
       let newStyles = deepClone(cubeStyles); //this is ugly
       let newSelected = deepClone(allSelected);
 
-      console.log('zzz',i,j,selected,game.isValidMove(i,j,selected),allSelected[i][j]);
-
       const [iOld, jOld] = selected;
 
       let flag = true;
+
+      //console.log(searchString.length,allSelected[i][j],mbd);
 
       if (selected.length === 0) {
         newStyles[i][j].backgroundImage = "radial-gradient(#FFFF00,#F000FF)";
@@ -228,8 +230,7 @@ export function BoardDetails({ props }) {
 
           pathRef.current.push(addPathDiv(style, prevStyle, i, j, iOld, jOld));
         }
-        else if ( mbd && (i===iOld && j===jOld) ) {
-          console.log(searchString);
+        else if ( mbd  && (i===iOld && j===jOld)   ) {
           flag = false;
         }
         else {
@@ -242,11 +243,14 @@ export function BoardDetails({ props }) {
           }
 
           newSelected = blank2dArray(M, N);
-          if ( searchString.length === 0 || allSelected[i][j]===0) {
+
+          if ( ( searchString.length === 0 || allSelected[i][j]===0) 
+            ||  ( searchString.length ===1 && allSelected[i][j]===1  )   ) {
             newStyles[i][j].backgroundImage = "radial-gradient(#FFFF00,#F000FF)";
             newStyles[i][j].color = "#A000F0";
           }
           else {
+            
             flag = false;
             setCubeStyles(newStyles);
             setSelected([]);
@@ -309,10 +313,10 @@ export function BoardDetails({ props }) {
         tmpOutput.push(
           <div
             ref={(el) => (cubeRefs.current[i][j] = el)}
-            onClick={ ev => handleClick(ev, i, j)}
+            //onClick={ ev => handleClick(ev, i, j)}
             onTouchStart = { ev => handleClick(ev,i,j,false)}
             onTouchMove  = { ev => {handleClick(ev, i,j, true)} }
-            onMouseDown = { ev => {handleClick(ev, i,j,true)} }
+            onMouseDown = { ev => {handleClick(ev, i,j,false)} }
             style={cubeStyles[i][j]}
             key={"boxNum" + keyVal}
           >
@@ -331,7 +335,6 @@ export function BoardDetails({ props }) {
               }}
               onMouseOver  = { ev => handleMouseOver(ev, i, j, true)}
               onMouseOut   = { ev => handleMouseOver(ev, i, j, false)}
-
             >
               {letter}
             </div>
