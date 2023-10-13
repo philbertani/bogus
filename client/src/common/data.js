@@ -1,6 +1,6 @@
 // ld = letter distribution
 
-const rank = {M:4, N:4}
+const rank = {M:5, N:5}
 const minLetters = 4
 
 const ld = {
@@ -40,7 +40,26 @@ const ld = {
     "EIOSST",
     "ELRTTY",
     "HIMNUQu",
-    "HLNNRZ"
+    "HLNNRZ",
+
+    "AAEEGN",
+    "ABBJOO",
+    "ACHOPS",
+    "AFFKPS",
+    "AOOTTW",
+    "CIMOTU",
+    "DEILRX",
+    "DELRVY",
+    "DISTTY",
+    "EEGHNW",
+    "EEINSU",
+    "EHRTVW",
+    "EIOSST",
+    "ELRTTY",
+    "HIMNUQu",
+    "HLNNRZ",
+
+
   ],
 };
 

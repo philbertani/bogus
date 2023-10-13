@@ -1,4 +1,4 @@
-import {useState, useEffect} from "react"
+import { useState, useEffect } from "react";
 
 export function useWindowSize() {
   const [windowSize, setWindowSize] = useState({
@@ -22,15 +22,52 @@ export function useWindowSize() {
 export function useMouseButton() {
   const [mouseButtonDown, setMouseButtonDown] = useState(false);
   useEffect(() => {
+    window.addEventListener("mouseup", (ev) => {
+      ev.preventDefault();
+      setMouseButtonDown(false);
+    });
+    window.addEventListener("mousedown", (ev) => {
+      ev.preventDefault();
+      setMouseButtonDown(true);
+    });
 
-    window.addEventListener("mouseup", ev=>{ev.preventDefault(); setMouseButtonDown(false)} );
-    window.addEventListener("mousedown", ev=>{ev.preventDefault(); setMouseButtonDown(true)} );
-
-    return () => { 
+    return () => {
       window.removeEventListener("mousedown", setMouseButtonDown);
-      window.removeEventListener("mouseup",setMouseButtonDown)
-    }
-
+      window.removeEventListener("mouseup", setMouseButtonDown);
+    };
   }, []);
   return mouseButtonDown;
+}
+
+export function useTouchDown() {
+  const [touchDown, setTouchDown] = useState(false);
+
+  useEffect(() => {
+    window.addEventListener("touchstart", (ev) => {
+      ev.preventDefault();
+      setTouchDown(true);
+    });
+    window.addEventListener("touchend", (ev) => {
+      ev.preventDefault();
+      setTouchDown(false);
+    });
+
+    return () => {
+      window.removeEventListener("touchstart", setTouchDown);
+      window.removeEventListener("touchend", setTouchDown);
+    };
+  }, []);
+
+  return touchDown;
+}
+
+export function useTouchMove() {
+  const [touchMove, setTouchMove] = useState(false);
+  useEffect( ()=>{
+    window.addEventListener("touchmove", ev=>{ev.preventDefault(); setTouchMove(true)}, false);
+    return ()=>  {
+      window.removeEventListener("touchmove", setTouchMove);
+    }
+  }, []);
+  return touchMove;
 }

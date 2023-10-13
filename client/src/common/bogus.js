@@ -92,8 +92,10 @@ class bogusMain {
         }
       }
       console.log(output +"\n");
+
     }
 
+    console.log("minimum letters to find: ",this.minLetters);
     //console.log("zzz", this.wordsFound[40],this.defsFound[40]);
   }
 
@@ -169,7 +171,7 @@ class bogusMain {
       this.wordsFound.add(str);
     }
 
-    //const [M, N] = [this.rank.M, this.rank.N];
+    const [M, N] = [this.rank.M, this.rank.N];
 
     function pmod(x,y) {
       //% for negative numbers still gives negative, 
@@ -180,8 +182,8 @@ class bogusMain {
 
     for (let row = i-1; row <= i+1 ; row++) {
       for (let col = j - 1; col <= j + 1 ; col++) {
-        const rx = pmod(row,4);
-        const cx = pmod(col,4);
+        const rx = pmod(row,M);
+        const cx = pmod(col,N);
 
         if (!visited[rx][cx]) {
           const checkNext = str + grid[rx][cx];
@@ -200,6 +202,14 @@ class bogusMain {
   }
 
   debugBoard(manualBoard) {
+
+    //the board we are sending in has to have the same dimensions as the game setup
+
+    if (manualBoard[0].length!==this.rank.M) {
+      console.log("manual board dimensions do not match actual game setup: ",this.rank);
+      return;
+    }
+        
     console.log("******* start debugging manual board ************");
     this.board = cloneArray(manualBoard);
     console.log(this.board);

@@ -1,5 +1,5 @@
 import React from "react";
-import { useMouseButton } from "./uiHooks";
+import { useMouseButton, useTouchDown, useTouchMove } from "./uiHooks";
 import { nanoid } from "nanoid";
 
 //this file is starting to look real ugly
@@ -27,6 +27,8 @@ export function BoardDetails({ props }) {
   const counter = React.useRef(0);
   const { M, N } = game.rank;
   const mouseButtonDown = useMouseButton();
+  const touchDown = useTouchDown();
+  const touchMove = useTouchMove();
 
   //have to move all this sh.t up the flagpole, useState is such a waste of time
   const [cubeStyles, setCubeStyles] = React.useState(blank2dArray(N, M, null));
@@ -199,6 +201,8 @@ export function BoardDetails({ props }) {
 
       ev.preventDefault();
 
+      //if (touchMove) {alert(`${i} ${j}`);}
+
       let newStyles = deepClone(cubeStyles); //this is ugly
       let newSelected = deepClone(allSelected);
 
@@ -224,7 +228,7 @@ export function BoardDetails({ props }) {
 
           pathRef.current.push(addPathDiv(style, prevStyle, i, j, iOld, jOld));
         }
-        else if ( mbd && mouseButtonDown && (i===iOld && j===jOld) ) {
+        else if ( mbd && (i===iOld && j===jOld) ) {
           console.log(searchString);
           flag = false;
         }
@@ -275,10 +279,11 @@ export function BoardDetails({ props }) {
 
       setCubeStyles(newStyles);
 
-      if (mouseButtonDown) {
+      if (mouseButtonDown || touchMove) {
         //console.log("mouse down yippee", mouseButtonDown);
         handleClick(ev,ix,jx,true)
       }
+
     }
 
     let tmpOutput = [];
@@ -294,7 +299,9 @@ export function BoardDetails({ props }) {
         tmpOutput.push(
           <div
             ref={(el) => (cubeRefs.current[i][j] = el)}
-            onClick={(ev) => handleClick(ev, i, j)}
+            onClick={ ev => handleClick(ev, i, j)}
+            onTouchStart = { ev => handleClick(ev,i,j,false)}
+            //onTouchMove  = { ev => {handleClick(ev, i,j, true)} }
             style={cubeStyles[i][j]}
             key={"boxNum" + keyVal}
           >
@@ -311,8 +318,9 @@ export function BoardDetails({ props }) {
                 borderRadius: "10px",
                 zIndex: 100,
               }}
-              onMouseOver={(ev) => handleMouseOver(ev, i, j, true)}
-              onMouseOut={(ev) => handleMouseOver(ev, i, j, false)}
+              onMouseOver  = { ev => handleMouseOver(ev, i, j, true)}
+              onMouseOut   = { ev => handleMouseOver(ev, i, j, false)}
+
             >
               {letter}
             </div>
@@ -339,6 +347,8 @@ export function BoardDetails({ props }) {
     allSelected,
     searchString,
     mouseButtonDown,
+    touchDown,
+    touchMove
   ]);
 
   React.useEffect(() => {
@@ -380,5 +390,5 @@ export function BoardDetails({ props }) {
   }, [searchString, game]);
   //React is wrong about adding foundWords and cubeStyles here: it causes infinite renders
 
-  return <div>{output}</div>;
+  return <div style={{touchAction:"none"}}>{output}</div>;
 }
