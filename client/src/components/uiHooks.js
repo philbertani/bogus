@@ -61,13 +61,3 @@ export function useTouchDown() {
   return touchDown;
 }
 
-export function useTouchMove() {
-  const [touchMove, setTouchMove] = useState(false);
-  useEffect( ()=>{
-    window.addEventListener("touchmove", ev=>{ev.preventDefault(); setTouchMove(true)}, false);
-    return ()=>  {
-      window.removeEventListener("touchmove", setTouchMove);
-    }
-  }, []);
-  return touchMove;
-}

@@ -1,8 +1,6 @@
 import React from "react";
-import { useMouseButton, useTouchDown, useTouchMove } from "./uiHooks";
+import { useMouseButton, useTouchDown } from "./uiHooks";
 import { nanoid } from "nanoid";
-
-//this file is starting to look real ugly
 
 function blank2dArray(M, N, stuffing = 0) {
   return new Array(N).fill(stuffing).map(() => new Array(M).fill(stuffing));
@@ -28,7 +26,6 @@ export function BoardDetails({ props }) {
   const { M, N } = game.rank;
   const mouseButtonDown = useMouseButton();
   const touchDown = useTouchDown();
-  const touchMove = useTouchMove();
 
   //have to move all this sh.t up the flagpole, useState is such a waste of time
   const [cubeStyles, setCubeStyles] = React.useState(blank2dArray(N, M, null));
@@ -203,8 +200,6 @@ export function BoardDetails({ props }) {
 
       ev.preventDefault();
 
-      //if (touchMove) {alert(`${i} ${j}`);}
-
       let newStyles = deepClone(cubeStyles); //this is ugly
       let newSelected = deepClone(allSelected);
 
@@ -217,7 +212,9 @@ export function BoardDetails({ props }) {
       if (selected.length === 0) {
         newStyles[i][j].backgroundImage = "radial-gradient(#FFFF00,#F000FF)";
         newStyles[i][j].color = "#A000F0";
+
       } else {
+
         const validMove = game.isValidMove(i, j, selected);
 
         if ( validMove &&  allSelected[i][j] === 0) {
@@ -275,7 +272,7 @@ export function BoardDetails({ props }) {
 
     function handleMouseOver(ev, ix, jx, flag) {
 
-      if (isTouchDevice) return;
+      if (isTouchDevice) {return; }
 
       ev.preventDefault();
       //this state management stuff could be nasty performance wise
@@ -293,7 +290,7 @@ export function BoardDetails({ props }) {
 
       setCubeStyles(newStyles);
 
-      if (mouseButtonDown || touchMove) {
+      if (mouseButtonDown ) {
         //console.log("mouse down yippee", mouseButtonDown);
         handleClick(ev,ix,jx,true)
       }
@@ -312,15 +309,15 @@ export function BoardDetails({ props }) {
         const lh = lineHeight.current * 0.7 + "px";
         tmpOutput.push(
           <div
+            id={keyVal}
             ref={(el) => (cubeRefs.current[i][j] = el)}
-            //onClick={ ev => handleClick(ev, i, j)}
             onTouchStart = { ev => handleClick(ev,i,j,false)}
-            onTouchMove  = { ev => {handleClick(ev, i,j, true)} }
             onMouseDown = { ev => {handleClick(ev, i,j,false)} }
             style={cubeStyles[i][j]}
             key={"boxNum" + keyVal}
           >
             <div
+
               style={{
                 textAlign: "center",
                 lineHeight: lh,
@@ -361,8 +358,7 @@ export function BoardDetails({ props }) {
     allSelected,
     searchString,
     mouseButtonDown,
-    touchDown,
-    touchMove
+    touchDown
   ]);
 
   React.useEffect(() => {

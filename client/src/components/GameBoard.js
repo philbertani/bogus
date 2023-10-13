@@ -18,6 +18,8 @@ export function GameBoard({ props }) {
 
   const wordRefs = React.useRef(Array(game.words.length).fill(null));
   const [searchString, setSearchString] = React.useState("");
+  const [debugString, setDebugString] = React.useState("");
+
 
   React.useEffect(() => {
     //const currentBoardDims = boardRef.current.getBoundingClientRect();
@@ -106,11 +108,13 @@ export function GameBoard({ props }) {
     searchString,
     setSearchString
   };
+
   return (
-    !isNaN(boardDims.width) && [
+    <div style={{touchAction:"none"}}>
       <div key="searchString"
         style={{height:boardDims.height/20}}>
-          {searchString}</div>,
+          {searchString}</div>
+      <div>{debugString}</div>
       <div
         ref={boardRef}
         style={{ width: boardDims.width, height: boardDims.height }}
@@ -118,7 +122,7 @@ export function GameBoard({ props }) {
         className="GameBoard"
       >
         <BoardDetails props={props2} />
-      </div>,
+      </div>
       <div
         key="h01"
         hidden={hidden}
@@ -134,14 +138,14 @@ export function GameBoard({ props }) {
         }}
       >
         User Info
-      </div>,
+      </div>
    
       <h3
         key={"header01"}
         style={{ maxWidth: boardDims.width, textAlign: "center", margin: "0" }}
       >
         Words Found: {Object.keys(foundWords).length}{" "}
-      </h3>,
+      </h3>
       <div
         key="i01"
         className="wordList"
@@ -158,7 +162,8 @@ export function GameBoard({ props }) {
         }}
       >
         <div key={"wordList"} style={{ display:"flex",flexDirection:"row", flexWrap:"wrap",margin: "1vw" }}>{wordOutput}</div>
-      </div>,
-    ]
+      </div>
+
+    </div>
   );
 }
