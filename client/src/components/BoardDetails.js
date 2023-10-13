@@ -240,9 +240,19 @@ export function BoardDetails({ props }) {
               newStyles[i][j].color = "#FFFFFF";
             }
           }
-          newStyles[i][j].backgroundImage = "radial-gradient(#FFFF00,#F000FF)";
-          newStyles[i][j].color = "#A000F0";
+
           newSelected = blank2dArray(M, N);
+          if ( searchString.length === 0 || allSelected[i][j]===0) {
+            newStyles[i][j].backgroundImage = "radial-gradient(#FFFF00,#F000FF)";
+            newStyles[i][j].color = "#A000F0";
+          }
+          else {
+            flag = false;
+            setCubeStyles(newStyles);
+            setSelected([]);
+            setAllSelected(newSelected);
+          }
+   
           setSearchString("");
           selectedRef.current = [];
           pathRef.current = [];
@@ -250,12 +260,12 @@ export function BoardDetails({ props }) {
       }
 
       if (flag) {
-      newSelected[i][j] = 1;
-      setSelected([i, j]);
-      setAllSelected(newSelected);
-      setSearchString((prev) => prev + game.board[i][j]);
-      setCubeStyles(newStyles);
-      selectedRef.current.push({ i, j });
+        newSelected[i][j] = 1;
+        setSelected([i, j]);
+        setAllSelected(newSelected);
+        setSearchString((prev) => prev + game.board[i][j]);
+        setCubeStyles(newStyles);
+        selectedRef.current.push({ i, j });
       }
     }
 
@@ -301,7 +311,8 @@ export function BoardDetails({ props }) {
             ref={(el) => (cubeRefs.current[i][j] = el)}
             onClick={ ev => handleClick(ev, i, j)}
             onTouchStart = { ev => handleClick(ev,i,j,false)}
-            //onTouchMove  = { ev => {handleClick(ev, i,j, true)} }
+            onTouchMove  = { ev => {handleClick(ev, i,j, true)} }
+            onMouseDown = { ev => {handleClick(ev, i,j,true)} }
             style={cubeStyles[i][j]}
             key={"boxNum" + keyVal}
           >

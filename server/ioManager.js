@@ -127,7 +127,7 @@ export class ioManager {
             output: gameRoom.output,
           },
           words: gameRoom.game.wordsFound,
-          defs: gameRoom.game.defsFound
+          defs: [] //gameRoom.game.defsFound
         });
         
       });

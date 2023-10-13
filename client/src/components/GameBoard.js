@@ -108,7 +108,9 @@ export function GameBoard({ props }) {
   };
   return (
     !isNaN(boardDims.width) && [
-      <div key="searchString">{searchString}</div>,
+      <div key="searchString"
+        style={{height:boardDims.height/20}}>
+          {searchString}</div>,
       <div
         ref={boardRef}
         style={{ width: boardDims.width, height: boardDims.height }}

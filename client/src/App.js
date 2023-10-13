@@ -91,7 +91,11 @@ export default function App() {
       setReset(true);
       console.log('setting mainGame');
 
-      setIsTouchDevice(window.matchMedia("(pointer: coarse)").matches);
+      const td = window.matchMedia("(pointer: coarse)").matches;
+
+      //not working
+      if (td) {  setTimeout(()=>{window.screen.orientation.lock("portrait")},2000); }
+      setIsTouchDevice(td);
     
     }
 
