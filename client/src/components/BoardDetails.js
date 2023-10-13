@@ -400,5 +400,5 @@ export function BoardDetails({ props }) {
   }, [searchString, game]);
   //React is wrong about adding foundWords and cubeStyles here: it causes infinite renders
 
-  return <div style={{touchAction:"none"}}>{output}</div>;
+  return <div>{output}</div>;
 }
