@@ -39,6 +39,40 @@ export function useMouseButton() {
   return mouseButtonDown;
 }
 
+export function useTouches() {
+  const [touches, setTouches] = useState({});
+
+  function handleStart(ev) {
+    ev.preventDefault();
+    setTouches( [Date.now(),ev.target.id,ev.touches]);
+  }
+  function handleEnd(ev) {}
+  function handleCancel(ev) {}
+  function handleMove(ev) {
+    ev.preventDefault();
+    setTouches([Date.now(), ev.target.id, ev.changedTouches]);  
+  }
+
+  useEffect(() => {
+    window.addEventListener("touchstart", handleStart, { passive: false });
+    window.addEventListener("touchstart", handleEnd, { passive: false });
+    window.addEventListener("touchstart", handleCancel, { passive: false });
+    window.addEventListener("touchstart", handleMove, { passive: false });
+
+    window.addEventListener("contextmenu", (e) => e.preventDefault());
+
+    return () => {
+      window.removeEventListener("touchstart", handleStart);
+      window.removeEventListener("touchend", handleEnd);
+      window.removeEventListener("touchcancel", handleCancel);
+      window.removeEventListener("touchmove",handleMove);
+      window.removeEventListener("contextMenu", null);
+    };
+  }, []);
+
+  return touches;
+}
+
 export function useTouchDown() {
   const [touchDown, setTouchDown] = useState(false);
 
@@ -60,4 +94,3 @@ export function useTouchDown() {
 
   return touchDown;
 }
-

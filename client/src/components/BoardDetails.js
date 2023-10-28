@@ -25,7 +25,7 @@ export function BoardDetails({ props }) {
   const counter = React.useRef(0);
   const { M, N } = game.rank;
   const mouseButtonDown = useMouseButton();
-  const touchDown = useTouchDown();
+  const touchDown = null; //useTouchDown();
 
   //have to move all this sh.t up the flagpole, useState is such a waste of time
   const [cubeStyles, setCubeStyles] = React.useState(blank2dArray(N, M, null));
@@ -198,6 +198,10 @@ export function BoardDetails({ props }) {
       //if mdb is true this is being called from
       //handleMouseOver with mouseButtonDown
 
+      //some variations: if user clicks already selected remove all letters
+      //after that one so she can restart quickly on the same path
+      //double tap on the same letter would finally reset the whole path
+
       ev.preventDefault();
 
       let newStyles = deepClone(cubeStyles); //this is ugly
@@ -297,12 +301,13 @@ export function BoardDetails({ props }) {
 
     }
 
+
     let tmpOutput = [];
     for (let j = 0; j < M; j++) {
       for (let i = 0; i < N; i++) {
         let letter = game.output[i][j]; //board[i][j];
 
-        const keyVal = i.toString() + j.toString();
+        const keyVal = "letter" + i.toString() + j.toString() + letter;
 
         //we need to leave some room for the mouse or finger to squeeze between letters
         //so we can swipe a nice path
@@ -311,7 +316,7 @@ export function BoardDetails({ props }) {
           <div
             id={keyVal}
             ref={(el) => (cubeRefs.current[i][j] = el)}
-            onTouchStart = { ev => handleClick(ev,i,j,false)}
+            //onTouchStart = { ev => handleClick(ev,i,j,false)}
             onMouseDown = { ev => {handleClick(ev, i,j,false)} }
             style={cubeStyles[i][j]}
             key={"boxNum" + keyVal}
@@ -400,5 +405,6 @@ export function BoardDetails({ props }) {
   }, [searchString, game]);
   //React is wrong about adding foundWords and cubeStyles here: it causes infinite renders
 
-  return <div>{output}</div>;
+  return <div>{output}</div>
+
 }

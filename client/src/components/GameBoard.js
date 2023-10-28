@@ -1,6 +1,6 @@
 import React from "react";
 import "./GameBoard.css";
-import { useWindowSize } from "./uiHooks.js";
+import { useWindowSize, useTouches} from "./uiHooks.js";
 import { BoardDetails } from "./BoardDetails";
 import { bsearch } from "../common/utils.js";
 
@@ -10,6 +10,8 @@ export function GameBoard({ props }) {
 
   const boardRef = React.useRef();
   const windowSize = useWindowSize();
+  //const touches = useTouches();
+  const [touches, setTouches] = React.useState({});
 
   const { M, N } = game.rank;
   const cubeRefs = React.useRef(Array(M).fill(()=>Array(N).fill(null)));
@@ -109,8 +111,33 @@ export function GameBoard({ props }) {
     setSearchString
   };
 
+   
+  function touchStart(ev) {
+
+    const tch = ev.touches[0];
+    const [x,y] = [tch.clientX, tch.clientY];
+    const objects = document.elementsFromPoint(x,y);
+    let letter = "none";
+    //we have to dig through the elements at this point
+    //but it works well enough
+    for (let i=0; i<objects.length; i++) {
+      if ( String(objects[i].id).includes('letter')) {
+        letter = i + objects[i].id;
+        break;
+      }
+    }
+    setTouches( {date:Date.now(),
+      obj:letter} );
+
+  }
+
   return (
-    <div style={{touchAction:"none"}}>
+    <div 
+      onTouchStart={touchStart}
+      onTouchMove={touchStart}
+
+      style={{touchAction:"none"}}>
+      <div>{JSON.stringify(touches)}</div>
       <div key="searchString"
         style={{height:boardDims.height/20}}>
           {searchString}</div>

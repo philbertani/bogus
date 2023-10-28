@@ -11,6 +11,8 @@ import {nanoid} from 'nanoid';
 
 import './App.css';
 
+//if we lose connection and reload page, load the previous board from
+//localStorage
 
 export default function App() {
 
