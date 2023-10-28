@@ -19,7 +19,8 @@ export function BoardDetails({ props }) {
     setFoundWords,
     isTouchDevice,
     searchString,
-    setSearchString
+    setSearchString,
+    touches
   } = props;
   const [output, setOutput] = React.useState([]);
   const counter = React.useRef(0);
@@ -190,118 +191,123 @@ export function BoardDetails({ props }) {
     return Number(str.replace("px", ""));
   }
 
-  React.useEffect(() => {
+  function handleClick(ev, i, j, mbd=false) {
+    //not really onClick anymore because we need to use mousedown event
 
-    function handleClick(ev, i, j, mbd=false) {
-      //not really onClick anymore because we need to use mousedown event
+    //if mdb is true this is being called from
+    //handleMouseOver with mouseButtonDown
 
-      //if mdb is true this is being called from
-      //handleMouseOver with mouseButtonDown
+    //some variations: if user clicks already selected remove all letters
+    //after that one so she can restart quickly on the same path
+    //double tap on the same letter would finally reset the whole path
 
-      //some variations: if user clicks already selected remove all letters
-      //after that one so she can restart quickly on the same path
-      //double tap on the same letter would finally reset the whole path
+    if (ev) ev.preventDefault();
 
-      ev.preventDefault();
+    let newStyles = deepClone(cubeStyles); //this is ugly
+    let newSelected = deepClone(allSelected);
 
-      let newStyles = deepClone(cubeStyles); //this is ugly
-      let newSelected = deepClone(allSelected);
+    const [iOld, jOld] = selected;
 
-      const [iOld, jOld] = selected;
+    let flag = true;
 
-      let flag = true;
+    //console.log(searchString.length,allSelected[i][j],mbd);
 
-      //console.log(searchString.length,allSelected[i][j],mbd);
+    if (selected.length === 0) {
+      newStyles[i][j].backgroundImage = "radial-gradient(#FFFF00,#F000FF)";
+      newStyles[i][j].color = "#A000F0";
 
-      if (selected.length === 0) {
-        newStyles[i][j].backgroundImage = "radial-gradient(#FFFF00,#F000FF)";
-        newStyles[i][j].color = "#A000F0";
+    } else {
 
-      } else {
+      const validMove = game.isValidMove(i, j, selected);
 
-        const validMove = game.isValidMove(i, j, selected);
+      if ( validMove &&  allSelected[i][j] === 0) {
 
-        if ( validMove &&  allSelected[i][j] === 0) {
+        const style = newStyles[i][j];
+        const prevStyle = cubeStyles[iOld][jOld];
 
-          const style = newStyles[i][j];
-          const prevStyle = cubeStyles[iOld][jOld];
+        style.backgroundImage = "radial-gradient(#FFFF00,#F000FF)";
+        style.color = "#A000F0";
 
-          style.backgroundImage = "radial-gradient(#FFFF00,#F000FF)";
-          style.color = "#A000F0";
-
-          pathRef.current.push(addPathDiv(style, prevStyle, i, j, iOld, jOld));
+        pathRef.current.push(addPathDiv(style, prevStyle, i, j, iOld, jOld));
+      }
+      else if ( mbd  && (i===iOld && j===jOld)   ) {
+        flag = false;
+      }
+      else {
+        for (let j = 0; j < N; j++) {
+          for (let i = 0; i < M; i++) {
+            newStyles[i][j].backgroundImage =
+              "radial-gradient(#400040,#A000F0)";
+            newStyles[i][j].color = "#FFFFFF";
+          }
         }
-        else if ( mbd  && (i===iOld && j===jOld)   ) {
-          flag = false;
+
+        newSelected = blank2dArray(M, N);
+
+        if ( ( searchString.length === 0 || allSelected[i][j]===0) 
+          ||  ( searchString.length ===1 && allSelected[i][j]===1  )   ) {
+          newStyles[i][j].backgroundImage = "radial-gradient(#FFFF00,#F000FF)";
+          newStyles[i][j].color = "#A000F0";
         }
         else {
-          for (let j = 0; j < N; j++) {
-            for (let i = 0; i < M; i++) {
-              newStyles[i][j].backgroundImage =
-                "radial-gradient(#400040,#A000F0)";
-              newStyles[i][j].color = "#FFFFFF";
-            }
-          }
-
-          newSelected = blank2dArray(M, N);
-
-          if ( ( searchString.length === 0 || allSelected[i][j]===0) 
-            ||  ( searchString.length ===1 && allSelected[i][j]===1  )   ) {
-            newStyles[i][j].backgroundImage = "radial-gradient(#FFFF00,#F000FF)";
-            newStyles[i][j].color = "#A000F0";
-          }
-          else {
-            
-            flag = false;
-            setCubeStyles(newStyles);
-            setSelected([]);
-            setAllSelected(newSelected);
-          }
-   
-          setSearchString("");
-          selectedRef.current = [];
-          pathRef.current = [];
+          
+          flag = false;
+          setCubeStyles(newStyles);
+          setSelected([]);
+          setAllSelected(newSelected);
         }
-      }
-
-      if (flag) {
-        newSelected[i][j] = 1;
-        setSelected([i, j]);
-        setAllSelected(newSelected);
-        setSearchString((prev) => prev + game.board[i][j]);
-        setCubeStyles(newStyles);
-        selectedRef.current.push({ i, j });
+ 
+        setSearchString("");
+        selectedRef.current = [];
+        pathRef.current = [];
       }
     }
 
-    function handleMouseOver(ev, ix, jx, flag) {
-
-      if (isTouchDevice) {return; }
-
-      ev.preventDefault();
-      //this state management stuff could be nasty performance wise
-      let newStyles = deepClone(cubeStyles); //this is ugly
-
-      //set all other fontSizes back to normal
-      for (let j = 0; j < N; j++) {
-        for (let i = 0; i < M; i++) {
-          newStyles[i][j].fontSize = fontSize.current;
-        }
-      }
-
-      if (flag)
-        newStyles[ix][jx].fontSize = (0.8 * boardDims.height) / N + "px";
-
+    if (flag) {
+      newSelected[i][j] = 1;
+      setSelected([i, j]);
+      setAllSelected(newSelected);
+      setSearchString((prev) => prev + game.board[i][j]);
       setCubeStyles(newStyles);
+      selectedRef.current.push({ i, j });
+    }
+  }
 
-      if (mouseButtonDown ) {
-        //console.log("mouse down yippee", mouseButtonDown);
-        handleClick(ev,ix,jx,true)
+  function handleMouseOver(ev, ix, jx, flag) {
+
+    if (isTouchDevice) {return; }
+
+    ev.preventDefault();
+    //this state management stuff could be nasty performance wise
+    let newStyles = deepClone(cubeStyles); //this is ugly
+
+    //set all other fontSizes back to normal
+    for (let j = 0; j < N; j++) {
+      for (let i = 0; i < M; i++) {
+        newStyles[i][j].fontSize = fontSize.current;
       }
-
     }
 
+    if (flag)
+      newStyles[ix][jx].fontSize = (0.8 * boardDims.height) / N + "px";
 
+    setCubeStyles(newStyles);
+
+    if (mouseButtonDown ) {
+      //console.log("mouse down yippee", mouseButtonDown);
+      handleClick(ev,ix,jx,true)
+    }
+
+  }
+
+  React.useEffect( ()=> {
+    console.log(touches)
+    if ( touches.x ) {
+      handleClick(null, touches.x,touches.y,true);
+    }
+  }, [touches] );
+
+  React.useEffect(() => {
     let tmpOutput = [];
     for (let j = 0; j < M; j++) {
       for (let i = 0; i < N; i++) {
@@ -316,8 +322,8 @@ export function BoardDetails({ props }) {
           <div
             id={keyVal}
             ref={(el) => (cubeRefs.current[i][j] = el)}
-            //onTouchStart = { ev => handleClick(ev,i,j,false)}
-            onMouseDown = { ev => {handleClick(ev, i,j,false)} }
+            //we need to ignore the mouseDown that is forwarded from touches
+            onMouseDown = { ev => { !isTouchDevice && handleClick(ev, i,j,false)} }
             style={cubeStyles[i][j]}
             key={"boxNum" + keyVal}
           >

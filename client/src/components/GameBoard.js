@@ -108,33 +108,35 @@ export function GameBoard({ props }) {
     setFoundWords,
     isTouchDevice,
     searchString,
-    setSearchString
+    setSearchString,
+    touches
   };
 
    
-  function touchStart(ev) {
+  function processTouch(ev) {
 
+    ev.preventDefault();
     const tch = ev.touches[0];
     const [x,y] = [tch.clientX, tch.clientY];
     const objects = document.elementsFromPoint(x,y);
     let letter = "none";
+    let boardPos = {};
     //we have to dig through the elements at this point
     //but it works well enough
     for (let i=0; i<objects.length; i++) {
       if ( String(objects[i].id).includes('letter')) {
-        letter = i + objects[i].id;
+        letter = String(objects[i].id).replace(/letter/,'');
+        boardPos = {x:letter.substring(0,1),y:letter.substring(1,2)};
         break;
       }
     }
-    setTouches( {date:Date.now(),
-      obj:letter} );
-
+    setTouches( boardPos );
   }
 
   return (
     <div 
-      onTouchStart={touchStart}
-      onTouchMove={touchStart}
+      onTouchStart={processTouch}
+      onTouchMove={processTouch}
 
       style={{touchAction:"none"}}>
       <div>{JSON.stringify(touches)}</div>
