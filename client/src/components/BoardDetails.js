@@ -1,6 +1,7 @@
 import React from "react";
-import { useMouseButton, useTouchDown } from "./uiHooks";
+import { useMouseButton } from "./uiHooks";
 import { nanoid } from "nanoid";
+import { vec } from "../common/utils.js"
 
 function blank2dArray(M, N, stuffing = 0) {
   return new Array(N).fill(stuffing).map(() => new Array(M).fill(stuffing));
@@ -20,7 +21,8 @@ export function BoardDetails({ props }) {
     isTouchDevice,
     searchString,
     setSearchString,
-    touches
+    touches,
+    setTouchInfo
   } = props;
   const [output, setOutput] = React.useState([]);
   const counter = React.useRef(0);
@@ -208,6 +210,17 @@ export function BoardDetails({ props }) {
 
     const [iOld, jOld] = selected;
 
+    //columns is j which is the x position
+    const dir = vec.normalize( [j-jOld, i-iOld ]);
+
+    let angle = 0;
+    if (touches.useDir && vec.length(touches.dir) > 1e-4 ) {
+      const cos = vec.dot(dir, touches.dir);
+      angle = Math.acos(cos);
+      if (angle > .2) { 
+        //setTouchInfo(["wtf",dir,touches.dir]);
+        return; } 
+    }
     let flag = true;
 
     //console.log(searchString.length,allSelected[i][j],mbd);
@@ -220,7 +233,7 @@ export function BoardDetails({ props }) {
 
       const validMove = game.isValidMove(i, j, selected);
 
-      if ( validMove &&  allSelected[i][j] === 0) {
+      if ( validMove &&  allSelected[i][j] === 0 ) {
 
         const style = newStyles[i][j];
         const prevStyle = cubeStyles[iOld][jOld];
@@ -302,8 +315,8 @@ export function BoardDetails({ props }) {
 
   React.useEffect( ()=> {
     console.log(touches)
-    if ( touches.x ) {
-      handleClick(null, touches.x,touches.y,true);
+    if ( touches.pos && touches.pos.x ) {
+      handleClick(null, touches.pos.x,touches.pos.y,true);
     }
   }, [touches] );
 

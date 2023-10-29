@@ -2,7 +2,7 @@ import React from "react";
 import "./GameBoard.css";
 import { useWindowSize, useTouches} from "./uiHooks.js";
 import { BoardDetails } from "./BoardDetails";
-import { bsearch } from "../common/utils.js";
+import { bsearch, vec } from "../common/utils.js";
 
 export function GameBoard({ props }) {
   const { game, reset, setReset, foundWords, setFoundWords, isTouchDevice } = props;
@@ -12,6 +12,7 @@ export function GameBoard({ props }) {
   const windowSize = useWindowSize();
   //const touches = useTouches();
   const [touches, setTouches] = React.useState({});
+  const [touchInfo, setTouchInfo] = React.useState();
 
   const { M, N } = game.rank;
   const cubeRefs = React.useRef(Array(M).fill(()=>Array(N).fill(null)));
@@ -109,10 +110,12 @@ export function GameBoard({ props }) {
     isTouchDevice,
     searchString,
     setSearchString,
-    touches
+    touches,
+    setTouchInfo
   };
 
-   
+  const touch0 = React.useRef({});
+
   function processTouch(ev) {
 
     ev.preventDefault();
@@ -121,16 +124,37 @@ export function GameBoard({ props }) {
     const objects = document.elementsFromPoint(x,y);
     let letter = "none";
     let boardPos = {};
+
     //we have to dig through the elements at this point
     //but it works well enough
     for (let i=0; i<objects.length; i++) {
       if ( String(objects[i].id).includes('letter')) {
         letter = String(objects[i].id).replace(/letter/,'');
         boardPos = {x:letter.substring(0,1),y:letter.substring(1,2)};
+
+        if ( !touch0.current.x || ev.type==="touchstart") {
+          touch0.current.x = x;
+          touch0.current.y = y;
+        }
+        const [dx,dy] = [x-touch0.current.x, y-touch0.current.y];
+
+        const len = vec.length([dx,dy]);
+
+        let dir = [0,0];
+        let useDir = false;
+        if ( len > 1e-4 ) { 
+          dir = vec.normalize([dx, dy]);
+          useDir = true;
+          
+        }
+        setTouches( {pos:boardPos, dir, useDir} );
         break;
       }
     }
-    setTouches( boardPos );
+
+    //if ( ev.type === "touchstart") {
+    touch0.current = {x,y};
+
   }
 
   return (
@@ -139,7 +163,7 @@ export function GameBoard({ props }) {
       onTouchMove={processTouch}
 
       style={{touchAction:"none"}}>
-      <div>{JSON.stringify(touches)}</div>
+      <div>{JSON.stringify(touchInfo)}</div>
       <div key="searchString"
         style={{height:boardDims.height/20}}>
           {searchString}</div>

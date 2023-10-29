@@ -43,4 +43,28 @@ function bsearch(A,x,debug=false) {
     return [ false, false , false, -1, 'no match', count, 'none']
 }
 
-export  { cloneArray, bsearch };
+function length(v) {
+    let out = 0;
+    for (let i=0; i<v.length; i++) {
+        out += v[i]*v[i];
+    }
+    return Math.sqrt(out);
+}
+function normalize(v) {
+    const out=[];
+    const len = length(v);
+    for (let i=0; i<v.length; i++) {
+        out.push(v[i]/len);
+    }
+    return out;
+}
+function dot(v,w) {
+    let out=0;
+    for (let i=0; i<Math.min(v.length,w.length); i++) {
+        out += v[i]*w[i] ;
+    }
+    return out;
+}
+const vec={length,normalize,dot}
+ 
+export  { vec, cloneArray, bsearch };
