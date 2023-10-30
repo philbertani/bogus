@@ -28,7 +28,6 @@ export function BoardDetails({ props }) {
   const counter = React.useRef(0);
   const { M, N } = game.rank;
   const mouseButtonDown = useMouseButton();
-  const touchDown = null; //useTouchDown();
 
   //have to move all this sh.t up the flagpole, useState is such a waste of time
   const [cubeStyles, setCubeStyles] = React.useState(blank2dArray(N, M, null));
@@ -214,6 +213,7 @@ export function BoardDetails({ props }) {
     const dir = vec.normalize( [j-jOld, i-iOld ]);
 
     let angle = 0;
+    const touchStart = touches.isTouchStart ?? false;
     if (touches.useDir && vec.length(touches.dir) > 1e-4 ) {
       const cos = vec.dot(dir, touches.dir);
       angle = Math.acos(cos);
@@ -233,6 +233,12 @@ export function BoardDetails({ props }) {
 
       const validMove = game.isValidMove(i, j, selected);
 
+      //the annoying case of when using touch input we tap again on the last
+      //letter selected in order to reset
+      const klugeReset = !touches.useDir && touches.isTouchStart && (i===iOld && j===jOld);
+
+      setTouchInfo([touches.useDir,touches.isTouchStart,i,j,iOld,jOld, klugeReset]);
+
       if ( validMove &&  allSelected[i][j] === 0 ) {
 
         const style = newStyles[i][j];
@@ -243,7 +249,8 @@ export function BoardDetails({ props }) {
 
         pathRef.current.push(addPathDiv(style, prevStyle, i, j, iOld, jOld));
       }
-      else if ( mbd  && (i===iOld && j===jOld)   ) {
+
+      else if (  !klugeReset && mbd  && (i===iOld && j===jOld)   ) {
         flag = false;
       }
       else {
@@ -276,6 +283,8 @@ export function BoardDetails({ props }) {
       }
     }
 
+    //setTouchInfo([touches.isTouchStart,i,j,iOld,jOld,mbd,flag,allSelected[i][j]]);
+
     if (flag) {
       newSelected[i][j] = 1;
       setSelected([i, j]);
@@ -288,7 +297,7 @@ export function BoardDetails({ props }) {
 
   function handleMouseOver(ev, ix, jx, flag) {
 
-    if (isTouchDevice) {return; }
+    if (isTouchDevice) {  return; }
 
     ev.preventDefault();
     //this state management stuff could be nasty performance wise
@@ -308,7 +317,7 @@ export function BoardDetails({ props }) {
 
     if (mouseButtonDown ) {
       //console.log("mouse down yippee", mouseButtonDown);
-      handleClick(ev,ix,jx,true)
+      handleClick(ev,ix,jx,true);
     }
 
   }
@@ -381,8 +390,7 @@ export function BoardDetails({ props }) {
     selected,
     allSelected,
     searchString,
-    mouseButtonDown,
-    touchDown
+    mouseButtonDown
   ]);
 
   React.useEffect(() => {

@@ -10,7 +10,7 @@ export function GameBoard({ props }) {
 
   const boardRef = React.useRef();
   const windowSize = useWindowSize();
-  //const touches = useTouches();
+
   const [touches, setTouches] = React.useState({});
   const [touchInfo, setTouchInfo] = React.useState();
 
@@ -132,7 +132,8 @@ export function GameBoard({ props }) {
         letter = String(objects[i].id).replace(/letter/,'');
         boardPos = {x:letter.substring(0,1),y:letter.substring(1,2)};
 
-        if ( !touch0.current.x || ev.type==="touchstart") {
+        const isTouchStart = ev.type==="touchstart";
+        if ( !touch0.current.x || isTouchStart) {
           touch0.current.x = x;
           touch0.current.y = y;
         }
@@ -147,12 +148,11 @@ export function GameBoard({ props }) {
           useDir = true;
           
         }
-        setTouches( {pos:boardPos, dir, useDir} );
+        setTouches( {pos:boardPos, dir, useDir, isTouchStart} );
         break;
       }
     }
-
-    //if ( ev.type === "touchstart") {
+    
     touch0.current = {x,y};
 
   }

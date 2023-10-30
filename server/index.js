@@ -54,8 +54,9 @@ async function mainLoop(dict) {
   //this has both the io and gameRooms which contains the game logic
   const ioM = new ioManager(http, dict);
 
+  //for render we will set HOST to: 0.0.0.0 and PORT to 10000
   const host = process.env.HOST || 'localhost'; //"112.35.81.115"; //'localhost';
-  const port = process.env.PORT || 5000;
+  const port = process.env.PORT || 8080;
 
   //we need http so express can serve the client side app
   http.listen(port, host, () => {
