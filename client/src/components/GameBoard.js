@@ -5,7 +5,17 @@ import { BoardDetails } from "./BoardDetails";
 import { bsearch, vec } from "../common/utils.js";
 
 export function GameBoard({ props }) {
-  const { game, reset, setReset, foundWords, setFoundWords, isTouchDevice } = props;
+  const {
+    game,
+    reset,
+    setReset,
+    foundWords,
+    setFoundWords,
+    isTouchDevice,
+    socket,
+    allWordsFound,
+  } = props;
+
   const [boardDims, setBoardDims] = React.useState({});
 
   const boardRef = React.useRef();
@@ -22,6 +32,10 @@ export function GameBoard({ props }) {
   const wordRefs = React.useRef(Array(game.words.length).fill(null));
   const [searchString, setSearchString] = React.useState("");
   const [debugString, setDebugString] = React.useState("");
+  const [isWord, setIsWord] = React.useState(false);
+  const [searchStringBackGround, setSearchStringBackground] = React.useState("");
+
+  const isWordRef = React.useState(false);
 
 
   React.useEffect(() => {
@@ -111,7 +125,11 @@ export function GameBoard({ props }) {
     searchString,
     setSearchString,
     touches,
-    setTouchInfo
+    setTouchInfo,
+    setIsWord,
+    setSearchStringBackground,
+    isWordRef,
+    allWordsFound
   };
 
   const touch0 = React.useRef({});
@@ -157,16 +175,37 @@ export function GameBoard({ props }) {
 
   }
 
+  React.useEffect( ()=> {
+    //this useEffect gets called too many times with isWord being true
+    //isWordRef is the easiest solution, React is annoying
+    if (isWordRef.current) {
+      console.log("trying to send word to server", isWord, searchString);
+      socket.emit('word', searchString);
+    }
+
+  },[isWord,searchString,isWordRef]);
+
   return (
-    <div 
+    <div
       onTouchStart={processTouch}
       onTouchMove={processTouch}
-
-      style={{touchAction:"none"}}>
+      style={{ touchAction: "none" }}
+    >
       <div>{JSON.stringify(touchInfo)}</div>
-      <div key="searchString"
-        style={{height:boardDims.height/20}}>
-          {searchString}</div>
+      <div
+        key="searchString"
+        style={{
+          margin: "1vw",
+          backgroundImage: searchStringBackGround,
+          width: boardDims.width,
+          textAlign: "center",
+          height: boardDims.height / 10,
+          fontSize: boardDims.height / 11,
+          lineHeight: boardDims.height / 10 +"px"
+        }}
+      >
+        {searchString}
+      </div>
       <div>{debugString}</div>
       <div
         ref={boardRef}
@@ -192,12 +231,13 @@ export function GameBoard({ props }) {
       >
         User Info
       </div>
-   
+
       <h3
         key={"header01"}
         style={{ maxWidth: boardDims.width, textAlign: "center", margin: "0" }}
       >
         Words Found: {Object.keys(foundWords).length}{" "}
+        AllWords: {Object.keys(allWordsFound).length}
       </h3>
       <div
         key="i01"
@@ -214,9 +254,18 @@ export function GameBoard({ props }) {
           overflowY: "scroll",
         }}
       >
-        <div key={"wordList"} style={{ display:"flex",flexDirection:"row", flexWrap:"wrap",margin: "1vw" }}>{wordOutput}</div>
+        <div
+          key={"wordList"}
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            flexWrap: "wrap",
+            margin: "1vw",
+          }}
+        >
+          {wordOutput}
+        </div>
       </div>
-
     </div>
   );
 }

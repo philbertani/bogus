@@ -26,6 +26,7 @@ export default function App() {
   const [checkConnection, setCheckConnection] = React.useState(false);
 
   const [isTouchDevice, setIsTouchDevice] = React.useState(false);
+  const [allWordsFound, setAllWordsFound] = React.useState( {} );
 
   useEffect ( ()=>{
 
@@ -87,6 +88,8 @@ export default function App() {
       //console.log(mainGame.definitions);
       window.bogus = mainGame;  //remove this when we are live on the internet obviously
 
+      localStorage.setItem("bogusMain",JSON.stringify(mainGame));
+
       setMainGame( mainGame );
       setDoneOne(true);
  
@@ -107,12 +110,17 @@ export default function App() {
       socket.disconnect();
     }
 
+    function onAllWordsFound(msg) {
+      setAllWordsFound(msg);
+    }
+
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
     socket.on('chat message', onFooEvent);
     socket.on('new board', onNewBoard);
     socket.on('current board', onNewBoard);
     socket.on('duplicate',onDupe);
+    socket.on('allWordsFound', onAllWordsFound);
 
     return () => {
       socket.off('connect', onConnect);
@@ -121,10 +129,12 @@ export default function App() {
       socket.off('new board', onNewBoard);
       socket.off('current board', onNewBoard);
       socket.off('duplicate', onDupe);
+      socket.off('allWordsFound', onAllWordsFound);
     };
   }, [mainGame, isDuplicateProcess]);
 
-  const props={game:mainGame,reset,setReset,foundWords,setFoundWords,isTouchDevice};
+  const props={game:mainGame,reset,setReset,foundWords,setFoundWords,isTouchDevice, socket, allWordsFound};
+
   return (
     [
       (doneOne && !isDuplicateProcess ) && <GameBoard key="k05" props={props}/> ,

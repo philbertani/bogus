@@ -8,6 +8,7 @@ export class gameRoom {
     game;
     board;
     output;
+    allWordsFound = {};
 
     constructor(roomId,io,dict) {
         this.io = io;

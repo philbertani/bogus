@@ -42,6 +42,23 @@ export class ioManager {
       });
     });
 
+    io.on("connection", socket=> {
+      socket.on("word", msg => {
+        console.log("word found by",socket.id,msg);
+        const gameRoom = this.gameRooms[this.roomMap[0]];
+
+        if (gameRoom.allWordsFound[msg]) { 
+          gameRoom.allWordsFound[msg] ++ ;
+        }
+        else {
+          gameRoom.allWordsFound[msg] = 1;
+        }
+
+        console.log(gameRoom.allWordsFound);
+        io.to(gameRoom.id).emit('allWordsFound',gameRoom.allWordsFound);
+      })
+    })
+
     io.on("connection", (socket) => {
       socket.on("new board", (msg) => {
         //io.emit("new board", { game: bogus.newBoard(), words: bogus.wordsFound, defs: bogus.definitions });
@@ -119,7 +136,7 @@ export class ioManager {
         }
 
         socket.join( gameRoom.id );
-
+    
         //figure out which game room this person belongs to
         io.to(socket.id).emit("current board", {
           game: {
@@ -129,6 +146,8 @@ export class ioManager {
           words: gameRoom.game.wordsFound,
           defs: [] //gameRoom.game.defsFound
         });
+
+        io.to(gameRoom.id).emit("allWordsFound",gameRoom.allWordsFound);
         
       });
     });

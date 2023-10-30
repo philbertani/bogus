@@ -22,8 +22,13 @@ export function BoardDetails({ props }) {
     searchString,
     setSearchString,
     touches,
-    setTouchInfo
+    setTouchInfo,
+    setIsWord,
+    setSearchStringBackground,
+    isWordRef,
+    allWordsFound
   } = props;
+
   const [output, setOutput] = React.useState([]);
   const counter = React.useRef(0);
   const { M, N } = game.rank;
@@ -192,7 +197,9 @@ export function BoardDetails({ props }) {
     return Number(str.replace("px", ""));
   }
 
-  function handleClick(ev, i, j, mbd=false) {
+  function handleClick(ev, i, j, mbd=false) {  
+    //mbd=Mouse Button Down, also true if we are swiping on touch screen
+
     //not really onClick anymore because we need to use mousedown event
 
     //if mdb is true this is being called from
@@ -209,16 +216,14 @@ export function BoardDetails({ props }) {
 
     const [iOld, jOld] = selected;
 
-    //columns is j which is the x position
+    //columns is j which is the x position - got it?
     const dir = vec.normalize( [j-jOld, i-iOld ]);
 
     let angle = 0;
-    const touchStart = touches.isTouchStart ?? false;
     if (touches.useDir && vec.length(touches.dir) > 1e-4 ) {
       const cos = vec.dot(dir, touches.dir);
       angle = Math.acos(cos);
       if (angle > .2) { 
-        //setTouchInfo(["wtf",dir,touches.dir]);
         return; } 
     }
     let flag = true;
@@ -237,7 +242,7 @@ export function BoardDetails({ props }) {
       //letter selected in order to reset
       const klugeReset = !touches.useDir && touches.isTouchStart && (i===iOld && j===jOld);
 
-      setTouchInfo([touches.useDir,touches.isTouchStart,i,j,iOld,jOld, klugeReset]);
+      //setTouchInfo([touches.useDir,touches.isTouchStart,i,j,iOld,jOld, klugeReset, mbd]);
 
       if ( validMove &&  allSelected[i][j] === 0 ) {
 
@@ -253,7 +258,14 @@ export function BoardDetails({ props }) {
       else if (  !klugeReset && mbd  && (i===iOld && j===jOld)   ) {
         flag = false;
       }
-      else {
+
+      //else if ( mbd && !touches.pos ) { return; }
+      else if ( mbd && !touches.pos ) { return; }
+
+      else if ( mbd && !touches.isTouchStart) { return; }
+
+      else  {
+
         for (let j = 0; j < N; j++) {
           for (let i = 0; i < M; i++) {
             newStyles[i][j].backgroundImage =
@@ -283,8 +295,6 @@ export function BoardDetails({ props }) {
       }
     }
 
-    //setTouchInfo([touches.isTouchStart,i,j,iOld,jOld,mbd,flag,allSelected[i][j]]);
-
     if (flag) {
       newSelected[i][j] = 1;
       setSelected([i, j]);
@@ -300,7 +310,7 @@ export function BoardDetails({ props }) {
     if (isTouchDevice) {  return; }
 
     ev.preventDefault();
-    //this state management stuff could be nasty performance wise
+
     let newStyles = deepClone(cubeStyles); //this is ugly
 
     //set all other fontSizes back to normal
@@ -338,7 +348,8 @@ export function BoardDetails({ props }) {
         const keyVal = "letter" + i.toString() + j.toString() + letter;
 
         //we need to leave some room for the mouse or finger to squeeze between letters
-        //so we can swipe a nice path
+        //so we can swipe a nice path, not enough we need to use swipe direction as well
+        //to get a clear path
         const lh = lineHeight.current * 0.7 + "px";
         tmpOutput.push(
           <div
@@ -376,7 +387,6 @@ export function BoardDetails({ props }) {
     //we are going to need to detect mobile and touch events or else 
     //many ui events just act stupid
     
-    //console.log("path is", pathRef.current);
     tmpOutput.push(...pathRef.current);
 
     setOutput(tmpOutput);
@@ -401,6 +411,10 @@ export function BoardDetails({ props }) {
 
     if (!search[1]) {
       //set colors to Red ish
+      setSearchStringBackground("");
+      setIsWord(false);
+      isWordRef.current = false;
+
     } else if (search[1]) {
       //add it to the user's found words
       const newWords = JSON.parse(JSON.stringify(foundWords));
@@ -410,12 +424,15 @@ export function BoardDetails({ props }) {
         newWords[searchString] = 1;
       }
 
+      isWordRef.current = true;
+
       let newBackgroundImage = "radial-gradient(#FFFF00,#00FFFF)";
       let newColor = "#E000E0";
-      if (foundWords[searchString]) {
+      if (foundWords[searchString] || allWordsFound[searchString]) {
         //if we already found this word color it grey-ish
         newBackgroundImage = "radial-gradient(#FFFFFF,#000000)";
         newColor = "#101010";
+        isWordRef.current = false;
       }
 
       let newStyles = deepClone(cubeStyles); //this is ugly
@@ -427,9 +444,12 @@ export function BoardDetails({ props }) {
       }
 
       setCubeStyles(newStyles);
-      setFoundWords(newWords);
+      if (isWordRef.current) setFoundWords(newWords);
+      setIsWord(true);
+      setSearchStringBackground(newBackgroundImage);
+      
     }
-  }, [searchString, game]);
+  }, [searchString, game, setIsWord]);
   //React is wrong about adding foundWords and cubeStyles here: it causes infinite renders
 
   return <div>{output}</div>
