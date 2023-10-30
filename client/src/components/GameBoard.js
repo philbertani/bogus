@@ -60,25 +60,49 @@ export function GameBoard({ props }) {
 
     const newWordOutput = [];
     const words = Object.keys(foundWords);   //.reverse(); //game.words
-    const mostRecent = words[words.length - 1];
+    let mostRecent = words[words.length - 1];  //could be undefined
+    
+    //i really dislike this kind of redundant crap, allWordsFound is a state so 
+    //we have to make a copy
+     
+    //wierd Object.assign was converting the object into a string
+    //const allWords = Object.assign('',allWordsFound);
 
-    const sortedWords = words.sort();  //keep it in alphabet order 
-    const search = bsearch(sortedWords, mostRecent);  //highlight the current word
+    const allWords = {};
+    for (const [key,val] of Object.entries(allWordsFound)) {
+      allWords[key] = val;
+    }
 
-    const index = search[3];
+    for (let i=0; i<words.length; i++) {
+      if (!allWords[words[i]]) {
+        allWords[words[i]]=-1;
+      }
+    }
+  
+    console.log('zzz',allWords);
+
+    const sortedWords = Object.keys(allWords).sort();  //keep it in alphabet order 
+
+    //i dont think we need wordRefs
+    //if ( mostRecent ) {
+    //  const search = bsearch(sortedWords, mostRecent);  //highlight the current word
+    //  const index = search[3];
+    //}
 
     //have the word list scroll to the closest match and center it in the div
+
+    console.log(allWords);
     for (const word of sortedWords) {
       let bgColor = "inherit";
       let color = "black";
       let backgroundImage = "";
-      if (word.localeCompare(mostRecent) === 0) {
+      if (foundWords[word]) { //word.localeCompare(mostRecent) === 0) {
         backgroundImage = "linear-gradient(#FFFF00,#00FFFF)";
         color = "#A000A0";
       }
       newWordOutput.push([
         <div
-          ref={(el) => (wordRefs.current[index] = el)}
+          //ref={(el) => (wordRefs.current[index] = el)}
           key={"key" + word}
           style={{
             margin: ".5vh",
@@ -91,6 +115,7 @@ export function GameBoard({ props }) {
             fontSize: boardDims.height / 20,
             height: "fit-content",
             width: "fit-content",
+            borderRadius: "5px"
           }}
         >
           {word}
@@ -110,7 +135,7 @@ export function GameBoard({ props }) {
     }
 
     setWordOutput(newWordOutput);
-  }, [foundWords, boardDims.height, game.words]);
+  }, [foundWords, boardDims.height, game.words, allWordsFound]);
 
   let props2 = {
     game,
@@ -183,7 +208,7 @@ export function GameBoard({ props }) {
       socket.emit('word', searchString);
     }
 
-  },[isWord,searchString,isWordRef]);
+  },[isWord,searchString,isWordRef,socket]);
 
   return (
     <div
@@ -236,8 +261,8 @@ export function GameBoard({ props }) {
         key={"header01"}
         style={{ maxWidth: boardDims.width, textAlign: "center", margin: "0" }}
       >
-        Words Found: {Object.keys(foundWords).length}{" "}
-        AllWords: {Object.keys(allWordsFound).length}
+        You: {Object.keys(foundWords).length}{" "}
+        Everyone: {Object.keys(allWordsFound).length}
       </h3>
       <div
         key="i01"

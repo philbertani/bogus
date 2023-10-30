@@ -44,8 +44,9 @@ export class ioManager {
 
     io.on("connection", socket=> {
       socket.on("word", msg => {
-        console.log("word found by",socket.id,msg);
+
         const gameRoom = this.gameRooms[this.roomMap[0]];
+        console.log(Date.now(),"word found by",socket.id,"in room 0", msg);
 
         if (gameRoom.allWordsFound[msg]) { 
           gameRoom.allWordsFound[msg] ++ ;
@@ -54,7 +55,7 @@ export class ioManager {
           gameRoom.allWordsFound[msg] = 1;
         }
 
-        console.log(gameRoom.allWordsFound);
+        //console.log(gameRoom.allWordsFound);
         io.to(gameRoom.id).emit('allWordsFound',gameRoom.allWordsFound);
       })
     })
