@@ -6,9 +6,7 @@ import { Events} from './components/Events';
 import { GameBoard } from './components/GameBoard';
 import bogusMain from './common/bogus.js';
 import {cloneArray} from './common/utils.js';
-//import {v4 as uuidv4} from 'uuid';
-import {nanoid} from 'nanoid';
-
+import {v4 as uuidv4} from 'uuid';
 import './App.css';
 
 //if we lose connection and reload page, load the previous board from
@@ -47,13 +45,13 @@ export default function App() {
 
       let userId = localStorage.getItem("bogusId");
       if ( !userId ) {
-        const uuid = nanoid(8); //uuidv4();
+        const uuid = uuidv4();
         localStorage.setItem("bogusId",uuid);
         userId = uuid;
       } 
       let sessionId = sessionStorage.getItem("bogusId");
       if ( !sessionId ) {
-        const uuid = nanoid(8);
+        const uuid = uuidv4();
         sessionStorage.setItem("bogusId",uuid);
         sessionId = uuid;        
       }

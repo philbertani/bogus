@@ -1,6 +1,6 @@
 import React from "react";
 import { useMouseButton } from "./uiHooks";
-import { nanoid } from "nanoid";
+import { v4 as uuidv4 } from "uuid";
 import { vec } from "../common/utils.js"
 
 function blank2dArray(M, N, stuffing = 0) {
@@ -102,7 +102,7 @@ export function BoardDetails({ props }) {
 
       return (
         <div
-          key={nanoid(6)}
+          key={uuidv4()}
           style={{
             transform: transformText,
             position: "absolute",

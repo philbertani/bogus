@@ -1,6 +1,6 @@
 import { gameRoom } from "./gameRoom.js";
 import { Server } from "socket.io";
-import {nanoid} from "nanoid";
+import { v4 as uuidv4 } from "uuid";
 
 export class ioManager {
 
@@ -20,7 +20,7 @@ export class ioManager {
       });
 
       this.setHandlers(this.io);
-      const newRoomId = nanoid(6);
+      const newRoomId = uuidv4();
       this.gameRooms[newRoomId] = new gameRoom(newRoomId, this.io, dict) ;
       this.roomMap[this.numRooms] = newRoomId;
 

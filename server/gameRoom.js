@@ -12,7 +12,7 @@ export class gameRoom {
 
     constructor(roomId,io,dict) {
         this.io = io;
-        this.id = roomId; //nanoid(6);
+        this.id = roomId;
         console.log("new game room - id is: ",this.id);
         this.game = new bogusMain(dict);
         const tmp = this.game.newBoard();
