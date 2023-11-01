@@ -7,7 +7,8 @@
         "installWin":"(cd server && npm install) && (cd ../client && npm install)",
         "startWin":"(cd server && start npm start) && (cd ../client && start npm start)",
         "install": "(cd server && npm install); (cd client && npm install)",
-        "start": "cd server && npm run start"
+        "start": "cd server && npm run start",
+        "build": "cd client && npm run build"
     }
 
 }
