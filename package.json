@@ -1,11 +1,13 @@
 {
     "name" : "bogus-driver",
     "type" : "module",
-    "description" : "for windows env, change for unix",
+    "description" : "boggle like multiplayer game using socket.io",
 
     "scripts" : {
-        "install":"(cd server && npm install) && (cd ../client && npm install)",
-        "start":"(cd server && start npm start) && (cd ../client && start npm start)"
+        "installWin":"(cd server && npm install) && (cd ../client && npm install)",
+        "startWin":"(cd server && start npm start) && (cd ../client && start npm start)",
+        "install": "(cd server && npm install); (cd client && npm install)",
+        "start": "cd server && npm run start"
     }
 
 }
