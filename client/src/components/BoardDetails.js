@@ -180,6 +180,8 @@ export function BoardDetails({ props }) {
 
     if (counter.current % 100 === 0) console.log(counter.current);
 
+    //setTouchInfo(boardDims);
+
     //we have to let React manage the styles using useState
     setCubeStyles(tmpStyles);
   }, [M, N, boardDims, cubeRefs, game.board, game.rank]);

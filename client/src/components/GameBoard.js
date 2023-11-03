@@ -30,14 +30,16 @@ export function GameBoard({ props }) {
   const [wordOutput, setWordOutput] = React.useState([]);
 
   const wordRefs = React.useRef(Array(game.words.length).fill(null));
+  const isWordRef = React.useState(false);
+
   const [searchString, setSearchString] = React.useState("");
   const [debugString, setDebugString] = React.useState("");
   const [isWord, setIsWord] = React.useState(false);
   const [searchStringBackGround, setSearchStringBackground] = React.useState("");
 
-  const isWordRef = React.useState(false);
+  const [wordListPos,setWordListPos] = React.useState({});
 
-
+  
   React.useEffect(() => {
     //const currentBoardDims = boardRef.current.getBoundingClientRect();
     const aspectRatio = windowSize.width / windowSize.height;
@@ -210,7 +212,21 @@ export function GameBoard({ props }) {
 
   },[isWord,searchString,isWordRef,socket]);
 
+  React.useEffect( ()=>{
+
+    console.log(Date.now(),boardDims);
+    if (windowSize.width > 1.4*windowSize.height) {
+      setWordListPos( {top:0, left:1.1*boardDims.width,
+        height: window.innerWidth});
+    }
+    else {
+      setWordListPos( {top:1.18*boardDims.height + .02*window.innerHeight, left:0, 
+        height:0.7 * (window.innerHeight - boardDims.height) } );
+    }
+  },[windowSize, boardDims]);
+
   return (
+
     <div
       onTouchStart={processTouch}
       onTouchMove={processTouch}
@@ -232,38 +248,29 @@ export function GameBoard({ props }) {
         {searchString}
       </div>
       <div>{debugString}</div>
+
       <div
         ref={boardRef}
-        style={{ width: boardDims.width, height: boardDims.height }}
+        style={{ margin:"1vw", width: boardDims.width, height: boardDims.height, position:"absolute", top:boardDims.height/10}}
         key="g01"
         className="GameBoard"
       >
         <BoardDetails props={props2} />
       </div>
-      <div
-        key="h01"
-        hidden={hidden}
-        style={{
-          opacity: "80%",
-          margin: "1vw",
-          position: "absolute",
-          top: 0,
-          zIndex: 20,
-          backgroundColor: "yellow",
-          width: boardDims.width,
-          height: boardDims.height,
-        }}
-      >
-        User Info
-      </div>
 
-      <h3
+
+      <div
         key={"header01"}
-        style={{ maxWidth: boardDims.width, textAlign: "center", margin: "0" }}
+        style={{ width: boardDims.width, maxWidth: boardDims.width, 
+          textAlign: "center", margin: "0",
+          position: "absolute", top: 1.1*boardDims.height + .02*window.innerHeight ,
+          fontWeight: "bold", fontSize: .06*boardDims.height
+         }}
       >
         You: {Object.keys(foundWords).length}{" "}
         Everyone: {Object.keys(allWordsFound).length}
-      </h3>
+      </div>
+
       <div
         key="i01"
         className="wordList"
@@ -271,12 +278,15 @@ export function GameBoard({ props }) {
           marginLeft: "1vw",
           backgroundColor: "#A0B0FF",
           maxWidth: boardDims.width,
-          height: 0.75 * (window.innerHeight - boardDims.height),
+          height: wordListPos.height, //0.7 * (window.innerHeight - boardDims.height),
           overflow: "auto",
           whiteSpace: "nowrap",
           wordBreak: "break-word",
           borderRadius: "5px",
           overflowY: "scroll",
+          position: "absolute",
+          top: wordListPos.top, //1.18*boardDims.height + .02*window.innerHeight
+          left: wordListPos.left
         }}
       >
         <div
@@ -292,5 +302,6 @@ export function GameBoard({ props }) {
         </div>
       </div>
     </div>
+
   );
 }

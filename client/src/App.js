@@ -138,11 +138,12 @@ export default function App() {
       (doneOne && !isDuplicateProcess ) && <GameBoard key="k05" props={props}/> ,
       isDuplicateProcess && <div>You already are Connected</div>,
  
+      /*
       <div style={{margin:"1vw"}}key="k00" className="App">
         <ConnectionState key="k01" isConnected={ isConnected } />
         <Events key="k02" events={ fooEvents } />
       </div>
-
+      */
     ]
   );
 }
