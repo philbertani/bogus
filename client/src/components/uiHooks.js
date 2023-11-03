@@ -19,7 +19,6 @@ export function useWindowSize() {
   return windowSize;
 }
 
-
 //these below are not used - but leaving here for possible future use
 export function useMouseButton() {
   const [mouseButtonDown, setMouseButtonDown] = useState(false);
