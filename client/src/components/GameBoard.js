@@ -79,7 +79,7 @@ export function GameBoard({ props }) {
       }
     }
   
-    console.log('zzz',allWords);
+    //console.log('zzz',allWords);
 
     const sortedWords = Object.keys(allWords).sort();  //keep it in alphabet order 
 
@@ -91,7 +91,7 @@ export function GameBoard({ props }) {
 
     //have the word list scroll to the closest match and center it in the div
 
-    console.log(allWords);
+    //console.log(allWords);
     for (const word of sortedWords) {
       let bgColor = "inherit";
       let color = "black";

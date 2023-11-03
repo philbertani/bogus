@@ -26,7 +26,7 @@ export function BoardDetails({ props }) {
     setIsWord,
     setSearchStringBackground,
     isWordRef,
-    allWordsFound
+    allWordsFound,
   } = props;
 
   const [output, setOutput] = React.useState([]);
@@ -64,8 +64,8 @@ export function BoardDetails({ props }) {
   }, [reset, setReset, M, N, setFoundWords]);
 
   const addPathDiv = React.useCallback(
+
     (style, prevStyle, i, j, iOld, jOld) => {
-      //function addPathDiv(style, prevStyle, i, j, iOld, jOld) {
       const y = style.top + SN(style.height) / 2;
       const x = style.left + SN(style.width) / 2;
       const yOld = prevStyle.top + SN(style.height) / 2;
@@ -116,13 +116,12 @@ export function BoardDetails({ props }) {
           }}
         ></div>
       );
-    },
-    [N, boardDims.width]
-  );
+    }
+
+  ,[N, boardDims.width] );
 
   //need to regenerate pathRef to track new letter positions
   const resetPath = React.useCallback(() => {
-    //function resetPath() {
     const refs = selectedRef.current;
     pathRef.current = [];
 
@@ -181,12 +180,14 @@ export function BoardDetails({ props }) {
 
     if (counter.current % 100 === 0) console.log(counter.current);
 
-    resetPath();
-
     //we have to let React manage the styles using useState
     setCubeStyles(tmpStyles);
   }, [M, N, boardDims, cubeRefs, game.board, game.rank]);
   //adding cubeStyles and resetPath causes infinite rerenders
+
+
+  //reset path needed to be in its own useEffect
+  React.useEffect( ()=>{ resetPath();  },[boardDims, resetPath]);
 
   function deepClone(B) {
     return JSON.parse(JSON.stringify(B));
@@ -197,7 +198,7 @@ export function BoardDetails({ props }) {
     return Number(str.replace("px", ""));
   }
 
-  function handleClick(ev, i, j, mbd=false) {  
+  function handleClick(ev, i, j, mbd = false) {
     //mbd=Mouse Button Down, also true if we are swiping on touch screen
 
     //not really onClick anymore because we need to use mousedown event
@@ -217,14 +218,15 @@ export function BoardDetails({ props }) {
     const [iOld, jOld] = selected;
 
     //columns is j which is the x position - got it?
-    const dir = vec.normalize( [j-jOld, i-iOld ]);
+    const dir = vec.normalize([j - jOld, i - iOld]);
 
     let angle = 0;
-    if (touches.useDir && vec.length(touches.dir) > 1e-4 ) {
+    if (touches.useDir && vec.length(touches.dir) > 1e-4) {
       const cos = vec.dot(dir, touches.dir);
       angle = Math.acos(cos);
-      if (angle > .2) { 
-        return; } 
+      if (angle > 0.2) {
+        return;
+      }
     }
     let flag = true;
 
@@ -233,19 +235,17 @@ export function BoardDetails({ props }) {
     if (selected.length === 0) {
       newStyles[i][j].backgroundImage = "radial-gradient(#FFFF00,#F000FF)";
       newStyles[i][j].color = "#A000F0";
-
     } else {
-
       const validMove = game.isValidMove(i, j, selected);
 
       //the annoying case of when using touch input we tap again on the last
       //letter selected in order to reset
-      const klugeReset = !touches.useDir && touches.isTouchStart && (i===iOld && j===jOld);
+      const klugeReset =
+        !touches.useDir && touches.isTouchStart && i === iOld && j === jOld;
 
       //setTouchInfo([touches.useDir,touches.isTouchStart,i,j,iOld,jOld, klugeReset, mbd]);
 
-      if ( validMove &&  allSelected[i][j] === 0 ) {
-
+      if (validMove && allSelected[i][j] === 0) {
         const style = newStyles[i][j];
         const prevStyle = cubeStyles[iOld][jOld];
 
@@ -253,19 +253,16 @@ export function BoardDetails({ props }) {
         style.color = "#A000F0";
 
         pathRef.current.push(addPathDiv(style, prevStyle, i, j, iOld, jOld));
-      }
-
-      else if (  !klugeReset && mbd  && (i===iOld && j===jOld)   ) {
+      } else if (!klugeReset && mbd && i === iOld && j === jOld) {
         flag = false;
       }
 
       //else if ( mbd && !touches.pos ) { return; }
-      else if ( mbd && !touches.pos ) { return; }
-
-      else if ( mbd && !touches.isTouchStart) { return; }
-
-      else  {
-
+      else if (mbd && !touches.pos) {
+        return;
+      } else if (mbd && !touches.isTouchStart) {
+        return;
+      } else {
         for (let j = 0; j < N; j++) {
           for (let i = 0; i < M; i++) {
             newStyles[i][j].backgroundImage =
@@ -276,19 +273,20 @@ export function BoardDetails({ props }) {
 
         newSelected = blank2dArray(M, N);
 
-        if ( ( searchString.length === 0 || allSelected[i][j]===0) 
-          ||  ( searchString.length ===1 && allSelected[i][j]===1  )   ) {
+        if (
+          searchString.length === 0 ||
+          allSelected[i][j] === 0 ||
+          (searchString.length === 1 && allSelected[i][j] === 1)
+        ) {
           newStyles[i][j].backgroundImage = "radial-gradient(#FFFF00,#F000FF)";
           newStyles[i][j].color = "#A000F0";
-        }
-        else {
-          
+        } else {
           flag = false;
           setCubeStyles(newStyles);
           setSelected([]);
           setAllSelected(newSelected);
         }
- 
+
         setSearchString("");
         selectedRef.current = [];
         pathRef.current = [];
@@ -306,8 +304,9 @@ export function BoardDetails({ props }) {
   }
 
   function handleMouseOver(ev, ix, jx, flag) {
-
-    if (isTouchDevice) {  return; }
+    if (isTouchDevice) {
+      return;
+    }
 
     ev.preventDefault();
 
@@ -320,24 +319,22 @@ export function BoardDetails({ props }) {
       }
     }
 
-    if (flag)
-      newStyles[ix][jx].fontSize = (0.8 * boardDims.height) / N + "px";
+    if (flag) newStyles[ix][jx].fontSize = (0.8 * boardDims.height) / N + "px";
 
     setCubeStyles(newStyles);
 
-    if (mouseButtonDown ) {
+    if (mouseButtonDown) {
       //console.log("mouse down yippee", mouseButtonDown);
-      handleClick(ev,ix,jx,true);
+      handleClick(ev, ix, jx, true);
     }
-
   }
 
-  React.useEffect( ()=> {
-    console.log(touches)
-    if ( touches.pos && touches.pos.x ) {
-      handleClick(null, touches.pos.x,touches.pos.y,true);
+  React.useEffect(() => {
+    console.log(touches);
+    if (touches.pos && touches.pos.x) {
+      handleClick(null, touches.pos.x, touches.pos.y, true);
     }
-  }, [touches] );
+  }, [touches]);
 
   React.useEffect(() => {
     let tmpOutput = [];
@@ -356,12 +353,13 @@ export function BoardDetails({ props }) {
             id={keyVal}
             ref={(el) => (cubeRefs.current[i][j] = el)}
             //we need to ignore the mouseDown that is forwarded from touches
-            onMouseDown = { ev => { !isTouchDevice && handleClick(ev, i,j,false)} }
+            onMouseDown={(ev) => {
+              !isTouchDevice && handleClick(ev, i, j, false);
+            }}
             style={cubeStyles[i][j]}
             key={"boxNum" + keyVal}
           >
             <div
-
               style={{
                 textAlign: "center",
                 lineHeight: lh,
@@ -374,8 +372,8 @@ export function BoardDetails({ props }) {
                 borderRadius: "10px",
                 zIndex: 100,
               }}
-              onMouseOver  = { ev => handleMouseOver(ev, i, j, true)}
-              onMouseOut   = { ev => handleMouseOver(ev, i, j, false)}
+              onMouseOver={(ev) => handleMouseOver(ev, i, j, true)}
+              onMouseOut={(ev) => handleMouseOver(ev, i, j, false)}
             >
               {letter}
             </div>
@@ -384,9 +382,9 @@ export function BoardDetails({ props }) {
       }
     }
 
-    //we are going to need to detect mobile and touch events or else 
+    //we are going to need to detect mobile and touch events or else
     //many ui events just act stupid
-    
+
     tmpOutput.push(...pathRef.current);
 
     setOutput(tmpOutput);
@@ -400,7 +398,7 @@ export function BoardDetails({ props }) {
     selected,
     allSelected,
     searchString,
-    mouseButtonDown
+    mouseButtonDown,
   ]);
 
   React.useEffect(() => {
@@ -414,7 +412,6 @@ export function BoardDetails({ props }) {
       setSearchStringBackground("");
       setIsWord(false);
       isWordRef.current = false;
-
     } else if (search[1]) {
       //add it to the user's found words
       const newWords = JSON.parse(JSON.stringify(foundWords));
@@ -447,11 +444,9 @@ export function BoardDetails({ props }) {
       if (isWordRef.current) setFoundWords(newWords);
       setIsWord(true);
       setSearchStringBackground(newBackgroundImage);
-      
     }
   }, [searchString, game, setIsWord]);
   //React is wrong about adding foundWords and cubeStyles here: it causes infinite renders
 
-  return <div>{output}</div>
-
+  return <div>{output}</div>;
 }
