@@ -1,5 +1,6 @@
 
 import bogusMain from "../client/src/common/bogus.js";  //had to add it to React src to be able to share it
+import {v4 as uuidv4} from "uuid";
 
 export class gameRoom {
     id;
@@ -9,6 +10,7 @@ export class gameRoom {
     board;
     output;
     allWordsFound = {};
+    boardId;
 
     constructor(roomId,io,dict) {
         this.io = io;
@@ -18,6 +20,7 @@ export class gameRoom {
         const tmp = this.game.newBoard();
         this.board = tmp.board;
         this.output = tmp.output;
+        this.boardId = uuidv4();
     }
 
     newPlayer( player ) {

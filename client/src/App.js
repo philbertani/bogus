@@ -82,6 +82,7 @@ export default function App() {
       mainGame.output = cloneArray(msg.game.output);
       mainGame.words = [...msg.words];
       mainGame.definitions = [...msg.defs];
+      mainGame.boardId = msg.boardId;
 
       //console.log(mainGame.definitions);
       window.bogus = mainGame;  //remove this when we are live on the internet obviously
@@ -92,7 +93,7 @@ export default function App() {
       setDoneOne(true);
  
       setReset(true);
-      console.log('setting mainGame');
+      console.log('setting mainGame', mainGame.boardId);
 
       const td = window.matchMedia("(pointer: coarse)").matches;
 

@@ -59,9 +59,19 @@ export function BoardDetails({ props }) {
       setSearchString("");
       setReset(false);
       selectedRef.current = [];
+
       setFoundWords({});
+
+      const savedWords = JSON.parse( localStorage.getItem("bogusSavedWords") ) ?? {};
+      if ( savedWords.boardId && savedWords.boardId === game.boardId) {
+        //we could have just checked that the boards are the same but this is 
+        //the lazy way - but still kind of annoying
+        savedWords.foundWords && setFoundWords(savedWords.foundWords)
+        console.log('words from local storage',savedWords);
+      }
+
     }
-  }, [reset, setReset, M, N, setFoundWords]);
+  }, [reset, setReset, M, N, setFoundWords, game.boardId, setSearchString]);
 
   const addPathDiv = React.useCallback(
 
@@ -332,7 +342,7 @@ export function BoardDetails({ props }) {
   }
 
   React.useEffect(() => {
-    console.log(touches);
+    //console.log(touches);
     if (touches.pos && touches.pos.x) {
       handleClick(null, touches.pos.x, touches.pos.y, true);
     }
@@ -443,7 +453,11 @@ export function BoardDetails({ props }) {
       }
 
       setCubeStyles(newStyles);
-      if (isWordRef.current) setFoundWords(newWords);
+      if (isWordRef.current) { 
+        setFoundWords(newWords);
+        localStorage.setItem("bogusSavedWords",JSON.stringify( {foundWords:newWords, boardId:game.boardId} ));
+      }
+
       setIsWord(true);
       setSearchStringBackground(newBackgroundImage);
     }

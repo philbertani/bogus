@@ -214,7 +214,7 @@ export function GameBoard({ props }) {
 
   React.useEffect( ()=>{
 
-    console.log(Date.now(),boardDims);
+    //console.log(Date.now(),boardDims);
     if (windowSize.width > 1.4*windowSize.height) {
       setWordListPos( {top:0, left:1.1*boardDims.width,
         height: window.innerWidth});
@@ -242,7 +242,7 @@ export function GameBoard({ props }) {
           textAlign: "center",
           height: boardDims.height / 10,
           fontSize: boardDims.height / 11,
-          lineHeight: boardDims.height / 10 +"px"
+          lineHeight: boardDims.height / 10 + "px"
         }}
       >
         {searchString}
@@ -278,6 +278,7 @@ export function GameBoard({ props }) {
           marginLeft: "1vw",
           backgroundColor: "#A0B0FF",
           maxWidth: boardDims.width,
+          minWidth: boardDims.width,
           height: wordListPos.height, //0.7 * (window.innerHeight - boardDims.height),
           overflow: "auto",
           whiteSpace: "nowrap",

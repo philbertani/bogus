@@ -57,8 +57,8 @@ export class ioManager {
 
         //console.log(gameRoom.allWordsFound);
         io.to(gameRoom.id).emit('allWordsFound',gameRoom.allWordsFound);
-      })
-    })
+      });
+    });
 
     io.on("connection", (socket) => {
       socket.on("new board", (msg) => {
@@ -145,7 +145,8 @@ export class ioManager {
             output: gameRoom.output,
           },
           words: gameRoom.game.wordsFound,
-          defs: [] //gameRoom.game.defsFound
+          defs: gameRoom.game.defsFound,
+          boardId: gameRoom.boardId
         });
 
         io.to(gameRoom.id).emit("allWordsFound",gameRoom.allWordsFound);
