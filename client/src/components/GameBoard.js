@@ -1,8 +1,8 @@
 import React from "react";
 import "./GameBoard.css";
-import { useWindowSize, useTouches} from "./uiHooks.js";
+import { useWindowSize } from "./uiHooks.js";
 import { BoardDetails } from "./BoardDetails";
-import { bsearch, vec } from "../common/utils.js";
+import { vec } from "../common/utils.js";
 
 export function GameBoard({ props }) {
   const {
@@ -25,21 +25,37 @@ export function GameBoard({ props }) {
   const [touchInfo, setTouchInfo] = React.useState();
 
   const { M, N } = game.rank;
-  const cubeRefs = React.useRef(Array(M).fill(()=>Array(N).fill(null)));
-  const [hidden, setHidden] = React.useState(true);
+  const cubeRefs = React.useRef(Array(M).fill(() => Array(N).fill(null)));
   const [wordOutput, setWordOutput] = React.useState([]);
 
-  const wordRefs = React.useRef(Array(game.words.length).fill(null));
-  const isWordRef = React.useState(false);
+  //const wordRefs = React.useRef(Array(game.words.length).fill(null));
+  //const [debugString, setDebugString] = React.useState("");
 
+  const isWordRef = React.useState(false);
   const [searchString, setSearchString] = React.useState("");
-  const [debugString, setDebugString] = React.useState("");
   const [isWord, setIsWord] = React.useState(false);
   const [searchStringBackGround, setSearchStringBackground] = React.useState("");
 
-  const [wordListPos,setWordListPos] = React.useState({});
+  const [wordListPos, setWordListPos] = React.useState({});
+  const [displayMenu, setDisplayMenu] = React.useState("none");
+  const [displayDefinition, setDisplayDefinition] = React.useState("");
+  const [hideDef,setHideDef] = React.useState("none");
 
+  const [count, setCount] = React.useState(0);
+
+  React.useEffect(() => { 
   
+    //Implementing the setInterval method 
+    const interval = setInterval(() => { 
+        setCount(count + 1); 
+    }, 1000); 
+
+    if (count  === 3 ) { setHideDef("none"); };
+    //Clearing the interval 
+    return () => clearInterval(interval); 
+  }, [count]); 
+
+
   React.useEffect(() => {
     //const currentBoardDims = boardRef.current.getBoundingClientRect();
     const aspectRatio = windowSize.width / windowSize.height;
@@ -61,29 +77,27 @@ export function GameBoard({ props }) {
     if (isNaN(boardDims.height)) return;
 
     const newWordOutput = [];
-    const words = Object.keys(foundWords);   //.reverse(); //game.words
-    let mostRecent = words[words.length - 1];  //could be undefined
-    
-    //i really dislike this kind of redundant crap, allWordsFound is a state so 
-    //we have to make a copy
-     
+    const words = Object.keys(foundWords); //.reverse(); //game.words
+
+    //let mostRecent = words[words.length - 1]; //could be undefined
+
     //wierd Object.assign was converting the object into a string
     //const allWords = Object.assign('',allWordsFound);
 
     const allWords = {};
-    for (const [key,val] of Object.entries(allWordsFound)) {
+    for (const [key, val] of Object.entries(allWordsFound)) {
       allWords[key] = val;
     }
 
-    for (let i=0; i<words.length; i++) {
+    for (let i = 0; i < words.length; i++) {
       if (!allWords[words[i]]) {
-        allWords[words[i]]=-1;
+        allWords[words[i]] = -1;
       }
     }
-  
+
     //console.log('zzz',allWords);
 
-    const sortedWords = Object.keys(allWords).sort();  //keep it in alphabet order 
+    const sortedWords = Object.keys(allWords).sort(); //keep it in alphabet order
 
     //i dont think we need wordRefs
     //if ( mostRecent ) {
@@ -93,15 +107,22 @@ export function GameBoard({ props }) {
 
     //have the word list scroll to the closest match and center it in the div
 
-    //console.log(allWords);
     for (const word of sortedWords) {
       let bgColor = "inherit";
       let color = "black";
       let backgroundImage = "";
-      if (foundWords[word]) { //word.localeCompare(mostRecent) === 0) {
+      if (foundWords[word]) {
+        //word.localeCompare(mostRecent) === 0) {
         backgroundImage = "linear-gradient(#FFFF00,#00FFFF)";
         color = "#A000A0";
       }
+
+      let definition = "weird, no definition found";
+      const search = game.isWord(word);
+      if ( search[1] ) {
+        definition = game.definitions[search[3]];
+      }
+
       newWordOutput.push([
         <div
           //ref={(el) => (wordRefs.current[index] = el)}
@@ -117,8 +138,9 @@ export function GameBoard({ props }) {
             fontSize: boardDims.height / 20,
             height: "fit-content",
             width: "fit-content",
-            borderRadius: "5px"
+            borderRadius: "5px",
           }}
+          onClick={ev=>{setCount(0); setHideDef("block"); setDisplayDefinition(definition); }}
         >
           {word}
         </div>,
@@ -156,153 +178,220 @@ export function GameBoard({ props }) {
     setIsWord,
     setSearchStringBackground,
     isWordRef,
-    allWordsFound
+    allWordsFound,
   };
 
   const touch0 = React.useRef({});
 
   function processTouch(ev) {
+    //we need to prevent touch processing when the menu is overlaid
+    if (displayMenu === "block") return;
 
+    //on iOs devices long press still causes copy/paste dialog to pop up
     ev.preventDefault();
     const tch = ev.touches[0];
-    const [x,y] = [tch.clientX, tch.clientY];
-    const objects = document.elementsFromPoint(x,y);
+    const [x, y] = [tch.clientX, tch.clientY];
+    const objects = document.elementsFromPoint(x, y);
     let letter = "none";
     let boardPos = {};
 
     //we have to dig through the elements at this point
     //but it works well enough
-    for (let i=0; i<objects.length; i++) {
-      if ( String(objects[i].id).includes('letter')) {
-        letter = String(objects[i].id).replace(/letter/,'');
-        boardPos = {x:letter.substring(0,1),y:letter.substring(1,2)};
+    for (let i = 0; i < objects.length; i++) {
+      if (String(objects[i].id).includes("letter")) {
+        letter = String(objects[i].id).replace(/letter/, "");
+        boardPos = { x: letter.substring(0, 1), y: letter.substring(1, 2) };
 
-        const isTouchStart = ev.type==="touchstart";
-        if ( !touch0.current.x || isTouchStart) {
+        const isTouchStart = ev.type === "touchstart";
+        if (!touch0.current.x || isTouchStart) {
           touch0.current.x = x;
           touch0.current.y = y;
         }
-        const [dx,dy] = [x-touch0.current.x, y-touch0.current.y];
+        const [dx, dy] = [x - touch0.current.x, y - touch0.current.y];
 
-        const len = vec.length([dx,dy]);
+        const len = vec.length([dx, dy]);
 
-        let dir = [0,0];
+        let dir = [0, 0];
         let useDir = false;
-        if ( len > 1e-4 ) { 
+        if (len > 1e-4) {
           dir = vec.normalize([dx, dy]);
           useDir = true;
-          
         }
-        setTouches( {pos:boardPos, dir, useDir, isTouchStart} );
+        setTouches({ pos: boardPos, dir, useDir, isTouchStart });
         break;
       }
     }
-    
-    touch0.current = {x,y};
 
+    touch0.current = { x, y };
   }
 
-  React.useEffect( ()=> {
+  React.useEffect(() => {
     //this useEffect gets called too many times with isWord being true
     //isWordRef is the easiest solution, React is annoying
     if (isWordRef.current) {
       console.log("trying to send word to server", isWord, searchString);
-      socket.emit('word', searchString);
+      socket.emit("word", searchString);
     }
+  }, [isWord, searchString, isWordRef, socket]);
 
-  },[isWord,searchString,isWordRef,socket]);
-
-  React.useEffect( ()=>{
+  React.useEffect(() => {
+    if (!boardDims.width) return;
 
     //console.log(Date.now(),boardDims);
-    if (windowSize.width > 1.4*windowSize.height) {
-      setWordListPos( {top:0, left:1.1*boardDims.width,
-        height: window.innerWidth});
+    if (windowSize.width > 1.4 * windowSize.height) {
+      setWordListPos({
+        top: boardDims.height/7,
+        left: 1.1 * boardDims.width,
+        height: window.innerHeight - boardDims.height/7,
+      });
+    } else {
+      setWordListPos({
+        top: 1.18 * boardDims.height + 0.02 * window.innerHeight,
+        left: 0,
+        height: 0.7 * (window.innerHeight - boardDims.height),
+      });
     }
-    else {
-      setWordListPos( {top:1.18*boardDims.height + .02*window.innerHeight, left:0, 
-        height:0.7 * (window.innerHeight - boardDims.height) } );
-    }
-  },[windowSize, boardDims]);
+  }, [windowSize, boardDims]);
 
+  //pad the beginning of searchString with spaces so it does not overwrite menu
+  const sp = "\u00a0";
+  const spx = sp + sp + sp + sp + sp;
   return (
-
-    <div
-      onTouchStart={processTouch}
-      onTouchMove={processTouch}
-      style={{ touchAction: "none" }}
-    >
-      <div>{JSON.stringify(touchInfo)}</div>
+    boardDims.height && wordListPos.top && (
       <div
-        key="searchString"
-        style={{
-          margin: "1vw",
-          backgroundImage: searchStringBackGround,
-          width: boardDims.width,
-          textAlign: "center",
-          height: boardDims.height / 10,
-          fontSize: boardDims.height / 11,
-          lineHeight: boardDims.height / 10 + "px"
-        }}
+        onTouchStart={processTouch}
+        onTouchMove={processTouch}
+        style={{ touchAction: "none" }}
       >
-        {searchString}
-      </div>
-      <div>{debugString}</div>
 
-      <div
-        ref={boardRef}
-        style={{ margin:"1vw", width: boardDims.width, height: boardDims.height, position:"absolute", top:boardDims.height/10}}
-        key="g01"
-        className="GameBoard"
-      >
-        <BoardDetails props={props2} />
-      </div>
-
-
-      <div
-        key={"header01"}
-        style={{ width: boardDims.width, maxWidth: boardDims.width, 
-          textAlign: "center", margin: "0",
-          position: "absolute", top: 1.1*boardDims.height + .02*window.innerHeight ,
-          fontWeight: "bold", fontSize: .06*boardDims.height
-         }}
-      >
-        You: {Object.keys(foundWords).length}{" "}
-        Everyone: {Object.keys(allWordsFound).length}
-      </div>
-
-      <div
-        key="i01"
-        className="wordList"
-        style={{
-          marginLeft: "1vw",
-          backgroundColor: "#A0B0FF",
-          maxWidth: boardDims.width,
-          minWidth: boardDims.width,
-          height: wordListPos.height, //0.7 * (window.innerHeight - boardDims.height),
-          overflow: "auto",
-          whiteSpace: "nowrap",
-          wordBreak: "break-word",
-          borderRadius: "5px",
-          overflowY: "scroll",
-          position: "absolute",
-          top: wordListPos.top, //1.18*boardDims.height + .02*window.innerHeight
-          left: wordListPos.left
-        }}
-      >
-        <div
-          key={"wordList"}
+        <div  //this should go on the same line as the point display
           style={{
-            display: "flex",
-            flexDirection: "row",
-            flexWrap: "wrap",
-            margin: "1vw",
+            position: "absolute",
+            top: "-2vh",
+            marginLeft: "1vw",
+            fontSize: boardDims.height / 8,
+            backgroundColor: "white",
+          }}
+          onClick={(ev) => {
+            displayMenu === "none"
+              ? setDisplayMenu("block")
+              : setDisplayMenu("none");
           }}
         >
-          {wordOutput}
+          {"\u2261"}
+        </div>
+
+        <div
+          key="searchString"
+          style={{
+            margin: "1vw",
+            backgroundImage: searchStringBackGround,
+            width: boardDims.width,
+            textAlign: "center",
+            height: boardDims.height / 10,
+            fontSize: boardDims.height / 11,
+            lineHeight: boardDims.height / 10 + "px",
+            zIndex: "-10", //so it slides under the menu icon
+          }}
+        >
+          {spx + searchString + spx}
+        </div>
+
+        <div
+          style={{
+            display: displayMenu,
+            backgroundColor: "rgba(255,255,255,.8)",
+            position: "absolute",
+            zIndex: "100",
+            height: 1.03 * boardDims.height,
+            width: 1.05 * boardDims.width,
+            top: boardDims.height / 9,
+          }}
+        >
+          You Suck At this Game, Har, Har
+        </div>
+
+        <div
+          ref={boardRef}
+          style={{
+            margin: "1vw",
+            width: boardDims.width,
+            height: boardDims.height,
+            position: "absolute",
+            top: boardDims.height / 10,
+          }}
+          key="g01"
+          className="GameBoard"
+        >
+          <BoardDetails props={props2} />
+        </div>
+
+        <div
+          key={"header01"}
+          style={{
+            width: boardDims.width,
+            maxWidth: boardDims.width,
+            textAlign: "center",
+            margin: "0",
+            position: "absolute",
+            top: 1.1 * boardDims.height + 0.02 * window.innerHeight,
+            fontWeight: "bold",
+            fontSize: 0.06 * boardDims.height,
+          }}
+        >
+          You: {Object.keys(foundWords).length} Everyone:{" "}
+          {Object.keys(allWordsFound).length}
+        </div>
+
+        <div style={{
+            zIndex:100,
+            position:"absolute",
+            margin:"1vw",
+            left: wordListPos.left,
+            top: wordListPos.top + wordListPos.height/2,
+            backgroundColor: "yellow",
+            fontSize: .05 * boardDims.height,
+            overflow: "auto",
+            width: boardDims.width,
+            display: hideDef
+
+          }}
+          >{displayDefinition}
+        </div>
+
+        <div
+          key="i01"
+          className="wordList"
+          style={{
+            touchAction: "none",
+            marginLeft: "1vw",
+            backgroundColor: "#A0B0FF",
+            maxWidth: boardDims.width,
+            minWidth: boardDims.width,
+            height: wordListPos.height,
+            overflow: "auto",
+            whiteSpace: "nowrap",
+            wordBreak: "break-word",
+            borderRadius: "5px",
+            overflowY: "scroll",
+            position: "absolute",
+            top: wordListPos.top,
+            left: wordListPos.left,
+          }}
+        >
+          <div
+            key={"wordList"}
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              flexWrap: "wrap",
+              margin: "1vw",
+            }}
+          >
+            {wordOutput}
+          </div>
         </div>
       </div>
-    </div>
-
+    )
   );
 }

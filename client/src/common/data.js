@@ -23,6 +23,7 @@ const ld = {
     "GILRUW",
   ],
 
+  //not sure if this works well enough for 5x5
   new: [
     //"QQQQQQ",
     "AAEEGN",
@@ -62,5 +63,33 @@ const ld = {
 
   ],
 };
+
+/*
+AAAFRS
+AAEEEE
+AAFIRS
+ADENNN
+AEEEEM
+AEEGMU
+AEGMNN
+AFIRSY
+BJKQXZ
+CCNSTW
+CEIILT
+CEILPT
+CEIPST
+DHHNOT 
+DHHLOR
+DHLNOR
+DDLNOR
+EIIITT
+EMOTTT
+ENSSSU
+FIPRSY
+GORRVW
+HIPRRY
+NOOTUW
+OOOTTU
+*/
 
 export {rank, minLetters, ld}

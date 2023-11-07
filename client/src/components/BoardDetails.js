@@ -95,15 +95,15 @@ export function BoardDetails({ props }) {
         top += SN(style.height) / 1.9; //should be 2 but it is off by some factor
 
         height = ".7vh";
-        //const sc = 1.42;
+        const sc = 1.42;
         if (i > iOld && j > jOld) {
-          transformText = "rotate(45deg) scale(1.42)";
+          transformText = "rotate(45deg) scale(" + sc +  ")";
         } else if (i > iOld && j < jOld) {
-          transformText = "rotate(135deg) scale(1.42)";
+          transformText = "rotate(135deg) scale(" + sc +  ")";
         } else if (i < iOld && j > jOld) {
-          transformText = "rotate(-45deg) scale(1.42)";
+          transformText = "rotate(-45deg) scale(" + sc +  ")";
         } else if (i < iOld && j < jOld) {
-          transformText = "rotate(45deg) scale(1.42)";
+          transformText = "rotate(45deg) scale(" + sc +  ")";
         }
       }
 
@@ -211,6 +211,7 @@ export function BoardDetails({ props }) {
   }
 
   function handleClick(ev, i, j, mbd = false) {
+
     //mbd=Mouse Button Down, also true if we are swiping on touch screen
 
     //not really onClick anymore because we need to use mousedown event
@@ -221,6 +222,9 @@ export function BoardDetails({ props }) {
     //some variations: if user clicks already selected remove all letters
     //after that one so she can restart quickly on the same path
     //double tap on the same letter would finally reset the whole path
+
+    //need some special logic for disabling default iOs touch events
+    //add option to reset path after touchend since it bugs Catalina
 
     if (ev) ev.preventDefault();
 
@@ -428,7 +432,7 @@ export function BoardDetails({ props }) {
       //add it to the user's found words
       const newWords = JSON.parse(JSON.stringify(foundWords));
       if (newWords[searchString]) {
-        newWords[searchString]++;
+        newWords[searchString] ++;
       } else {
         newWords[searchString] = 1;
       }
@@ -454,6 +458,9 @@ export function BoardDetails({ props }) {
 
       setCubeStyles(newStyles);
       if (isWordRef.current) { 
+        //console.log("definition",game.definitions[search[3]]);
+        //the following is useless - we just need to do another bsearch on game.words
+        //newWords[searchString] = search[3]; //remember the index so we can access definition later on
         setFoundWords(newWords);
         localStorage.setItem("bogusSavedWords",JSON.stringify( {foundWords:newWords, boardId:game.boardId} ));
       }
