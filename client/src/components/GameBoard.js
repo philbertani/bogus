@@ -22,7 +22,7 @@ export function GameBoard({ props }) {
   const windowSize = useWindowSize();
 
   const [touches, setTouches] = React.useState({});
-  const [touchInfo, setTouchInfo] = React.useState();
+  const [touchInfo, setTouchInfo] = React.useState();  //for debugging
 
   const { M, N } = game.rank;
   const cubeRefs = React.useRef(Array(M).fill(() => Array(N).fill(null)));
@@ -50,7 +50,7 @@ export function GameBoard({ props }) {
         setCount(count + 1); 
     }, 1000); 
 
-    if (count  === 3 ) { setHideDef("none"); };
+    if (count === 2 ) { setHideDef("none"); };
     //Clearing the interval 
     return () => clearInterval(interval); 
   }, [count]); 
@@ -349,15 +349,19 @@ export function GameBoard({ props }) {
             position:"absolute",
             margin:"1vw",
             left: wordListPos.left,
-            top: wordListPos.top + wordListPos.height/2,
-            backgroundColor: "yellow",
-            fontSize: .05 * boardDims.height,
+            top: wordListPos.top + wordListPos.height/3,
+            backgroundColor: "black",
+            fontSize: .07 * boardDims.height,
             overflow: "auto",
             width: boardDims.width,
-            display: hideDef
-
+            display: hideDef,
+            color: "white",
           }}
-          >{displayDefinition}
+          onClick={ev=>{setCount(0)}}
+          >
+            <p style={{marginTop:"0", marginLeft:"2vw", marginRight:"2vw"}}>
+              {displayDefinition}
+            </p>
         </div>
 
         <div
