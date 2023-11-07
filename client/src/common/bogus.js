@@ -273,7 +273,7 @@ class bogusMain {
   }
 
   makeBoard() {
-    const TYPE = "new"; //old vs new boggle letter distribution
+    const TYPE = "five"; //old vs new boggle letter distribution vs 5x5 (five)
     const letters = data.ld[TYPE];
 
     let dieNum = 0;
