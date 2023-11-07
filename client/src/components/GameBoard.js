@@ -307,6 +307,7 @@ export function GameBoard({ props }) {
             width: 1.05 * boardDims.width,
             top: boardDims.height / 9,
           }}
+          onClick = {ev => {setDisplayMenu("none") } }
         >
           You Suck At this Game, Har, Har
         </div>
