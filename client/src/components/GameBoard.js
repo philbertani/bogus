@@ -139,8 +139,9 @@ export function GameBoard({ props }) {
             height: "fit-content",
             width: "fit-content",
             borderRadius: "5px",
+            touchAction: "none"
           }}
-          onClick={ev=>{setCount(0); setHideDef("block"); setDisplayDefinition(definition); }}
+          onClick={ev=>{ev.preventDefault(); setCount(0); setHideDef("block"); setDisplayDefinition(definition); }}
         >
           {word}
         </div>,
@@ -253,34 +254,18 @@ export function GameBoard({ props }) {
     }
   }, [windowSize, boardDims]);
 
+  //"\u2261" is the 3 line menu
   //pad the beginning of searchString with spaces so it does not overwrite menu
   const sp = "\u00a0";
   const spx = sp + sp + sp + sp + sp;
   return (
-    boardDims.height && wordListPos.top && (
+    boardDims.height &&
+    wordListPos.top && (
       <div
         onTouchStart={processTouch}
         onTouchMove={processTouch}
         style={{ touchAction: "none" }}
       >
-
-        <div  //this should go on the same line as the point display
-          style={{
-            position: "absolute",
-            top: "-2vh",
-            marginLeft: "1vw",
-            fontSize: boardDims.height / 8,
-            backgroundColor: "white",
-          }}
-          onClick={(ev) => {
-            displayMenu === "none"
-              ? setDisplayMenu("block")
-              : setDisplayMenu("none");
-          }}
-        >
-          {"\u2261"}
-        </div>
-
         <div
           key="searchString"
           style={{
@@ -292,24 +277,27 @@ export function GameBoard({ props }) {
             fontSize: boardDims.height / 11,
             lineHeight: boardDims.height / 10 + "px",
             zIndex: "-10", //so it slides under the menu icon
+            border: "solid"
           }}
         >
-          {spx + searchString + spx}
+          {searchString}
         </div>
 
         <div
           style={{
             display: displayMenu,
-            backgroundColor: "rgba(255,255,255,.8)",
+            backgroundColor: "rgba(255,255,255,.9)",
             position: "absolute",
             zIndex: "100",
-            height: 1.03 * boardDims.height,
+            height: 1.02 * boardDims.height,
             width: 1.05 * boardDims.width,
-            top: boardDims.height / 9,
+            top: boardDims.height / 8.5,
           }}
-          onClick = {ev => {setDisplayMenu("none") } }
+          onClick={(ev) => {
+            setDisplayMenu("none");
+          }}
         >
-          You Suck At this Game, Har, Har
+          <p style={{textAlign:"center",margin:"2vw"}}>There are {game.words.length} words!</p>
         </div>
 
         <div
@@ -319,7 +307,7 @@ export function GameBoard({ props }) {
             width: boardDims.width,
             height: boardDims.height,
             position: "absolute",
-            top: boardDims.height / 10,
+            top: boardDims.height / 9,
           }}
           key="g01"
           className="GameBoard"
@@ -335,33 +323,59 @@ export function GameBoard({ props }) {
             textAlign: "center",
             margin: "0",
             position: "absolute",
-            top: 1.1 * boardDims.height + 0.02 * window.innerHeight,
+            top: wordListPos.top -boardDims.height/12, //1.1 * boardDims.height + 0.02 * window.innerHeight,
+            left: wordListPos.left,
             fontWeight: "bold",
             fontSize: 0.06 * boardDims.height,
           }}
         >
-          You: {Object.keys(foundWords).length} Everyone:{" "}
-          {Object.keys(allWordsFound).length}
+          <div
+            style={{
+              margin:"0",
+              position: "absolute",
+              top: "-2.5vh",
+              left: boardDims.width/18,
+              fontSize: boardDims.height / 10,
+              backgroundColor: "rgba(250,200,100,.5)",
+              width: boardDims.height / 9,
+              //borderRadius: "30%",
+              color: "rgba(0,50,150,1)"
+            }}
+            onClick={(ev) => {
+              displayMenu === "none"
+                ? setDisplayMenu("block")
+                : setDisplayMenu("none");
+            }}
+          >
+            {"\u22ee"}  
+          </div>   
+          <div>
+            You: {Object.keys(foundWords).length} Everyone:{" "}
+            {Object.keys(allWordsFound).length}
+          </div>
         </div>
 
-        <div style={{
-            zIndex:100,
-            position:"absolute",
-            margin:"1vw",
+        <div
+          style={{
+            zIndex: 100,
+            position: "absolute",
+            margin: "1vw",
             left: wordListPos.left,
-            top: wordListPos.top + wordListPos.height/3,
+            top: wordListPos.top + wordListPos.height / 3,
             backgroundColor: "black",
-            fontSize: .07 * boardDims.height,
+            fontSize: 0.07 * boardDims.height,
             overflow: "auto",
             width: boardDims.width,
             display: hideDef,
             color: "white",
           }}
-          onClick={ev=>{setCount(0)}}
-          >
-            <p style={{marginTop:"0", marginLeft:"2vw", marginRight:"2vw"}}>
-              {displayDefinition}
-            </p>
+          onClick={(ev) => {
+            setCount(0);
+          }}
+        >
+          <p style={{ marginTop: "0", marginLeft: "2vw", marginRight: "2vw" }}>
+            {displayDefinition}
+          </p>
         </div>
 
         <div
