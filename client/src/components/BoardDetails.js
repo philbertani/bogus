@@ -53,7 +53,7 @@ export function BoardDetails({ props }) {
     //need to know when to reset from above
     if (reset) {
       console.log("resetting arrays");
-      setCubeStyles(blank2dArray(N, M, null));
+      //setCubeStyles(blank2dArray(N, M, null));
       setSelected([]);
       setAllSelected(blank2dArray(N, M));
       setSearchString("");
@@ -172,7 +172,9 @@ export function BoardDetails({ props }) {
           fontSize: (0.6 * boardDims.height) / N + "px",
         };
 
-        if (cubeStyles[j][i]) {
+        //this gets called before the reset useEffect gets called so
+        //have to catch this here
+        if (cubeStyles[j][i] && !reset) {
           //if cubeStyles elements have been set already then preserve the
           //colors which may have changed due to selection or found words
           boxStyle.backgroundImage = cubeStyles[j][i].backgroundImage;
@@ -191,10 +193,10 @@ export function BoardDetails({ props }) {
     if (counter.current % 100 === 0) console.log(counter.current);
 
     //setTouchInfo(boardDims);
-
+    console.log("in first useEffect", reset);
     //we have to let React manage the styles using useState
     setCubeStyles(tmpStyles);
-  }, [M, N, boardDims, cubeRefs, game.board, game.rank]);
+  }, [M, N, boardDims, cubeRefs, game.board, game.rank, reset]);
   //adding cubeStyles and resetPath causes infinite rerenders
 
 
@@ -402,6 +404,8 @@ export function BoardDetails({ props }) {
     //many ui events just act stupid
 
     tmpOutput.push(...pathRef.current);
+
+    console.log("in second useEffect");
 
     setOutput(tmpOutput);
   }, [

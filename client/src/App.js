@@ -84,7 +84,7 @@ export default function App() {
       mainGame.definitions = [...msg.defs];
       mainGame.boardId = msg.boardId;
 
-      console.log(mainGame.definitions);
+      //console.log(mainGame.definitions);
       window.bogus = mainGame;  //remove this when we are live on the internet obviously
 
       localStorage.setItem("bogusMain",JSON.stringify(mainGame));

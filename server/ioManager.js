@@ -62,7 +62,34 @@ export class ioManager {
 
     io.on("connection", (socket) => {
       socket.on("new board", (msg) => {
-        //io.emit("new board", { game: bogus.newBoard(), words: bogus.wordsFound, defs: bogus.definitions });
+
+        const userId = this.socketMap[socket.id];
+        console.log("new board requested by",this.users[userId]);
+
+        if (this.users[userId]) {
+          const roomId = this.users[userId].roomId;
+          const gameRoom = this.gameRooms[roomId];
+          //console.log("game room is:",gameRoom);
+          gameRoom.newBoard();
+
+          io.to(gameRoom.id).emit("current board", {
+            game: {
+              board: gameRoom.board,
+              output: gameRoom.output,
+            },
+            words: gameRoom.game.wordsFound,
+            defs: gameRoom.game.defsFound,
+            boardId: gameRoom.boardId
+          });
+  
+          io.to(gameRoom.id).emit("allWordsFound",gameRoom.allWordsFound);
+
+
+        }
+        else {
+          console.log('weird could not find user:',userId);
+        }
+
       });
     });
 

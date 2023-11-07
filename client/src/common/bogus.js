@@ -239,6 +239,7 @@ class bogusMain {
 
     const BOARDTYPE = this.BOARDTYPES.NORMAL;
     //const BOARDTYPE = this.boardTypes[TORUS];
+    
     this.findWordsDriver(this.wordFindingFunctions[BOARDTYPE]);
 
     //console.log("trying generator function");

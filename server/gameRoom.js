@@ -23,6 +23,14 @@ export class gameRoom {
         this.boardId = uuidv4();
     }
 
+    newBoard() {
+        const tmp = this.game.newBoard();
+        this.board = tmp.board;
+        this.output = tmp.output;
+        this.boardId = uuidv4();
+        this.allWordsFound = {};
+    }
+    
     newPlayer( player ) {
 
     }
