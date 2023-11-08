@@ -193,7 +193,7 @@ export function BoardDetails({ props }) {
     if (counter.current % 100 === 0) console.log(counter.current);
 
     //setTouchInfo(boardDims);
-    console.log("in first useEffect", reset);
+    //console.log("in first useEffect", reset);
     //we have to let React manage the styles using useState
     setCubeStyles(tmpStyles);
   }, [M, N, boardDims, cubeRefs, game.board, game.rank, reset]);
@@ -405,7 +405,7 @@ export function BoardDetails({ props }) {
 
     tmpOutput.push(...pathRef.current);
 
-    console.log("in second useEffect");
+    //console.log("in second useEffect");
 
     setOutput(tmpOutput);
   }, [

@@ -107,7 +107,8 @@ export function GameBoard({ props }) {
 
     //have the word list scroll to the closest match and center it in the div
 
-    for (const word of sortedWords) {
+    //at the end of the game we can run through game.words to show all words
+    for (const word of game.words) { //sortedWords) { 
       let bgColor = "inherit";
       let color = "black";
       let backgroundImage = "";
@@ -139,7 +140,8 @@ export function GameBoard({ props }) {
             height: "fit-content",
             width: "fit-content",
             borderRadius: "5px",
-            touchAction: "none"
+            //overflow:"scroll"
+            //touchAction: "none"
           }}
           onClick={ev=>{ev.preventDefault(); setCount(0); setHideDef("block"); setDisplayDefinition(definition); }}
         >
@@ -159,7 +161,7 @@ export function GameBoard({ props }) {
       ]);
     }
 
-    setWordOutput(newWordOutput);
+    setWordOutput( newWordOutput);
   }, [foundWords, boardDims.height, game.words, allWordsFound]);
 
   let props2 = {
@@ -432,6 +434,7 @@ export function GameBoard({ props }) {
               flexDirection: "row",
               flexWrap: "wrap",
               margin: "1vw",
+              overflow: isTouchDevice ? "scroll" : "hidden"
             }}
           >
             {wordOutput}

@@ -45,6 +45,7 @@ export class ioManager {
     io.on("connection", socket=> {
       socket.on("word", msg => {
 
+        //need to get roomId based on userId = socketMap[socket.id]
         const gameRoom = this.gameRooms[this.roomMap[0]];
         console.log(Date.now(),"word found by",socket.id,"in room 0", msg);
 
@@ -67,6 +68,8 @@ export class ioManager {
         console.log("new board requested by",this.users[userId]);
 
         if (this.users[userId]) {
+
+          //this block of code is repeated in "current board" event function
           const roomId = this.users[userId].roomId;
           const gameRoom = this.gameRooms[roomId];
           //console.log("game room is:",gameRoom);

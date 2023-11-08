@@ -15,6 +15,8 @@ class bogusMain {
   N = data.rank.N;
   BOARDTYPES = {NORMAL:0,TORUS:1};
   boardType = this.BOARDTYPES.NORMAL;
+  //maybe add an option to build a board based on 2 or 3 nice long
+  //words
 
   minLetters = data.minLetters;
   wordFindingFunctions = {};
