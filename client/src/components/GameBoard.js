@@ -14,6 +14,7 @@ export function GameBoard({ props }) {
     isTouchDevice,
     socket,
     allWordsFound,
+    isConnected
   } = props;
 
   const [boardDims, setBoardDims] = React.useState({});
@@ -307,25 +308,31 @@ export function GameBoard({ props }) {
             setDisplayMenu("none");
           }}
         >
-          <p style={{ fontSize:boardDims.height/14, textAlign: "center", margin: "2vw" }}>
+          <p
+            style={{
+              fontSize: boardDims.height / 14,
+              textAlign: "center",
+              margin: "2vw",
+            }}
+          >
             There are {game.words.length} words!
           </p>
-          <div style={{ textAlign:"center", margin: "2vw" }}>
+          <div style={{ textAlign: "center", margin: "2vw" }}>
             <button
               style={{
                 height: boardDims.height / 5,
                 backgroundColor: "red",
                 color: "yellow",
                 fontWeight: "bold",
-                fontSize: boardDims.height/12
+                fontSize: boardDims.height / 12,
               }}
-
-              onClick={ev=>{generateNewBoard(ev)}}
+              onClick={(ev) => {
+                generateNewBoard(ev);
+              }}
             >
               GENERATE<br></br> NEW BOARD
             </button>
             <div> {sp} Warning RESETS EVERYONE!!</div>
-           
           </div>
         </div>
 
@@ -352,7 +359,7 @@ export function GameBoard({ props }) {
             textAlign: "center",
             margin: "0",
             position: "absolute",
-            top: wordListPos.top - boardDims.height / 12, //1.1 * boardDims.height + 0.02 * window.innerHeight,
+            top: wordListPos.top - boardDims.height / 12,
             left: wordListPos.left,
             fontWeight: "bold",
             fontSize: 0.06 * boardDims.height,
@@ -365,7 +372,7 @@ export function GameBoard({ props }) {
               top: "-2.5vh",
               left: boardDims.width / 18,
               fontSize: boardDims.height / 10,
-              backgroundColor: "rgba(250,200,100,.5)",
+              backgroundColor: "rgba(250,250,100,.5)",
               width: boardDims.height / 9,
               //borderRadius: "30%",
               color: "rgba(0,50,150,1)",
@@ -381,6 +388,21 @@ export function GameBoard({ props }) {
           <div>
             You: {Object.keys(foundWords).length} Everyone:{" "}
             {Object.keys(allWordsFound).length}
+          </div>
+          <div
+            style={{
+              color: isConnected ? "green" : "red",
+              position: "absolute",
+              right: boardDims.width / 30,
+              top: "-1.5vh",
+              backgroundColor: "rgba(250,250,100,.5)",
+              width: boardDims.height / 9,
+              fontSize: boardDims.height /12,
+              height: boardDims.height / 9,
+              lineHeight: boardDims.height / 9 + "px"
+            }}
+          >
+            {"\u2b24"}
           </div>
         </div>
 
@@ -435,7 +457,7 @@ export function GameBoard({ props }) {
               flexWrap: "wrap",
               margin: "1vw",
               overflow: isTouchDevice ? "scroll" : "hidden",
-              touchAction: "none"
+              touchAction: "none",
             }}
           >
             {wordOutput}

@@ -24,11 +24,40 @@ export class ioManager {
       this.gameRooms[newRoomId] = new gameRoom(newRoomId, this.io, dict) ;
       this.roomMap[this.numRooms] = newRoomId;
 
+      const room2 = uuidv4();
+      this.gameRooms[room2] = new gameRoom(room2, this.io, dict);
+
       //add a gameRoom for testing, so we don't interfere with ongoing games
 
     } catch (error) {
       console.log("shit", error);
     }
+  }
+
+  getGameRoom(socketId) {
+    const userId = this.socketMap[socketId];
+    if (this.users[userId]) {
+      const roomId = this.users[userId].roomId;
+      const gameRoom = this.gameRooms[roomId];
+      return gameRoom;
+    }
+    else {
+      return null;
+    }
+  }
+
+  emitGame(io, gameRoom) {
+    io.to(gameRoom.id).emit("current board", {
+      game: {
+        board: gameRoom.board,
+        output: gameRoom.output,
+      },
+      words: gameRoom.game.wordsFound,
+      defs: gameRoom.game.defsFound,
+      boardId: gameRoom.boardId,
+    });
+
+    io.to(gameRoom.id).emit("allWordsFound", gameRoom.allWordsFound);  
   }
 
   setHandlers(io) {
@@ -38,6 +67,16 @@ export class ioManager {
     });
 
     io.on("connection", (socket) => {
+      //not being used right now
+      socket.on("heartbeat", (msg) => {
+        //console.log("heartbeat", msg);
+        io.to(socket.id).emit("heartbeat",{heartbeatId:msg.heartbeatId,receive:msg.time,sent:Date.now()});
+      });
+ 
+    });
+
+    io.on("connection", (socket) => {
+      //not being used right now
       socket.on("chat message", (msg) => {
         io.emit("chat message", msg);
         console.log(msg);
@@ -47,8 +86,16 @@ export class ioManager {
     io.on("connection", socket=> {
       socket.on("word", msg => {
 
+        const gameRoom = this.getGameRoom(socket.id);
+
+        if  ( !gameRoom ) {
+          console.log('could not find user based on socket',socket.id);
+          return;
+        }
+
         //need to get roomId based on userId = socketMap[socket.id]
-        const gameRoom = this.gameRooms[this.roomMap[0]];
+        //const gameRoom = this.gameRooms[this.roomMap[0]];
+
         console.log(Date.now(),"word found by",socket.id,"in room 0", msg);
 
         if (gameRoom.allWordsFound[msg]) { 
@@ -65,35 +112,21 @@ export class ioManager {
 
     io.on("connection", (socket) => {
       socket.on("new board", (msg) => {
+        //const userId = this.socketMap[socket.id];
+        //console.log("new board requested by",this.users[userId]);
 
-        const userId = this.socketMap[socket.id];
-        console.log("new board requested by",this.users[userId]);
-
-        if (this.users[userId]) {
-
-          //this block of code is repeated in "current board" event function
-          const roomId = this.users[userId].roomId;
-          const gameRoom = this.gameRooms[roomId];
-          //console.log("game room is:",gameRoom);
-          gameRoom.newBoard();
-
-          io.to(gameRoom.id).emit("current board", {
-            game: {
-              board: gameRoom.board,
-              output: gameRoom.output,
-            },
-            words: gameRoom.game.wordsFound,
-            defs: gameRoom.game.defsFound,
-            boardId: gameRoom.boardId
-          });
-  
-          io.to(gameRoom.id).emit("allWordsFound",gameRoom.allWordsFound);
-
-
+        const gameRoom = this.getGameRoom(socket.id);
+        if (!gameRoom) {
+          console.log(
+            "new board request, could not resolve socket id:",
+            socket.id
+          );
+          return;
         }
-        else {
-          console.log('weird could not find user:',userId);
-        }
+
+        gameRoom.newBoard();
+
+        this.emitGame(io,gameRoom);
 
       });
     });
@@ -145,7 +178,8 @@ export class ioManager {
           roomId: this.gameRooms[this.roomMap[0]].id
         };
 
-        const gameRoom = this.gameRooms[this.roomMap[0]];
+        const roomId = this.users[msg.userId].roomId;
+        const gameRoom = this.gameRooms[roomId];
 
         if (
           this.userIdSockets[msg.userId] &&
@@ -170,19 +204,8 @@ export class ioManager {
 
         socket.join( gameRoom.id );
     
-        //figure out which game room this person belongs to
-        io.to(socket.id).emit("current board", {
-          game: {
-            board: gameRoom.board,
-            output: gameRoom.output,
-          },
-          words: gameRoom.game.wordsFound,
-          defs: gameRoom.game.defsFound,
-          boardId: gameRoom.boardId
-        });
+        this.emitGame(io,gameRoom);
 
-        io.to(gameRoom.id).emit("allWordsFound",gameRoom.allWordsFound);
-        
       });
     });
   }

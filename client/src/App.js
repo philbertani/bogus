@@ -2,7 +2,7 @@ import React, { useState, useEffect, useDebugValue } from 'react';
 import { socket } from './socket';
 import { ConnectionState } from './components/ConnectionState';
 //import { MyForm } from './components/MyForm';
-import { Events} from './components/Events';
+//import { Events} from './components/Events';
 import { GameBoard } from './components/GameBoard';
 import bogusMain from './common/bogus.js';
 import {cloneArray} from './common/utils.js';
@@ -25,6 +25,34 @@ export default function App() {
 
   const [isTouchDevice, setIsTouchDevice] = React.useState(false);
   const [allWordsFound, setAllWordsFound] = React.useState( {} );
+
+  const [heartbeatTime, setHeartbeatTime] = React.useState(0);
+  const [waitingForHeartbeat,setWaitingForHeartbeat] = React.useState(false);
+
+  useEffect(() => {
+
+    if (isConnected && !waitingForHeartbeat) {
+      const heartbeatId = uuidv4();
+      const time = Date.now();
+      socket.emit("heartbeat", {heartbeatId, time });
+      setHeartbeatTime(0);
+      setWaitingForHeartbeat(true);
+    }
+
+    //return () => clearInterval(heartbeat);
+  }, [isConnected, waitingForHeartbeat]);
+
+  useEffect( ()=> {
+    const hb = setInterval( ()=>{
+      setHeartbeatTime(heartbeatTime + 1)
+    }, 1000);
+
+    //what to do if heartbeatTime gets too big??
+    if (heartbeatTime > 3) console.log(Date.now(),heartbeatTime);
+
+    return ()=> clearInterval(hb);
+
+  }, [heartbeatTime]);
 
   useEffect ( ()=>{
 
@@ -113,6 +141,11 @@ export default function App() {
       setAllWordsFound(msg);
     }
 
+    function onHeartBeat(msg) {
+      //five seconds is good enough
+      setTimeout( ()=>{setWaitingForHeartbeat(false); }, 5000 );
+    }
+
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
     socket.on('chat message', onFooEvent);
@@ -120,6 +153,7 @@ export default function App() {
     socket.on('current board', onNewBoard);
     socket.on('duplicate',onDupe);
     socket.on('allWordsFound', onAllWordsFound);
+    socket.on('heartbeat', onHeartBeat);
 
     return () => {
       socket.off('connect', onConnect);
@@ -129,10 +163,21 @@ export default function App() {
       socket.off('current board', onNewBoard);
       socket.off('duplicate', onDupe);
       socket.off('allWordsFound', onAllWordsFound);
+      socket.off('heartbeat', onHeartBeat)
     };
   }, [mainGame, isDuplicateProcess]);
 
-  const props={game:mainGame,reset,setReset,foundWords,setFoundWords,isTouchDevice, socket, allWordsFound};
+  const props = {
+    game: mainGame,
+    reset,
+    setReset,
+    foundWords,
+    setFoundWords,
+    isTouchDevice,
+    socket,
+    allWordsFound,
+    isConnected
+  };
 
   return (
     [
