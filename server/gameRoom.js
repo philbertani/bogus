@@ -17,10 +17,9 @@ export class gameRoom {
         this.id = roomId;
         console.log("new game room - id is: ",this.id);
         this.game = new bogusMain(dict);
-        const tmp = this.game.newBoard();
-        this.board = tmp.board;
-        this.output = tmp.output;
-        this.boardId = uuidv4();
+
+        this.newBoard();
+
     }
 
     newBoard() {
