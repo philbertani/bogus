@@ -5,7 +5,7 @@ import {v4 as uuidv4} from "uuid";
 export class gameRoom {
     id;
     io;
-    players;
+    players = {};
     game;
     board;
     output;
@@ -31,6 +31,6 @@ export class gameRoom {
     }
     
     newPlayer( player ) {
-
+        this.players[player] = {connected:true, time:Date.now()};
     }
 }

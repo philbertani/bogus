@@ -141,7 +141,7 @@ export function GameBoard({ props }) {
             height: "fit-content",
             width: "fit-content",
             borderRadius: "5px",
-            //overflow:"scroll"
+            overflow:isTouchDevice?"scroll":"hidden", //weirdness here
             //touchAction: "none"
           }}
           onClick={ev=>{ev.preventDefault(); setCount(0); setHideDef("block"); setDisplayDefinition(definition); }}
@@ -456,7 +456,7 @@ export function GameBoard({ props }) {
               flexDirection: "row",
               flexWrap: "wrap",
               margin: "1vw",
-              overflow: isTouchDevice ? "scroll" : "hidden",
+              overflow: "auto", //isTouchDevice ? "scroll" : "hidden",
               touchAction: "none",
             }}
           >

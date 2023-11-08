@@ -107,6 +107,7 @@ export class ioManager {
 
         //console.log(gameRoom.allWordsFound);
         io.to(gameRoom.id).emit('allWordsFound',gameRoom.allWordsFound);
+        
       });
     });
 
@@ -170,6 +171,7 @@ export class ioManager {
           seqno = this.numUsers;
           this.numUsers++;
         }
+
         this.users[msg.userId] = {
           sessionId: msg.sessionId,
           connTime: time,
