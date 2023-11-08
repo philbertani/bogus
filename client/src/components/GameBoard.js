@@ -434,7 +434,8 @@ export function GameBoard({ props }) {
               flexDirection: "row",
               flexWrap: "wrap",
               margin: "1vw",
-              overflow: isTouchDevice ? "scroll" : "hidden"
+              overflow: isTouchDevice ? "scroll" : "hidden",
+              touchAction: "none"
             }}
           >
             {wordOutput}
