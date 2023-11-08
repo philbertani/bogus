@@ -24,6 +24,8 @@ export class ioManager {
       this.gameRooms[newRoomId] = new gameRoom(newRoomId, this.io, dict) ;
       this.roomMap[this.numRooms] = newRoomId;
 
+      //add a gameRoom for testing, so we don't interfere with ongoing games
+
     } catch (error) {
       console.log("shit", error);
     }
