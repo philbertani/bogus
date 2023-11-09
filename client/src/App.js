@@ -111,6 +111,7 @@ export default function App() {
       mainGame.words = [...msg.words];
       mainGame.definitions = [...msg.defs];
       mainGame.boardId = msg.boardId;
+      mainGame.boardType = msg.boardType;
 
       //console.log(mainGame.definitions);
       window.bogus = mainGame;  //remove this when we are live on the internet obviously

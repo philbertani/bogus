@@ -14,7 +14,8 @@ class bogusMain {
   M = data.rank.M;
   N = data.rank.N;
   BOARDTYPES = {NORMAL:0,TORUS:1};
-  boardType = this.BOARDTYPES.NORMAL;
+
+  boardType; 
   //maybe add an option to build a board based on 2 or 3 nice long
   //words
 
@@ -154,16 +155,18 @@ class bogusMain {
     //accumulated string including the next letter is not part of the beginning
     //of a word or a whole word
 
+    const [M, N] = [this.rank.M, this.rank.N];
+
     //for torus we need to maintain the sign of i and j through recursion
     k++;
-    const ix = pmod(i,4);
-    const jx = pmod(j,4);
+    const ix = pmod(i,M);
+    const jx = pmod(j,N);
 
     visited[ix][jx] = true;
     const letter = grid[ix][jx];
     str = str + letter;
 
-    //this.allStr.push(str)
+    this.allStr.push(str)
     //this.uniquePaths.add(str)  //useful for debugging
     const search = this.isWord(str);
     //console.log(str);  //, search);
@@ -173,8 +176,6 @@ class bogusMain {
       this.wordsFound.add(str);
     }
 
-    const [M, N] = [this.rank.M, this.rank.N];
-
     function pmod(x,y) {
       //% for negative numbers still gives negative, 
       //need to add the modulus back to result
@@ -183,9 +184,13 @@ class bogusMain {
     }
 
     for (let row = i-1; row <= i+1 ; row++) {
+
       for (let col = j - 1; col <= j + 1 ; col++) {
+
         const rx = pmod(row,M);
         const cx = pmod(col,N);
+
+        //console.log(row,col,rx,cx);
 
         if (!visited[rx][cx]) {
           const checkNext = str + grid[rx][cx];
@@ -193,6 +198,7 @@ class bogusMain {
           if (search[0]) {
             //if we DON'T do this we get extra searching on the order
             //of 500k to 1MM per grid element!!! 10k more per path, nasty unchecked recursion
+            //this.findWords2(grid, visited, row, col, str, k);
             this.findWords2(grid, visited, row, col, str, k);
           }
         }
@@ -203,14 +209,16 @@ class bogusMain {
     visited[ix][jx] = false;
   }
 
-  debugBoard(manualBoard) {
+  debugBoard() {
 
-    //the board we are sending in has to have the same dimensions as the game setup
-
-    if (manualBoard[0].length!==this.rank.M) {
-      console.log("manual board dimensions do not match actual game setup: ",this.rank);
-      return;
-    }
+    const manualBoard = 
+    [
+      [ 'M', 'F', 'A', 'E', 'E' ],
+      [ 'N', 'T', 'A', 'E', 'V' ],
+      [ 'O', 'D', 'S', 'T', 'R' ],
+      [ 'N', 'R', 'L', 'I', 'N' ],
+      [ 'C', 'T', 'Qᵤ', 'A', 'O' ]
+    ];
         
     console.log("******* start debugging manual board ************");
     this.board = cloneArray(manualBoard);
@@ -226,7 +234,10 @@ class bogusMain {
     this.allStr = [];
     let str="";
     let k=0;
-    this.findWords(cloneArray(this.board), visited, 3, 0, str, k);    
+
+    console.log(this.rank);
+    //findwords2 is for TORUS type of board
+    this.findWords2( cloneArray(this.board), visited, 0, 0, str, k);    
 
     console.log(this.wordsFound);
     console.log(this.allStr);
@@ -239,9 +250,13 @@ class bogusMain {
     
     this.makeBoard();
 
-    const BOARDTYPE = this.BOARDTYPES.NORMAL;
-    //const BOARDTYPE = this.boardTypes[TORUS];
+    //const BOARDTYPE = this.BOARDTYPES.NORMAL;
+
+    //working now
+    const BOARDTYPE = this.BOARDTYPES.TORUS;  
     
+    this.boardType = BOARDTYPE;
+
     this.findWordsDriver(this.wordFindingFunctions[BOARDTYPE]);
 
     //console.log("trying generator function");
@@ -273,6 +288,13 @@ class bogusMain {
       if (cb) cb(X.i,X.j);
     }
     return null;
+  }
+
+  mod(x,y) {
+    //% for negative numbers still gives negative, 
+    //need to add the modulus back to result
+    const a = x%y;
+    return a<0 ? a+y : a;
   }
 
   makeBoard() {
@@ -316,14 +338,27 @@ class bogusMain {
   }
 
   isValidMove(i,j,prevSelected) {
-    const [iOld,jOld] = prevSelected;
 
+    console.log("boardType", this.boardType);
+
+    if (this.boardType === this.BOARDTYPES.NORMAL) {
+      const [iOk,jOk] = this.isValidMoveRegular(i,j,prevSelected);
+      return iOk && jOk;
+    }
+    else if (this.boardType === this.BOARDTYPES.TORUS) {
+      return this.isValidMoveTorus(i,j,prevSelected);
+    }
+  }
+
+  isValidMoveRegular(i,j,prevSelected) {
+
+    const [iOld,jOld] = prevSelected;
     //another inelegant function
     let iOk = false;
     let jOk = false;
 
-    if (i===iOld && j===jOld) return false;
-    
+    if (i===iOld && j===jOld) return [false, false];
+      
     if ( iOld===0 ) {
         if ( i-iOld <= 1 ) {
             iOk = true;
@@ -351,9 +386,43 @@ class bogusMain {
     else if ( Math.abs(j-jOld) <= 1) {
         jOk = true;
     }
-    return (iOk && jOk);
+
+    //return (iOk && jOk);
+    return [iOk,jOk];
   }
 
+  isValidMoveTorus(i,j,prevSelected) {
+
+    let [iOk, jOk] = this.isValidMoveRegular(i,j,prevSelected);
+
+    if ( iOk && jOk ) return true;
+
+    //we need the iOk and jOk tests from this.isValidRegularMove()
+    console.log("testing for torus move", iOk, jOk);
+
+    const [iOld, jOld] = prevSelected;
+   
+    const [M, N] = [this.rank.M, this.rank.N];
+ 
+    if (iOld === 0) {
+      if ( this.mod(iOld-1,M) === i ) iOk = true;
+    }
+    else if (iOld === M-1) {
+      if ( this.mod(iOld+1,M) === i ) iOk = true;
+    }
+
+    if (jOld === 0) {
+      if ( this.mod(jOld-1,N) === j ) jOk = true;
+    }
+    else if (jOld === N-1) {
+      if ( this.mod(jOld+1,N) === j ) jOk = true;
+    }
+    
+    console.log("torus move", iOk, jOk, i, iOld, j, jOld);
+
+    return iOk && jOk;
+    
+  }
 
 }
 

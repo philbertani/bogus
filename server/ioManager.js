@@ -55,6 +55,7 @@ export class ioManager {
       words: gameRoom.game.wordsFound,
       defs: gameRoom.game.defsFound,
       boardId: gameRoom.boardId,
+      boardType: gameRoom.game.boardType
     });
 
     io.to(gameRoom.id).emit("allWordsFound", gameRoom.allWordsFound);  

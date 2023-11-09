@@ -36,9 +36,9 @@ initialize();
 async function mainLoop(dict) {
 
   //const manualBoard = [['C','O','G','O'],['I','E','I','T'],['N','T','K','R'],['Y','N','O','I']];
-  const manualBoard = [['I','E','L','S'],['O','O','S','E'],['G','H','C','U'],['Y','N','S','Y']];
+  //const manualBoard = [['I','E','L','S'],['O','O','S','E'],['G','H','C','U'],['Y','N','S','Y']];
   const bg = new bogusMain(dict);
-  bg.debugBoard(manualBoard);
+  bg.debugBoard();
   //save a few boards and their words so we can have valid tests
 
   console.log("in main loop");
