@@ -75,7 +75,8 @@ export function BoardDetails({ props }) {
 
   const addPathDiv = React.useCallback(
 
-    (style, prevStyle, i, j, iOld, jOld) => {
+    (style, prevStyle, i, j, iOld, jOld, torusMove) => {
+
       const y = style.top + SN(style.height) / 2;
       const x = style.left + SN(style.width) / 2;
       const yOld = prevStyle.top + SN(style.height) / 2;
@@ -86,16 +87,18 @@ export function BoardDetails({ props }) {
       const left = Math.min(x, xOld);
       let top = Math.min(y, yOld);
       let height = "1vh";
+      const sc = 1.42;
 
       if (j === jOld) {
         //same column so we at 90 degrees
         top += SN(style.height) / 2;
         transformText = "translate(-50%,50%) rotate(90deg) ";
+
       } else if (i !== iOld && j !== jOld) {
         top += SN(style.height) / 1.9; //should be 2 but it is off by some factor
 
         height = ".7vh";
-        const sc = 1.42;
+  
         if (i > iOld && j > jOld) {
           transformText = "rotate(45deg) scale(" + sc +  ")";
         } else if (i > iOld && j < jOld) {
@@ -104,6 +107,18 @@ export function BoardDetails({ props }) {
           transformText = "rotate(-45deg) scale(" + sc +  ")";
         } else if (i < iOld && j < jOld) {
           transformText = "rotate(45deg) scale(" + sc +  ")";
+        }
+      }
+
+      if (torusMove) {
+        console.log("torusMove", torusMove);
+
+        if ( j === jOld) {
+          transformText = "translate(" + -boardDims.width/game.rank.M/2 + "px," + -boardDims.height/game.rank.N + "px) rotate(90deg) scale(" + .8*sc + ")";
+        }
+
+        if ( i === iOld) {
+          transformText = "translate(" + -boardDims.width/game.rank.M + "px, 0) scale(" + .8*sc + ")"; 
         }
       }
 
@@ -143,9 +158,12 @@ export function BoardDetails({ props }) {
       const style = cubeStyles[i][j];
       const prevStyle = cubeStyles[iOld][jOld];
 
-      pathRef.current.push(addPathDiv(style, prevStyle, i, j, iOld, jOld));
+      const [isValidMove, torusMove, debug] = game.isValidMove(parseFloat(i),parseFloat(j),[iOld,jOld].map(x=>parseFloat(x)));
+      //console.log(torusMove);
+
+      pathRef.current.push(addPathDiv(style, prevStyle, i, j, iOld, jOld, torusMove));
     }
-  }, [addPathDiv, cubeStyles]);
+  }, [addPathDiv, cubeStyles, game]);
 
   React.useEffect(() => {
     counter.current++;
@@ -253,24 +271,33 @@ export function BoardDetails({ props }) {
     if (selected.length === 0) {
       newStyles[i][j].backgroundImage = "radial-gradient(#FFFF00,#F000FF)";
       newStyles[i][j].color = "#A000F0";
+
     } else {
-      const validMove = game.isValidMove(i, j, selected);
+
+      //"weird" touchDevice is treating i,j,selected as numberic characters instead of numbers, who would have thought??
+      const [validMove, torusMove, debug] = 
+        game.isValidMove(parseFloat(i), parseFloat(j), selected.map(x=>parseFloat(x)));
+      //console.log('isValidMove',validMove,torusMove, i,j,selected);
 
       //the annoying case of when using touch input we tap again on the last
       //letter selected in order to reset
       const klugeReset =
         !touches.useDir && touches.isTouchStart && i === iOld && j === jOld;
 
-      //setTouchInfo([touches.useDir,touches.isTouchStart,i,j,iOld,jOld, klugeReset, mbd]);
+      //setTouchInfo(['y',torusMove, validMove, i,j,iOld,jOld,selected, debug]);
 
       if (validMove && allSelected[i][j] === 0) {
+
+        //setTouchInfo(['z',torusMove, validMove, i,j,iOld,jOld,selected, debug]);
+
         const style = newStyles[i][j];
         const prevStyle = cubeStyles[iOld][jOld];
 
         style.backgroundImage = "radial-gradient(#FFFF00,#F000FF)";
         style.color = "#A000F0";
 
-        pathRef.current.push(addPathDiv(style, prevStyle, i, j, iOld, jOld));
+        pathRef.current.push(addPathDiv(style, prevStyle, i, j, iOld, jOld, torusMove));
+
       } else if (!klugeReset && mbd && i === iOld && j === jOld) {
         flag = false;
       }
@@ -278,8 +305,10 @@ export function BoardDetails({ props }) {
       //else if ( mbd && !touches.pos ) { return; }
       else if (mbd && !touches.pos) {
         return;
+
       } else if (mbd && !touches.isTouchStart) {
         return;
+
       } else {
         for (let j = 0; j < N; j++) {
           for (let i = 0; i < M; i++) {

@@ -48,7 +48,7 @@ export default function App() {
     }, 1000);
 
     //what to do if heartbeatTime gets too big??
-    if (heartbeatTime > 3) console.log(Date.now(),heartbeatTime);
+    //if (heartbeatTime > 3) console.log(Date.now(),heartbeatTime);
 
     return ()=> clearInterval(hb);
 

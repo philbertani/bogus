@@ -250,10 +250,10 @@ class bogusMain {
     
     this.makeBoard();
 
-    //const BOARDTYPE = this.BOARDTYPES.NORMAL;
+    const BOARDTYPE = this.BOARDTYPES.NORMAL;
 
     //working now
-    const BOARDTYPE = this.BOARDTYPES.TORUS;  
+    //const BOARDTYPE = this.BOARDTYPES.TORUS;  
     
     this.boardType = BOARDTYPE;
 
@@ -339,11 +339,11 @@ class bogusMain {
 
   isValidMove(i,j,prevSelected) {
 
-    console.log("boardType", this.boardType);
+    //console.log("boardType", this.boardType);
 
     if (this.boardType === this.BOARDTYPES.NORMAL) {
       const [iOk,jOk] = this.isValidMoveRegular(i,j,prevSelected);
-      return iOk && jOk;
+      return [iOk && jOk, false, [i,j,prevSelected]];
     }
     else if (this.boardType === this.BOARDTYPES.TORUS) {
       return this.isValidMoveTorus(i,j,prevSelected);
@@ -395,32 +395,39 @@ class bogusMain {
 
     let [iOk, jOk] = this.isValidMoveRegular(i,j,prevSelected);
 
-    if ( iOk && jOk ) return true;
+    if ( iOk && jOk ) return [true, false];
 
     //we need the iOk and jOk tests from this.isValidRegularMove()
-    console.log("testing for torus move", iOk, jOk);
+    //console.log("testing for torus move", iOk, jOk);
+
+    const [ iOk2, jOk2] = [iOk, jOk];
 
     const [iOld, jOld] = prevSelected;
    
     const [M, N] = [this.rank.M, this.rank.N];
  
+    let torusMove = false;
+
+    let cc = 0;
+
     if (iOld === 0) {
-      if ( this.mod(iOld-1,M) === i ) iOk = true;
+      cc=1;
+      if ( this.mod(iOld-1,M) === i ) { cc=2; iOk = true; torusMove=true; }
     }
     else if (iOld === M-1) {
-      if ( this.mod(iOld+1,M) === i ) iOk = true;
+      cc=3;
+      if ( this.mod(iOld+1,M) === i ) { cc=4; iOk = true; torusMove=true; }
     }
-
     if (jOld === 0) {
-      if ( this.mod(jOld-1,N) === j ) jOk = true;
+      if ( this.mod(jOld-1,N) === j ) { jOk = true; torusMove=true; }
     }
     else if (jOld === N-1) {
-      if ( this.mod(jOld+1,N) === j ) jOk = true;
+      if ( this.mod(jOld+1,N) === j ) { jOk = true; torusMove=true; }
     }
     
-    console.log("torus move", iOk, jOk, i, iOld, j, jOld);
+    //console.log("torus move", iOk, jOk, i, iOld, j, jOld);
 
-    return iOk && jOk;
+    return [iOk && jOk, torusMove, [iOk,jOk,iOk2,jOk2,M,N,cc]];
     
   }
 

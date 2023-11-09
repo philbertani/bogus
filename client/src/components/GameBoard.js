@@ -222,6 +222,8 @@ export function GameBoard({ props }) {
           useDir = true;
         }
         setTouches({ pos: boardPos, dir, useDir, isTouchStart });
+        //setTouchInfo( ['xxx',touches]);
+        
         break;
       }
     }
@@ -277,6 +279,7 @@ export function GameBoard({ props }) {
         onTouchMove={processTouch}
         style={{ touchAction: "none" }}
       >
+        <div>{JSON.stringify(touchInfo)}</div>
         <div
           key="searchString"
           style={{

@@ -46,8 +46,10 @@ export class ioManager {
     }
   }
 
-  emitGame(io, gameRoom) {
-    io.to(gameRoom.id).emit("current board", {
+  emitGame(io, gameRoom, socketId) {
+    //we may be emitting game whole gameRoom or just one player
+    //depending on socketId
+    io.to(socketId).emit("current board", {
       game: {
         board: gameRoom.board,
         output: gameRoom.output,
@@ -128,7 +130,7 @@ export class ioManager {
 
         gameRoom.newBoard();
 
-        this.emitGame(io,gameRoom);
+        this.emitGame(io,gameRoom, gameRoom.id);
 
       });
     });
@@ -207,7 +209,7 @@ export class ioManager {
 
         socket.join( gameRoom.id );
     
-        this.emitGame(io,gameRoom);
+        this.emitGame(io,gameRoom,socket.id);
 
       });
     });
