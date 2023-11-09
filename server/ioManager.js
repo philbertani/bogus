@@ -12,6 +12,9 @@ export class ioManager {
   gameRooms = {};
   roomMap = {};
   numRooms = 0;
+  
+  BOARDTYPES = {NORMAL:0,TORUS:1};
+  boardType;
 
   constructor(http, dict) {
     try {
@@ -21,16 +24,16 @@ export class ioManager {
 
       this.setHandlers(this.io);
       const newRoomId = uuidv4();
-      this.gameRooms[newRoomId] = new gameRoom(newRoomId, this.io, dict) ;
+      this.gameRooms[newRoomId] = new gameRoom(newRoomId, this.io, dict, this.BOARDTYPES.NORMAL) ;
       this.roomMap[this.numRooms] = newRoomId;
 
       const room2 = uuidv4();
-      this.gameRooms[room2] = new gameRoom(room2, this.io, dict);
-
+      this.gameRooms[room2] = new gameRoom(room2, this.io, dict, this.BOARDTYPES.TORUS);
+      this.roomMap[this.numRooms++] = room2; 
       //add a gameRoom for testing, so we don't interfere with ongoing games
 
     } catch (error) {
-      console.log("shit", error);
+      console.log("aweful happenings in ioManager Constructor", error);
     }
   }
 
@@ -73,9 +76,12 @@ export class ioManager {
       //not being used right now
       socket.on("heartbeat", (msg) => {
         //console.log("heartbeat", msg);
-        io.to(socket.id).emit("heartbeat",{heartbeatId:msg.heartbeatId,receive:msg.time,sent:Date.now()});
+        io.to(socket.id).emit("heartbeat", {
+          heartbeatId: msg.heartbeatId,
+          receive: msg.time,
+          sent: Date.now(),
+        });
       });
- 
     });
 
     io.on("connection", (socket) => {
@@ -112,6 +118,7 @@ export class ioManager {
         io.to(gameRoom.id).emit('allWordsFound',gameRoom.allWordsFound);
         
       });
+      
     });
 
     io.on("connection", (socket) => {
@@ -212,6 +219,9 @@ export class ioManager {
         this.emitGame(io,gameRoom,socket.id);
 
       });
+
     });
+
   }
+
 }

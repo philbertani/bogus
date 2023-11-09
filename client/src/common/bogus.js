@@ -13,8 +13,8 @@ class bogusMain {
   rank = data.rank;
   M = data.rank.M;
   N = data.rank.N;
-  BOARDTYPES = {NORMAL:0,TORUS:1};
 
+  BOARDTYPES = {NORMAL:0,TORUS:1};
   boardType; 
   //maybe add an option to build a board based on 2 or 3 nice long
   //words
@@ -22,7 +22,7 @@ class bogusMain {
   minLetters = data.minLetters;
   wordFindingFunctions = {};
 
-  constructor(dictionary ) {
+  constructor(dictionary, boardType ) {
     //for server we pass in the whole dictionary
     //for clients we pass in just the words we know are in the word grid
     if (!dictionary.words) {
@@ -33,6 +33,7 @@ class bogusMain {
       this.definitions = dictionary.definitions;
     }
 
+    this.boardType = boardType;
     //assign functions to different elements of array
     this.wordFindingFunctions[this.BOARDTYPES.NORMAL] = this.findWords;
     this.wordFindingFunctions[this.BOARDTYPES.TORUS] = this.findWords2;
@@ -250,22 +251,14 @@ class bogusMain {
     
     this.makeBoard();
 
-    const BOARDTYPE = this.BOARDTYPES.NORMAL;
-
-    //working now
-    //const BOARDTYPE = this.BOARDTYPES.TORUS;  
-    
-    this.boardType = BOARDTYPE;
-
-    this.findWordsDriver(this.wordFindingFunctions[BOARDTYPE]);
-
-    //console.log("trying generator function");
-    //this.loop( (i,j)=>{ console.log(this.board[i][j])} );
-
+    this.findWordsDriver(this.wordFindingFunctions[this.boardType]);
     return {board:this.board,output:this.output};
   }
 
   boardsAreSame(otherBoard) {
+
+    //console.log("trying generator function");
+    //this.loop( (i,j)=>{ console.log(this.board[i][j])} );
 
     console.log(this.board, otherBoard)
     this.loop( (i,j)=> { 

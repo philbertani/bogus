@@ -12,11 +12,14 @@ export class gameRoom {
     allWordsFound = {};
     boardId;
 
-    constructor(roomId,io,dict) {
+    BOARDTYPES = {NORMAL:0,TORUS:1};
+    boardType;
+
+    constructor(roomId,io,dict,boardType) {
         this.io = io;
         this.id = roomId;
         console.log("new game room - id is: ",this.id);
-        this.game = new bogusMain(dict);
+        this.game = new bogusMain(dict,boardType);
 
         this.newBoard();
 
