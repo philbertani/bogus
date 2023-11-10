@@ -80,13 +80,11 @@ export function GameBoard({ props }) {
   React.useEffect(() => {
     if (isNaN(boardDims.height)) return;
 
+    if (!foundWordsRef.current) return;
+
+    const wordsRef = foundWordsRef.current.words;
     const newWordOutput = [];
-    const words = Object.keys(foundWords); //.reverse(); //game.words
-
-    //let mostRecent = words[words.length - 1]; //could be undefined
-
-    //wierd Object.assign was converting the object into a string
-    //const allWords = Object.assign('',allWordsFound);
+    const words = Object.keys(wordsRef);
 
     const allWords = {};
     for (const [key, val] of Object.entries(allWordsFound)) {
@@ -99,15 +97,7 @@ export function GameBoard({ props }) {
       }
     }
 
-    //console.log('zzz',allWords);
-
     const sortedWords = Object.keys(allWords).sort(); //keep it in alphabet order
-
-    //i dont think we need wordRefs
-    //if ( mostRecent ) {
-    //  const search = bsearch(sortedWords, mostRecent);  //highlight the current word
-    //  const index = search[3];
-    //}
 
     //have the word list scroll to the closest match and center it in the div
 
@@ -117,7 +107,7 @@ export function GameBoard({ props }) {
       let bgColor = "inherit";
       let color = "black";
       let backgroundImage = "";
-      if (foundWords[word]) {
+      if (wordsRef[word]) {
         //word.localeCompare(mostRecent) === 0) {
         backgroundImage = "linear-gradient(#FFFF00,#00FFFF)";
         color = "#A000A0";
@@ -171,8 +161,11 @@ export function GameBoard({ props }) {
       ]);
     }
 
+    console.log('setting wordoutput', reset, foundWordsRef.current);
+
     setWordOutput(newWordOutput);
-  }, [foundWords, boardDims.height, game.words, allWordsFound, game, isTouchDevice]);
+
+  }, [reset, foundWordsRef, boardDims.height, game.words, allWordsFound, game, isTouchDevice]);
 
   let props2 = {
     game,
@@ -248,17 +241,15 @@ export function GameBoard({ props }) {
     //isWordRef is the easiest solution, React is annoying
     if (isWordRef.current) {
 
-      let score = 0;
       const words = Object.keys(foundWordsRef.current.words);
-
-      console.log("trying to send word to server", isWord, searchString, score);
+      //console.log("trying to send word to server", isWord, searchString, score);
       socket.emit("word", {
         word: searchString,
         count: words.length,
         totalScore: foundWordsRef.current.totalScore
       });
     }
-  }, [isWord, searchString, isWordRef, socket, totalScore, foundWordsRef, game.minLetters]);
+  }, [isWord, searchString, isWordRef, socket, foundWordsRef, game.minLetters]);
 
   React.useEffect(() => {
     if (!boardDims.width) return;
@@ -289,7 +280,7 @@ export function GameBoard({ props }) {
   //"\u2261" is the 3 line menu
   //pad the beginning of searchString with spaces so it does not overwrite menu
   const sp = "\u00a0";
-  const spx = sp + sp + sp + sp + sp;
+  //const spx = sp + sp + sp + sp + sp;
   return (
     boardDims.height &&
     wordListPos.top && [
@@ -409,8 +400,11 @@ export function GameBoard({ props }) {
             {"\u22ee"}
           </div>
           <div>
-            You: {Object.keys(foundWords).length} Everyone:{" "}
-            {Object.keys(allWordsFound).length}
+            You:{" "}
+            {foundWordsRef.current
+              ? Object.keys(foundWordsRef.current.words).length
+              : 0} {" "}
+            Everyone: {Object.keys(allWordsFound).length}
           </div>
           <div
             key="junk01"
@@ -515,7 +509,7 @@ export function GameBoard({ props }) {
             ", High Score:" +
             stats.maxScore +
             ", Your Score:" +
-            totalScore }
+            (foundWordsRef.current.totalScore ?? 0)}
       </div>,
     ]
   );

@@ -58,6 +58,7 @@ export class gameRoom {
         let maxScore = 0;
         for ( const [key,value] of Object.entries(this.players) ) {
             if (value.connected) { playerCount ++; 
+                //should we still count the score of a disconnected player?
                 if (value.wordCount > maxWordCount) maxWordCount = value.wordCount;
                 if (value.score > maxScore) maxScore = value.score;
             }

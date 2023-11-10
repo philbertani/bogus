@@ -28,7 +28,6 @@ export function BoardDetails({ props }) {
     isWordRef,
     allWordsFound,
     setTotalScore,
-    totalScore,
     foundWordsRef
   } = props;
 
@@ -63,22 +62,25 @@ export function BoardDetails({ props }) {
       setReset(false);
       selectedRef.current = [];
 
-      setTotalScore(0);
       setFoundWords({});
       totalScoreRef.current = 0;
+      foundWordsRef.current = {words:{},totalscore:0};
 
       const savedWords = JSON.parse( localStorage.getItem("bogusSavedWords") ) ?? {};
       if ( savedWords.boardId && savedWords.boardId === game.boardId) {
         //we could have just checked that the boards are the same but this is 
         //the lazy way - but still kind of annoying
-        savedWords.foundWords && setFoundWords(savedWords.foundWords)
-        console.log('words from local storage',savedWords);
+        savedWords.foundWords && setFoundWords(savedWords.foundWords);
+
+        foundWordsRef.current = {words:{...savedWords.foundWords},totalScore:savedWords.totalScore};
+
+        console.log('words from local storage',savedWords, foundWordsRef.current);
         setTotalScore(savedWords.totalScore);
         totalScoreRef.current = savedWords.totalScore;
       }
 
     }
-  }, [reset, setReset, M, N, setFoundWords, game.boardId, setSearchString]);
+  }, [reset, setReset, M, N, setFoundWords, game.boardId, setSearchString, foundWordsRef, setTotalScore]);
 
   const addPathDiv = React.useCallback(
 
@@ -150,7 +152,7 @@ export function BoardDetails({ props }) {
       );
     }
 
-  ,[N, boardDims.width] );
+  ,[boardDims, game.rank, N] );
 
   //need to regenerate pathRef to track new letter positions
   const resetPath = React.useCallback(() => {
@@ -455,7 +457,9 @@ export function BoardDetails({ props }) {
     allSelected,
     searchString,
     mouseButtonDown,
+    isTouchDevice
   ]);
+  //don't listen to React about adding: handleClick and handleMouseOver
 
   React.useEffect(() => {
     const search = game.isWord(searchString, false);
@@ -470,26 +474,29 @@ export function BoardDetails({ props }) {
       setSearchStringBackground("");
       setIsWord(false);
       isWordRef.current = false;
+
     } else if (search[1]) {
       //add it to the user's found words
-      const newWords = JSON.parse(JSON.stringify(foundWords));
-      if (newWords[searchString]) {
-        //newWords[searchString] ++;
-      } else {
-      
-        newWords[searchString] = ln ;
-      }
+      const newWords = foundWordsRef.current.words; //JSON.parse(JSON.stringify(foundWords));
 
       isWordRef.current = true;
 
       let newBackgroundImage = "radial-gradient(#FFFF00,#00FFFF)";
       let newColor = "#E000E0";
-      if (foundWords[searchString] || allWordsFound[searchString]) {
+
+      const thisUserFoundWord = newWords[searchString];
+
+      //console.log("xxxxxx",thisUserFoundWord);
+
+      if ( thisUserFoundWord || allWordsFound[searchString]) {
         //if we already found this word color it grey-ish
         newBackgroundImage = "radial-gradient(#FFFFFF,#000000)";
         newColor = "#101010";
         isWordRef.current = false;
       }
+
+      //add word to map for this user if it does not exist
+      if ( !thisUserFoundWord) {  newWords[searchString] = ln ; }
 
       let newStyles = deepClone(cubeStyles); //this is ugly
       for (const Index of selectedRef.current) {
@@ -500,26 +507,30 @@ export function BoardDetails({ props }) {
       }
 
       setCubeStyles(newStyles);
-      if (isWordRef.current) { 
-        //console.log("definition",game.definitions[search[3]]);
-        //the following is useless - we just need to do another bsearch on game.words
-        //newWords[searchString] = search[3]; //remember the index so we can access definition later on
-        setFoundWords(newWords);
-
-        const newScore = totalScore + ln;
-        setTotalScore( newScore );
+      if (isWordRef.current) {
 
         totalScoreRef.current += ln;
-        foundWordsRef.current = {words:{...newWords},totalScore:totalScoreRef.current};
+        foundWordsRef.current = {
+          words: { ...newWords },
+          totalScore: totalScoreRef.current,
+        };
 
-        localStorage.setItem("bogusSavedWords",JSON.stringify( {foundWords:newWords, boardId:game.boardId, totalScore: totalScoreRef.current } ));
+        localStorage.setItem(
+          "bogusSavedWords",
+          JSON.stringify({
+            foundWords: newWords,
+            boardId: game.boardId,
+            totalScore: totalScoreRef.current,
+          })
+        );
       }
 
       setIsWord(true);
       setSearchStringBackground(newBackgroundImage);
     }
-  }, [searchString, game, setIsWord, setFoundWords, setTotalScore]);
+  }, [searchString, game, setIsWord ]);
   //React is wrong about adding foundWords and cubeStyles here: it causes infinite renders
+  //also wrong about isWordRef
 
   return <div>{output}</div>;
 }
