@@ -27,7 +27,9 @@ export function BoardDetails({ props }) {
     setSearchStringBackground,
     isWordRef,
     allWordsFound,
-    setTotalScore
+    setTotalScore,
+    totalScore,
+    foundWordsRef
   } = props;
 
   const [output, setOutput] = React.useState([]);
@@ -46,9 +48,7 @@ export function BoardDetails({ props }) {
   const fontSize = React.useRef(0);
   const selectedRef = React.useRef([]);
   const pathRef = React.useRef([]); //may have to make this a useState
-
-
-
+  const totalScoreRef = React.useRef(0);
   //console.log(game.words);
 
   React.useEffect(() => {
@@ -65,6 +65,7 @@ export function BoardDetails({ props }) {
 
       setTotalScore(0);
       setFoundWords({});
+      totalScoreRef.current = 0;
 
       const savedWords = JSON.parse( localStorage.getItem("bogusSavedWords") ) ?? {};
       if ( savedWords.boardId && savedWords.boardId === game.boardId) {
@@ -72,6 +73,8 @@ export function BoardDetails({ props }) {
         //the lazy way - but still kind of annoying
         savedWords.foundWords && setFoundWords(savedWords.foundWords)
         console.log('words from local storage',savedWords);
+        setTotalScore(savedWords.totalScore);
+        totalScoreRef.current = savedWords.totalScore;
       }
 
     }
@@ -456,7 +459,9 @@ export function BoardDetails({ props }) {
 
   React.useEffect(() => {
     const search = game.isWord(searchString, false);
+    const ln = searchString.length - (game.minLetters-1);
 
+    //console.log(searchString, ln);
     //console.log(game.output);
     //console.log(searchString, search);
 
@@ -471,9 +476,8 @@ export function BoardDetails({ props }) {
       if (newWords[searchString]) {
         //newWords[searchString] ++;
       } else {
-        const ln = searchString.length;
-        newWords[searchString] = ln;
-        setTotalScore(prev=>prev+ln);
+      
+        newWords[searchString] = ln ;
       }
 
       isWordRef.current = true;
@@ -501,13 +505,20 @@ export function BoardDetails({ props }) {
         //the following is useless - we just need to do another bsearch on game.words
         //newWords[searchString] = search[3]; //remember the index so we can access definition later on
         setFoundWords(newWords);
-        localStorage.setItem("bogusSavedWords",JSON.stringify( {foundWords:newWords, boardId:game.boardId} ));
+
+        const newScore = totalScore + ln;
+        setTotalScore( newScore );
+
+        totalScoreRef.current += ln;
+        foundWordsRef.current = {words:{...newWords},totalScore:totalScoreRef.current};
+
+        localStorage.setItem("bogusSavedWords",JSON.stringify( {foundWords:newWords, boardId:game.boardId, totalScore: totalScoreRef.current } ));
       }
 
       setIsWord(true);
       setSearchStringBackground(newBackgroundImage);
     }
-  }, [searchString, game, setIsWord]);
+  }, [searchString, game, setIsWord, setFoundWords, setTotalScore]);
   //React is wrong about adding foundWords and cubeStyles here: it causes infinite renders
 
   return <div>{output}</div>;

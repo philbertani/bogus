@@ -54,7 +54,7 @@ export class ioManager {
       return {gameRoom,userId};
     }
     else {
-      return null;
+      return {gameRoom:null, userId:null};
     }
   }
 
@@ -114,13 +114,13 @@ export class ioManager {
           return;
         }
 
-        const {word,count} = msg;
+        const {word,count,totalScore} = msg;
 
         //need to get roomId based on userId = socketMap[socket.id]
         //const gameRoom = this.gameRooms[this.roomMap[0]];
 
-        console.log(Date.now(),"word found by",socket.id,"in room:",gameRoom.id, word, count);
-        gameRoom.setPlayerWordCount(userId,count);
+        console.log(Date.now(),"word found by",socket.id,"in room:",gameRoom.id, word, count, totalScore);
+        gameRoom.setPlayerWordCount(userId,count,totalScore);
 
         if (gameRoom.allWordsFound[word]) { 
           gameRoom.allWordsFound[word] ++ ;

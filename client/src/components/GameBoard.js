@@ -16,6 +16,7 @@ export function GameBoard({ props }) {
     allWordsFound,
     isConnected,
     stats,
+    foundWordsRef
   } = props;
 
   const [boardDims, setBoardDims] = React.useState({});
@@ -171,7 +172,7 @@ export function GameBoard({ props }) {
     }
 
     setWordOutput(newWordOutput);
-  }, [foundWords, boardDims.height, game.words, allWordsFound]);
+  }, [foundWords, boardDims.height, game.words, allWordsFound, game, isTouchDevice]);
 
   let props2 = {
     game,
@@ -191,7 +192,9 @@ export function GameBoard({ props }) {
     setSearchStringBackground,
     isWordRef,
     allWordsFound,
-    setTotalScore
+    setTotalScore,
+    totalScore,
+    foundWordsRef
   };
 
   const touch0 = React.useRef({});
@@ -244,13 +247,18 @@ export function GameBoard({ props }) {
     //this useEffect gets called too many times with isWord being true
     //isWordRef is the easiest solution, React is annoying
     if (isWordRef.current) {
-      console.log("trying to send word to server", isWord, searchString);
+
+      let score = 0;
+      const words = Object.keys(foundWordsRef.current.words);
+
+      console.log("trying to send word to server", isWord, searchString, score);
       socket.emit("word", {
         word: searchString,
-        count: Object.keys(foundWords).length + 1,
+        count: words.length,
+        totalScore: foundWordsRef.current.totalScore
       });
     }
-  }, [isWord, searchString, isWordRef, socket, foundWords]);
+  }, [isWord, searchString, isWordRef, socket, totalScore, foundWordsRef, game.minLetters]);
 
   React.useEffect(() => {
     if (!boardDims.width) return;
@@ -309,6 +317,7 @@ export function GameBoard({ props }) {
         </div>
 
         <div
+          key="menu"
           style={{
             display: displayMenu,
             backgroundColor: "rgba(255,255,255,.9)",
@@ -366,7 +375,7 @@ export function GameBoard({ props }) {
         </div>
 
         <div
-          key={"header01"}
+          key="header01"
           style={{
             width: boardDims.width,
             maxWidth: boardDims.width,
@@ -404,6 +413,7 @@ export function GameBoard({ props }) {
             {Object.keys(allWordsFound).length}
           </div>
           <div
+            key="junk01"
             style={{
               color: isConnected ? "green" : "red",
               position: "absolute",
@@ -421,6 +431,7 @@ export function GameBoard({ props }) {
         </div>
 
         <div
+          key="definitions"
           style={{
             zIndex: 100,
             position: "absolute",
@@ -464,7 +475,7 @@ export function GameBoard({ props }) {
           }}
         >
           <div
-            key={"wordList"}
+            key="wordList"
             style={{
               display: "flex",
               flexDirection: "row",
@@ -480,6 +491,7 @@ export function GameBoard({ props }) {
       </div>,
 
       <div
+        key="stats"
         style={{
           position: "absolute",
           zIndex: "500",
@@ -501,9 +513,9 @@ export function GameBoard({ props }) {
           "Players:" +
             stats.playerCount +
             ", High Score:" +
-            stats.maxWordCount +
-            ", #Words:" +
-            stats.numWords}
+            stats.maxScore +
+            ", Your Score:" +
+            totalScore }
       </div>,
     ]
   );

@@ -35,6 +35,7 @@ export class gameRoom {
         //set all wordCounts to 0
         for (const player of Object.values(this.players)) {
             player.wordCount = 0;
+            player.score = 0;
         }
     }
     
@@ -54,16 +55,19 @@ export class gameRoom {
     gameStats() {
         let playerCount = 0;
         let maxWordCount = 0;
+        let maxScore = 0;
         for ( const [key,value] of Object.entries(this.players) ) {
             if (value.connected) { playerCount ++; 
                 if (value.wordCount > maxWordCount) maxWordCount = value.wordCount;
+                if (value.score > maxScore) maxScore = value.score;
             }
         }
-        return {playerCount, maxWordCount, numWords:this.game.wordsFound.length}
+        return {playerCount, maxWordCount, maxScore, numWords:this.game.wordsFound.length}
     }
 
-    setPlayerWordCount(userId, count) {
+    setPlayerWordCount(userId, count, totalScore) {
         this.players[userId].wordCount = count;
+        this.players[userId].score = totalScore;
     }
 
     sendStats() {

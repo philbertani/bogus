@@ -20,6 +20,8 @@ export default function App() {
   const [mainGame, setMainGame] = React.useState(new bogusMain( {words:["none"], definitions:["none"]} ) );
   const [doneOne, setDoneOne] = React.useState(false);
   const [reset, setReset] = React.useState(false);
+
+  const foundWordsRef = React.useRef();
   const [foundWords, setFoundWords] = React.useState( {} );  //we need to persist this across page refreshes and reconnects
   const [isDuplicateProcess, setIsDuplicateProcess] = React.useState(false);
   const [checkConnection, setCheckConnection] = React.useState(false);
@@ -195,7 +197,8 @@ export default function App() {
     socket,
     allWordsFound,
     isConnected,
-    stats
+    stats,
+    foundWordsRef
   };
 
   return (
