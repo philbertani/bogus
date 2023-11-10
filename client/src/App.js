@@ -29,6 +29,8 @@ export default function App() {
   const [heartbeatTime, setHeartbeatTime] = React.useState(0);
   const [waitingForHeartbeat,setWaitingForHeartbeat] = React.useState(false);
 
+  const [stats, setStats] = React.useState({});
+
   useEffect(() => {
 
     if (isConnected && !waitingForHeartbeat) {
@@ -147,6 +149,11 @@ export default function App() {
       setTimeout( ()=>{setWaitingForHeartbeat(false); }, 5000 );
     }
 
+    function onStats(msg) {
+      //console.log('stats',msg);
+      setStats(msg);
+    }
+
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
     socket.on('chat message', onFooEvent);
@@ -155,6 +162,7 @@ export default function App() {
     socket.on('duplicate',onDupe);
     socket.on('allWordsFound', onAllWordsFound);
     socket.on('heartbeat', onHeartBeat);
+    socket.on('stats', onStats);
 
     return () => {
       socket.off('connect', onConnect);
@@ -164,8 +172,10 @@ export default function App() {
       socket.off('current board', onNewBoard);
       socket.off('duplicate', onDupe);
       socket.off('allWordsFound', onAllWordsFound);
-      socket.off('heartbeat', onHeartBeat)
+      socket.off('heartbeat', onHeartBeat);
+      socket.off('stats', onStats);
     };
+
   }, [mainGame, isDuplicateProcess]);
 
   const props = {
@@ -177,21 +187,15 @@ export default function App() {
     isTouchDevice,
     socket,
     allWordsFound,
-    isConnected
+    isConnected,
+    stats
   };
 
   return (
     [
       (doneOne && !isDuplicateProcess ) && <GameBoard key="k05" props={props}/> ,
       isDuplicateProcess && <div>You already are Connected</div>,
- 
-      /*
-      <div style={{margin:"1vw"}}key="k00" className="App">
-        <ConnectionState key="k01" isConnected={ isConnected } />
-        <Events key="k02" events={ fooEvents } />
-      </div>
-      */
-
+      
     ]
   );
 }

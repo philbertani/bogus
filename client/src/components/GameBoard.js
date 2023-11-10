@@ -14,7 +14,8 @@ export function GameBoard({ props }) {
     isTouchDevice,
     socket,
     allWordsFound,
-    isConnected
+    isConnected,
+    stats,
   } = props;
 
   const [boardDims, setBoardDims] = React.useState({});
@@ -23,7 +24,7 @@ export function GameBoard({ props }) {
   const windowSize = useWindowSize();
 
   const [touches, setTouches] = React.useState({});
-  const [touchInfo, setTouchInfo] = React.useState();  //for debugging
+  const [touchInfo, setTouchInfo] = React.useState(); //for debugging
 
   const { M, N } = game.rank;
   const cubeRefs = React.useRef(Array(M).fill(() => Array(N).fill(null)));
@@ -35,27 +36,28 @@ export function GameBoard({ props }) {
   const isWordRef = React.useState(false);
   const [searchString, setSearchString] = React.useState("");
   const [isWord, setIsWord] = React.useState(false);
-  const [searchStringBackGround, setSearchStringBackground] = React.useState("");
+  const [searchStringBackGround, setSearchStringBackground] =
+    React.useState("");
 
   const [wordListPos, setWordListPos] = React.useState({});
   const [displayMenu, setDisplayMenu] = React.useState("none");
   const [displayDefinition, setDisplayDefinition] = React.useState("");
-  const [hideDef,setHideDef] = React.useState("none");
+  const [hideDef, setHideDef] = React.useState("none");
 
   const [count, setCount] = React.useState(0);
 
-  React.useEffect(() => { 
-  
-    //Implementing the setInterval method 
-    const interval = setInterval(() => { 
-        setCount(count + 1); 
-    }, 1000); 
+  React.useEffect(() => {
+    //Implementing the setInterval method
+    const interval = setInterval(() => {
+      setCount(count + 1);
+    }, 1000);
 
-    if (count === 2 ) { setHideDef("none"); };
-    //Clearing the interval 
-    return () => clearInterval(interval); 
-  }, [count]); 
-
+    if (count === 2) {
+      setHideDef("none");
+    }
+    //Clearing the interval
+    return () => clearInterval(interval);
+  }, [count]);
 
   React.useEffect(() => {
     //const currentBoardDims = boardRef.current.getBoundingClientRect();
@@ -74,7 +76,6 @@ export function GameBoard({ props }) {
   }, [windowSize]);
 
   React.useEffect(() => {
-
     if (isNaN(boardDims.height)) return;
 
     const newWordOutput = [];
@@ -109,7 +110,8 @@ export function GameBoard({ props }) {
     //have the word list scroll to the closest match and center it in the div
 
     //at the end of the game we can run through game.words to show all words
-    for (const word of sortedWords) {  //game.words 
+    for (const word of sortedWords) {
+      //game.words
       let bgColor = "inherit";
       let color = "black";
       let backgroundImage = "";
@@ -121,7 +123,7 @@ export function GameBoard({ props }) {
 
       let definition = "weird, no definition found";
       const search = game.isWord(word);
-      if ( search[1] ) {
+      if (search[1]) {
         definition = game.definitions[search[3]];
       }
 
@@ -141,10 +143,15 @@ export function GameBoard({ props }) {
             height: "fit-content",
             width: "fit-content",
             borderRadius: "5px",
-            overflow:isTouchDevice?"scroll":"hidden", //weirdness here
+            overflow: isTouchDevice ? "scroll" : "hidden", //weirdness here
             //touchAction: "none"
           }}
-          onClick={ev=>{ev.preventDefault(); setCount(0); setHideDef("block"); setDisplayDefinition(definition); }}
+          onClick={(ev) => {
+            ev.preventDefault();
+            setCount(0);
+            setHideDef("block");
+            setDisplayDefinition(definition);
+          }}
         >
           {word}
         </div>,
@@ -162,7 +169,7 @@ export function GameBoard({ props }) {
       ]);
     }
 
-    setWordOutput( newWordOutput);
+    setWordOutput(newWordOutput);
   }, [foundWords, boardDims.height, game.words, allWordsFound]);
 
   let props2 = {
@@ -223,7 +230,7 @@ export function GameBoard({ props }) {
         }
         setTouches({ pos: boardPos, dir, useDir, isTouchStart });
         //setTouchInfo( ['xxx',touches]);
-        
+
         break;
       }
     }
@@ -236,9 +243,12 @@ export function GameBoard({ props }) {
     //isWordRef is the easiest solution, React is annoying
     if (isWordRef.current) {
       console.log("trying to send word to server", isWord, searchString);
-      socket.emit("word", searchString);
+      socket.emit("word", {
+        word: searchString,
+        count: Object.keys(foundWords).length + 1,
+      });
     }
-  }, [isWord, searchString, isWordRef, socket]);
+  }, [isWord, searchString, isWordRef, socket, foundWords]);
 
   React.useEffect(() => {
     if (!boardDims.width) return;
@@ -246,15 +256,15 @@ export function GameBoard({ props }) {
     //console.log(Date.now(),boardDims);
     if (windowSize.width > 1.4 * windowSize.height) {
       setWordListPos({
-        top: boardDims.height/7,
+        top: boardDims.height / 7,
         left: 1.1 * boardDims.width,
-        height: window.innerHeight - boardDims.height/7,
+        height: window.innerHeight - boardDims.height / 7,
       });
     } else {
       setWordListPos({
         top: 1.18 * boardDims.height + 0.02 * window.innerHeight,
         left: 0,
-        height: 0.7 * (window.innerHeight - boardDims.height),
+        height: 0.62 * (window.innerHeight - boardDims.height),
       });
     }
   }, [windowSize, boardDims]);
@@ -264,7 +274,6 @@ export function GameBoard({ props }) {
     console.log("trying to get new board");
 
     socket.emit("new board");
-
   }
 
   //"\u2261" is the 3 line menu
@@ -273,7 +282,7 @@ export function GameBoard({ props }) {
   const spx = sp + sp + sp + sp + sp;
   return (
     boardDims.height &&
-    wordListPos.top && (
+    wordListPos.top && [
       <div
         onTouchStart={processTouch}
         onTouchMove={processTouch}
@@ -400,9 +409,9 @@ export function GameBoard({ props }) {
               top: "-1.5vh",
               backgroundColor: "rgba(250,250,100,.5)",
               width: boardDims.height / 9,
-              fontSize: boardDims.height /12,
+              fontSize: boardDims.height / 12,
               height: boardDims.height / 9,
-              lineHeight: boardDims.height / 9 + "px"
+              lineHeight: boardDims.height / 9 + "px",
             }}
           >
             {"\u2b24"}
@@ -466,7 +475,34 @@ export function GameBoard({ props }) {
             {wordOutput}
           </div>
         </div>
-      </div>
-    )
+      </div>,
+
+      <div
+        style={{
+          position: "absolute",
+          zIndex: "500",
+          top:
+            window.innerHeight > window.innerWidth
+              ? 0.96 * window.innerHeight
+              : 0.9 * window.innerHeight,
+          backgroundColor: "rgba(200,100,0,.9)",
+          color: "rgba(250,250,0,1)",
+          textAlign: "Center",
+          margin: "1vw",
+          height: "3.5vh",
+          fontSize: "2.5vh",
+          lineHeight: "3.5vh",
+          width: boardDims.width,
+        }}
+      >
+        {stats.playerCount &&
+          "Players:" +
+            stats.playerCount +
+            ", High Score:" +
+            stats.maxWordCount +
+            ", #Words:" +
+            stats.numWords}
+      </div>,
+    ]
   );
 }

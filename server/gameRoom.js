@@ -33,7 +33,31 @@ export class gameRoom {
         this.allWordsFound = {};
     }
     
-    newPlayer( player ) {
-        this.players[player] = {connected:true, time:Date.now()};
+    newPlayer( userId ) {
+        this.players[userId] = {connected:true, time:Date.now()};
+    }
+
+    removePlayer( userId ) {
+        this.players[userId] = {connected:false, time:Date.now(), wordCount:0};      
+    }
+
+    gameStats() {
+        let playerCount = 0;
+        let maxWordCount = 0;
+        for ( const [key,value] of Object.entries(this.players) ) {
+            if (value.connected) { playerCount ++; 
+                if (value.wordCount > maxWordCount) maxWordCount = value.wordCount;
+            }
+        }
+        return {playerCount, maxWordCount, numWords:this.game.wordsFound.length}
+    }
+
+    setPlayerWordCount(userId, count) {
+        this.players[userId].wordCount = count;
+    }
+
+    sendStats() {
+        //console.log("sending stats for",this.id);
+        this.io.to(this.id).emit("stats",this.gameStats());
     }
 }

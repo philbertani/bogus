@@ -10,7 +10,7 @@ export class ioManager {
   numUsers = 0;
   io = null;
   gameRooms = {};
-  roomMap = {};
+  roomMap = [];
   numRooms = 0;
   
   BOARDTYPES = {NORMAL:0,TORUS:1};
@@ -25,12 +25,20 @@ export class ioManager {
       this.setHandlers(this.io);
       const newRoomId = uuidv4();
       this.gameRooms[newRoomId] = new gameRoom(newRoomId, this.io, dict, this.BOARDTYPES.NORMAL) ;
-      this.roomMap[this.numRooms] = newRoomId;
+      this.roomMap.push(newRoomId);
 
+      this.numRooms ++;
       const room2 = uuidv4();
       this.gameRooms[room2] = new gameRoom(room2, this.io, dict, this.BOARDTYPES.TORUS);
-      this.roomMap[this.numRooms++] = room2; 
+      this.roomMap.push(room2); 
+
       //add a gameRoom for testing, so we don't interfere with ongoing games
+
+      this.statsInterval = setInterval( ()=>{
+        for (const gameRoom of Object.values(this.gameRooms) ) {
+          gameRoom.sendStats();
+        }
+      }, 3000);
 
     } catch (error) {
       console.log("aweful happenings in ioManager Constructor", error);
@@ -42,7 +50,7 @@ export class ioManager {
     if (this.users[userId]) {
       const roomId = this.users[userId].roomId;
       const gameRoom = this.gameRooms[roomId];
-      return gameRoom;
+      return {gameRoom,userId};
     }
     else {
       return null;
@@ -95,23 +103,26 @@ export class ioManager {
     io.on("connection", socket=> {
       socket.on("word", msg => {
 
-        const gameRoom = this.getGameRoom(socket.id);
+        const {gameRoom, userId} = this.getGameRoom(socket.id);
 
         if  ( !gameRoom ) {
           console.log('could not find user based on socket',socket.id);
           return;
         }
 
+        const {word,count} = msg;
+
         //need to get roomId based on userId = socketMap[socket.id]
         //const gameRoom = this.gameRooms[this.roomMap[0]];
 
-        console.log(Date.now(),"word found by",socket.id,"in room 0", msg);
+        console.log(Date.now(),"word found by",socket.id,"in room:",gameRoom.id, word, count);
+        gameRoom.setPlayerWordCount(userId,count);
 
-        if (gameRoom.allWordsFound[msg]) { 
-          gameRoom.allWordsFound[msg] ++ ;
+        if (gameRoom.allWordsFound[word]) { 
+          gameRoom.allWordsFound[word] ++ ;
         }
         else {
-          gameRoom.allWordsFound[msg] = 1;
+          gameRoom.allWordsFound[word] = 1;
         }
 
         //console.log(gameRoom.allWordsFound);
@@ -126,7 +137,7 @@ export class ioManager {
         //const userId = this.socketMap[socket.id];
         //console.log("new board requested by",this.users[userId]);
 
-        const gameRoom = this.getGameRoom(socket.id);
+        const {gameRoom} = this.getGameRoom(socket.id);
         if (!gameRoom) {
           console.log(
             "new board request, could not resolve socket id:",
@@ -149,6 +160,16 @@ export class ioManager {
         const userId = this.socketMap[socket.id];
         if (userId) {
           this.users[userId].sessionId = null;
+          const gameRoomId = this.users[userId].roomId;
+
+          if (this.gameRooms[gameRoomId]) {
+            this.gameRooms[gameRoomId].removePlayer(userId);
+          } 
+          else {
+            console.log('Weird no gameRoomId for userId', userId);
+          }
+    
+
         } else {
           //weird
           console.log("could not find a userId for socket:", socket.id);
@@ -187,10 +208,13 @@ export class ioManager {
           connTime: time,
           seqno: seqno,
           socketId: socket.id,
-          roomId: this.gameRooms[this.roomMap[0]].id
+          roomId: this.roomMap[0]
         };
 
+        //console.log(this.roomMap);
+
         const roomId = this.users[msg.userId].roomId;
+        console.log('roomid',roomId, this.gameRooms[roomId].id);
         const gameRoom = this.gameRooms[roomId];
 
         if (
