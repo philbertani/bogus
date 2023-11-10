@@ -64,4 +64,5 @@ async function mainLoop(dict) {
     //localhost goes nowhere
     console.log(`Socket.IO server running at http://${host}:${port}/`);
   });
+
 }

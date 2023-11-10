@@ -8,6 +8,7 @@ import bogusMain from './common/bogus.js';
 import {cloneArray} from './common/utils.js';
 import {v4 as uuidv4} from 'uuid';
 import './App.css';
+import GPU from './components/3d/GPU.js';
 
 //if we lose connection and reload page, load the previous board from
 //localStorage
@@ -30,6 +31,7 @@ export default function App() {
   const [waitingForHeartbeat,setWaitingForHeartbeat] = React.useState(false);
 
   const [stats, setStats] = React.useState({});
+  const [is3d, setIs3d] = React.useState(false);
 
   useEffect(() => {
 
@@ -115,6 +117,11 @@ export default function App() {
       mainGame.boardId = msg.boardId;
       mainGame.boardType = msg.boardType;
 
+      if ( msg.bogus3d ) {
+        console.log('3d is coming through!', msg.bogus3d);
+        setIs3d(true);
+      }
+
       //console.log(mainGame.definitions);
       window.bogus = mainGame;  //remove this when we are live on the internet obviously
 
@@ -193,9 +200,14 @@ export default function App() {
 
   return (
     [
-      (doneOne && !isDuplicateProcess ) && <GameBoard key="k05" props={props}/> ,
+      (doneOne && !isDuplicateProcess && !is3d ) && <GameBoard key="k05" props={props}/> ,
       isDuplicateProcess && <div>You already are Connected</div>,
       
+      is3d && 
+      <div key="3dContainer">
+        <GPU key="main3dDisplay" props={props} />
+      </div>
+
     ]
   );
 }

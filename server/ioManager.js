@@ -2,6 +2,7 @@ import { gameRoom } from "./gameRoom.js";
 import { Server } from "socket.io";
 import { v4 as uuidv4 } from "uuid";
 
+
 export class ioManager {
 
   users = {};
@@ -68,8 +69,11 @@ export class ioManager {
       words: gameRoom.game.wordsFound,
       defs: gameRoom.game.defsFound,
       boardId: gameRoom.boardId,
-      boardType: gameRoom.game.boardType
+      boardType: gameRoom.game.boardType,
+      bogus3d: process.env.bogusEnv
     });
+
+    console.log('bogusEnv is:',process.env.bogusEnv);
 
     io.to(gameRoom.id).emit("allWordsFound", gameRoom.allWordsFound);  
   }

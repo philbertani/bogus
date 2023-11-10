@@ -13,6 +13,7 @@
     },
     "scripts": {
         "start": "node index.js",
+        "start3d": "set bogusEnv=3d && node index.js",
         "startmon": "nodemon index.js"
     }
 }

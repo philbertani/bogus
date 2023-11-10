@@ -27,6 +27,7 @@ export function BoardDetails({ props }) {
     setSearchStringBackground,
     isWordRef,
     allWordsFound,
+    setTotalScore
   } = props;
 
   const [output, setOutput] = React.useState([]);
@@ -46,6 +47,8 @@ export function BoardDetails({ props }) {
   const selectedRef = React.useRef([]);
   const pathRef = React.useRef([]); //may have to make this a useState
 
+
+
   //console.log(game.words);
 
   React.useEffect(() => {
@@ -60,6 +63,7 @@ export function BoardDetails({ props }) {
       setReset(false);
       selectedRef.current = [];
 
+      setTotalScore(0);
       setFoundWords({});
 
       const savedWords = JSON.parse( localStorage.getItem("bogusSavedWords") ) ?? {};
@@ -465,9 +469,11 @@ export function BoardDetails({ props }) {
       //add it to the user's found words
       const newWords = JSON.parse(JSON.stringify(foundWords));
       if (newWords[searchString]) {
-        newWords[searchString] ++;
+        //newWords[searchString] ++;
       } else {
-        newWords[searchString] = 1;
+        const ln = searchString.length;
+        newWords[searchString] = ln;
+        setTotalScore(prev=>prev+ln);
       }
 
       isWordRef.current = true;

@@ -45,6 +45,7 @@ export function GameBoard({ props }) {
   const [hideDef, setHideDef] = React.useState("none");
 
   const [count, setCount] = React.useState(0);
+  const [totalScore, setTotalScore] = React.useState(0);
 
   React.useEffect(() => {
     //Implementing the setInterval method
@@ -190,6 +191,7 @@ export function GameBoard({ props }) {
     setSearchStringBackground,
     isWordRef,
     allWordsFound,
+    setTotalScore
   };
 
   const touch0 = React.useRef({});
