@@ -38,7 +38,7 @@ export class ioManager {
         for (const gameRoom of Object.values(this.gameRooms) ) {
           gameRoom.sendStats();
         }
-      }, 3000);
+      }, 1500);
 
     } catch (error) {
       console.log("aweful happenings in ioManager Constructor", error);
@@ -147,7 +147,7 @@ export class ioManager {
         }
 
         gameRoom.newBoard();
-
+        
         this.emitGame(io,gameRoom, gameRoom.id);
 
       });

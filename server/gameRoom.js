@@ -31,14 +31,24 @@ export class gameRoom {
         this.output = tmp.output;
         this.boardId = uuidv4();
         this.allWordsFound = {};
+
+        //set all wordCounts to 0
+        for (const player of Object.values(this.players)) {
+            player.wordCount = 0;
+        }
     }
     
     newPlayer( userId ) {
-        this.players[userId] = {connected:true, time:Date.now()};
+        if (!this.players[userId]) this.players[userId] = {};
+        const player=this.players[userId];
+        player.connected=true, 
+        player.time = Date.now();
     }
 
     removePlayer( userId ) {
-        this.players[userId] = {connected:false, time:Date.now(), wordCount:0};      
+        const player=this.players[userId];
+        player.connected = false;
+        player.time = Date.now();      
     }
 
     gameStats() {
