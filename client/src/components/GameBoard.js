@@ -200,9 +200,10 @@ export function GameBoard({ props }) {
   function processTouch(ev) {
 
     ev.preventDefault();
-
-    setTouchInfo('wtf?????');
+    ev.stopImmediatePropagation();
     
+    setTouchInfo('wtf?????');
+
     //we need to prevent touch processing when the menu is overlaid
     if (displayMenu === "block") return;
 
