@@ -368,6 +368,7 @@ export function GameBoard({ props }) {
             height: boardDims.height,
             position: "absolute",
             top: boardDims.height / 9,
+            zIndex: "1000"
             //touchAction: "none"
           }}
           key="g01"
