@@ -1,4 +1,7 @@
 /*
+
+//fuuuuck - adding threejs causes build to run out of memory on render.com
+
 import React from "react";
 import * as THREE from "three";
 import  createCubeGroup from "./createCubeGroup"

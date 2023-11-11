@@ -67,7 +67,9 @@ export function GameBoard({ props }) {
   React.useEffect(() => {
     //const currentBoardDims = boardRef.current.getBoundingClientRect();
     const aspectRatio = windowSize.width / windowSize.height;
-    const sizeFac = 1.3;
+    const sizeFac = 1.8;
+
+    //setTouchInfo([JSON.stringify(windowSize),window.screen.width,window.screen.height]);
     let [newWidth, newHeight] = [
       windowSize.width / sizeFac / aspectRatio,
       windowSize.height / sizeFac,
@@ -258,7 +260,8 @@ export function GameBoard({ props }) {
     if (!boardDims.width) return;
 
     //console.log(Date.now(),boardDims);
-    if (windowSize.width > 1.4 * windowSize.height) {
+    if ( (isTouchDevice && windowSize.width > 1.4 * windowSize.height)
+        || (!isTouchDevice && window.innerWidth > window.innerHeight) ) {
       setWordListPos({
         top: boardDims.height / 7,
         left: 1.1 * boardDims.width,
@@ -271,7 +274,7 @@ export function GameBoard({ props }) {
         height: 0.62 * (window.innerHeight - boardDims.height),
       });
     }
-  }, [windowSize, boardDims]);
+  }, [windowSize, boardDims, isTouchDevice]);
 
   function generateNewBoard(ev) {
     ev.preventDefault();
@@ -290,12 +293,13 @@ export function GameBoard({ props }) {
       <div
         onTouchStart={processTouch}
         onTouchMove={processTouch}
-        style={{ touchAction: "none" }}
+        style={{ touchAction: "none", position:"absolute"}}
       >
-        <div>{JSON.stringify(touchInfo)}</div>
+        <div style={{position:"absolute"}}>{JSON.stringify(touchInfo)}</div>
         <div
           key="searchString"
           style={{
+            position:"absolute",
             margin: "1vw",
             backgroundImage: searchStringBackGround,
             width: boardDims.width,
@@ -492,10 +496,9 @@ export function GameBoard({ props }) {
         style={{
           position: "absolute",
           zIndex: "500",
-          top:
-            window.innerHeight > window.innerWidth
-              ? 0.96 * window.innerHeight
-              : 0.9 * window.innerHeight,
+          top: ( window.innerHeight > window.innerWidth ) ?
+            boardDims.height + wordListPos.height + boardDims.height/4.8 : 
+            boardDims.height + boardDims.height / 5,
           backgroundColor: "rgba(200,100,0,.9)",
           color: "rgba(250,250,0,1)",
           textAlign: "Center",

@@ -8,8 +8,8 @@ export function useWindowSize() {
   useEffect(() => {
     function handleResize() {
       setWindowSize({
-        width: window.innerWidth,
-        height: window.innerHeight,
+        width: window.screen.width, //window.innerWidth,
+        height: window.screen.height //window.innerHeight,
       });
     }
     window.addEventListener("resize", handleResize);
