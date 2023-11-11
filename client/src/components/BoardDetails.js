@@ -426,7 +426,7 @@ export function BoardDetails({ props }) {
     if (touches.pos && touches.pos.x) {
       handleClick(null, touches.pos.x, touches.pos.y, true);
     }
-  }, [touches, handleClick]);
+  }, [touches]);
 
   React.useEffect(() => {
     let tmpOutput = [];
