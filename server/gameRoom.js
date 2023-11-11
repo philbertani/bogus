@@ -14,6 +14,7 @@ export class gameRoom {
 
     BOARDTYPES = {NORMAL:0,TORUS:1};
     boardType;
+    maxScore = 0;   //need to persist maxScore separate from users who might disconnect
 
     constructor(roomId,io,dict,boardType) {
         this.io = io;
@@ -31,6 +32,7 @@ export class gameRoom {
         this.output = tmp.output;
         this.boardId = uuidv4();
         this.allWordsFound = {};
+        this.maxScore = 0;
 
         //set all wordCounts to 0
         for (const player of Object.values(this.players)) {
@@ -55,14 +57,16 @@ export class gameRoom {
     gameStats() {
         let playerCount = 0;
         let maxWordCount = 0;
-        let maxScore = 0;
+        let maxScore = this.maxScore;
         for ( const [key,value] of Object.entries(this.players) ) {
-            if (value.connected) { playerCount ++; 
+            if (value.connected) { 
+                playerCount ++; 
                 //should we still count the score of a disconnected player?
                 if (value.wordCount > maxWordCount) maxWordCount = value.wordCount;
                 if (value.score > maxScore) maxScore = value.score;
             }
         }
+        this.maxScore = maxScore;
         return {playerCount, maxWordCount, maxScore, numWords:this.game.wordsFound.length}
     }
 
