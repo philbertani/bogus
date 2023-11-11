@@ -200,8 +200,8 @@ export function GameBoard({ props }) {
   function processTouch(ev) {
 
     ev.preventDefault();
-    ev.stopImmediatePropagation();
-    
+    ev.stopPropagation();
+
     setTouchInfo('wtf?????');
 
     //we need to prevent touch processing when the menu is overlaid
