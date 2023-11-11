@@ -235,7 +235,7 @@ export function GameBoard({ props }) {
           useDir = true;
         }
         setTouches({ pos: boardPos, dir, useDir, isTouchStart });
-        //setTouchInfo( ['xxx',touches]);
+        setTouchInfo( ['xxx',touches]);
 
         break;
       }
