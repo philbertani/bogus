@@ -116,8 +116,6 @@ export class ioManager {
 
         const {word,count,totalScore} = msg;
 
-        //need to get roomId based on userId = socketMap[socket.id]
-        //const gameRoom = this.gameRooms[this.roomMap[0]];
 
         console.log(Date.now(),"word found by",socket.id,"in room:",gameRoom.id, word, count, totalScore);
         gameRoom.setPlayerWordCount(userId,count,totalScore);
@@ -212,10 +210,8 @@ export class ioManager {
           connTime: time,
           seqno: seqno,
           socketId: socket.id,
-          roomId: this.roomMap[0]
+          roomId: this.roomMap[1]  
         };
-
-        //console.log(this.roomMap);
 
         const roomId = this.users[msg.userId].roomId;
         console.log('roomid',roomId, this.gameRooms[roomId].id);

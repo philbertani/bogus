@@ -163,7 +163,7 @@ export function GameBoard({ props }) {
       ]);
     }
 
-    console.log('setting wordoutput', reset, foundWordsRef.current);
+    //console.log('setting wordoutput', reset, foundWordsRef.current);
 
     setWordOutput(newWordOutput);
 

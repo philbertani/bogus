@@ -82,6 +82,67 @@ export function BoardDetails({ props }) {
     }
   }, [reset, setReset, M, N, setFoundWords, game.boardId, setSearchString, foundWordsRef, setTotalScore]);
 
+  function pathDiv(top,left,width,height,transformText) {
+    return (
+      <div
+        key={uuidv4()}
+        style={{
+          transform: transformText,
+          position: "absolute",
+          top: top,
+          left: left,
+          zIndex: 50,
+          width: width,
+          height: height,
+          backgroundImage: "linear-gradient(#000000,#FFFFFF)",
+          opacity: "30%",
+        }}
+      ></div>
+    );
+  }
+
+  const torusMovePath = React.useCallback( 
+    (i,j,iOld,jOld,x,y,xOld,yOld) => {
+    //we need 2 separate divs for path  
+    //console.log("torusMove", i,j,iOld,jOld);
+    const sc = 1.42;
+    const {M,N} = game.rank;
+    const height = "1vh";
+    const width = boardDims.width / N;
+    let transformText = "rotate(0deg)";
+
+    //so annoying i,j,iold,jold are being converted to text somewhere
+    if ( jOld==0 && j==N-1 )  {
+      return [
+        pathDiv(yOld,xOld-width,width,height,transformText),
+        pathDiv(y,x,width,height,transformText)
+      ];
+    }   
+    else if ( jOld==N-1 && j==0) {
+      return [
+        pathDiv(yOld,xOld,width,height,transformText),
+        pathDiv(y,x-width,width,height,transformText)     
+      ]
+    }
+    else if ( iOld==0 && i==M-1) {
+      transformText = "rotate(90deg)"
+      return [
+        pathDiv(yOld-width/2,xOld-width/2,width,height,transformText),
+        pathDiv(y+width/2,x-width/2,width,height,transformText)     
+      ]
+    }
+    else if ( iOld==M-1 && i==0) {
+      transformText = "rotate(90deg)"
+      return [
+        pathDiv(yOld+width/2,xOld-width/2,width,height,transformText),
+        pathDiv(y-width/2,x-width/2,width,height,transformText)     
+      ]
+    }
+
+    return null; 
+    },[boardDims.width,game.rank]
+  );
+
   const addPathDiv = React.useCallback(
 
     (style, prevStyle, i, j, iOld, jOld, torusMove) => {
@@ -90,6 +151,8 @@ export function BoardDetails({ props }) {
       const x = style.left + SN(style.width) / 2;
       const yOld = prevStyle.top + SN(style.height) / 2;
       const xOld = prevStyle.left + SN(style.width) / 2;
+
+      if (torusMove) return torusMovePath(i,j,iOld,jOld,x,y,xOld,yOld);
 
       let transformText = "rotate(0deg)";
 
@@ -119,40 +182,13 @@ export function BoardDetails({ props }) {
         }
       }
 
-      if (torusMove) {
-        console.log("torusMove", torusMove);
-
-        if ( j === jOld) {
-          transformText = "translate(" + -boardDims.width/game.rank.M/2 + "px," + -boardDims.height/game.rank.N + "px) rotate(90deg) scale(" + .8*sc + ")";
-        }
-
-        if ( i === iOld) {
-          transformText = "translate(" + -boardDims.width/game.rank.M + "px, 0) scale(" + .8*sc + ")"; 
-        }
-      }
-
       const width = boardDims.width / N;
-      //const height = boardDims.height/M;
+    
+      return pathDiv(top,left,width,height,transformText);
 
-      return (
-        <div
-          key={uuidv4()}
-          style={{
-            transform: transformText,
-            position: "absolute",
-            top: top,
-            left: left,
-            zIndex: 50,
-            width: width,
-            height: height,
-            backgroundImage: "linear-gradient(#000000,#FFFFFF)",
-            opacity: "30%",
-          }}
-        ></div>
-      );
     }
 
-  ,[boardDims, game.rank, N] );
+  ,[boardDims, N, torusMovePath] );
 
   //need to regenerate pathRef to track new letter positions
   const resetPath = React.useCallback(() => {
@@ -167,7 +203,8 @@ export function BoardDetails({ props }) {
       const style = cubeStyles[i][j];
       const prevStyle = cubeStyles[iOld][jOld];
 
-      const [isValidMove, torusMove, debug] = game.isValidMove(parseFloat(i),parseFloat(j),[iOld,jOld].map(x=>parseFloat(x)));
+      const [isValidMove, torusMove, debug] = 
+        game.isValidMove(parseFloat(i),parseFloat(j),[iOld,jOld].map(x=>parseFloat(x)));
       //console.log(torusMove);
 
       pathRef.current.push(addPathDiv(style, prevStyle, i, j, iOld, jOld, torusMove));
