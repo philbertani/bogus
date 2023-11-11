@@ -3,7 +3,8 @@ import "./GameBoard.css";
 import { useWindowSize } from "./uiHooks.js";
 import { BoardDetails } from "./BoardDetails";
 import { vec } from "../common/utils.js";
-import GPU from "../components/3d/GPU.js"
+
+//import GPU from "../components/3d/GPU.js"
 
 export function GameBoard({ props }) {
   const {
@@ -352,7 +353,7 @@ export function GameBoard({ props }) {
           </div>
         </div>
 
-        <div
+        <div 
           ref={boardRef}
           style={{
             margin: "1vw",
@@ -364,10 +365,10 @@ export function GameBoard({ props }) {
           key="g01"
           className="GameBoard"
         >
-          {!is3d ? <BoardDetails props={props2} /> : <GPU props={props2} />}
-        </div>
+          {!is3d ? <BoardDetails props={props2} /> : <div>no 3d sorry</div>}
+        </div>  
 
-        <div
+        <div   //{!is3d ? <BoardDetails props={props2} /> : <GPU props={props2} />}
           key="header01"
           style={{
             width: boardDims.width,

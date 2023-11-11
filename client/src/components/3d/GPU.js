@@ -1,3 +1,4 @@
+/*
 import React from "react";
 import * as THREE from "three";
 import  createCubeGroup from "./createCubeGroup"
@@ -123,3 +124,4 @@ const GPU = ({props}) => {
 }
 
 export default GPU
+*/
