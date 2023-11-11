@@ -368,7 +368,7 @@ export function GameBoard({ props }) {
             height: boardDims.height,
             position: "absolute",
             top: boardDims.height / 9,
-            touchAction: "none"
+            //touchAction: "none"
           }}
           key="g01"
           className="GameBoard"
