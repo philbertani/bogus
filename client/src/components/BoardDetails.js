@@ -75,7 +75,7 @@ export function BoardDetails({ props }) {
         foundWordsRef.current = {words:{...savedWords.foundWords},totalScore:savedWords.totalScore};
 
         console.log('words from local storage',savedWords, foundWordsRef.current);
-        setTotalScore(savedWords.totalScore);
+        //setTotalScore(savedWords.totalScore);
         totalScoreRef.current = savedWords.totalScore;
       }
 

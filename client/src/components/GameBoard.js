@@ -3,6 +3,7 @@ import "./GameBoard.css";
 import { useWindowSize } from "./uiHooks.js";
 import { BoardDetails } from "./BoardDetails";
 import { vec } from "../common/utils.js";
+import GPU from "../components/3d/GPU.js"
 
 export function GameBoard({ props }) {
   const {
@@ -16,7 +17,8 @@ export function GameBoard({ props }) {
     allWordsFound,
     isConnected,
     stats,
-    foundWordsRef
+    foundWordsRef,
+    is3d
   } = props;
 
   const [boardDims, setBoardDims] = React.useState({});
@@ -362,7 +364,7 @@ export function GameBoard({ props }) {
           key="g01"
           className="GameBoard"
         >
-          <BoardDetails props={props2} />
+          {!is3d ? <BoardDetails props={props2} /> : <GPU props={props2} />}
         </div>
 
         <div
@@ -403,7 +405,7 @@ export function GameBoard({ props }) {
             You:{" "}
             {foundWordsRef.current
               ? Object.keys(foundWordsRef.current.words).length
-              : 0} {" "}
+              : 0}{" "}
             Everyone: {Object.keys(allWordsFound).length}
           </div>
           <div
@@ -509,7 +511,8 @@ export function GameBoard({ props }) {
             ", High Score:" +
             stats.maxScore +
             ", Your Score:" +
-            (foundWordsRef.current.totalScore ?? 0)}
+            //(!is3d && (foundWordsRef.current.totalScore ?? 0))
+            (foundWordsRef.current ? foundWordsRef.current.totalScore ?? 0 : 0)}
       </div>,
     ]
   );

@@ -198,19 +198,15 @@ export default function App() {
     allWordsFound,
     isConnected,
     stats,
-    foundWordsRef
+    foundWordsRef,
+    is3d
   };
 
   return (
     [
-      (doneOne && !isDuplicateProcess && !is3d ) && <GameBoard key="k05" props={props}/> ,
+      (doneOne && !isDuplicateProcess ) && <GameBoard key="k05" props={props}/> ,
       isDuplicateProcess && <div>You already are Connected</div>,
       
-      is3d && 
-      <div key="3dContainer">
-        <GPU key="main3dDisplay" props={props} />
-      </div>
-
     ]
   );
 }

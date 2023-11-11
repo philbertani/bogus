@@ -1,48 +1,15 @@
 import React from "react";
 import * as THREE from "three";
-import { useWindowSize } from "../uiHooks";
 
-const GPU = props => {
+const GPU = ({props}) => {
 
   const {
-    game,
-    reset,
-    setReset,
-    foundWords,
-    setFoundWords,
-    isTouchDevice,
-    socket,
-    allWordsFound,
-    isConnected,
-    stats,
+    boardDims
   } = props;
 
   const canvasRef = React.useRef();
   const initRef = React.useRef(false);
-  const windowSize = useWindowSize();
   const [GL,setGL] = React.useState();
-  const [boardDims,setBoardDims] = React.useState({width:0,height:0});
-  const [initBoardSize, setInitBoardSize] = React.useState(false);
-
-  React.useEffect(() => {
-  
-    setInitBoardSize(true);
-
-    const aspectRatio = windowSize.width / windowSize.height;
-    const sizeFac = 1.3;
-    let [newWidth, newHeight] = [
-      windowSize.width / sizeFac / aspectRatio,
-      windowSize.height / sizeFac,
-    ];
-    if (newWidth > 0.99 * windowSize.width) {
-      newWidth = 0.97 * windowSize.width;
-      newHeight = newWidth;
-    }
-
-    //detect mobile and landscape mode
-    setBoardDims({ width: newWidth, height: newHeight });
-  }, [windowSize, initBoardSize]);
-
 
   React.useEffect(() => {
     if (GL && GL.renderer) {
@@ -54,7 +21,7 @@ const GPU = props => {
         camera.updateProjectionMatrix();
       }
     }
-  }, [windowSize, GL, boardDims, initBoardSize]);
+  }, [GL, boardDims]);
 
   React.useEffect( ()=>{
     if (canvasRef.current && !initRef.current) {
@@ -89,20 +56,19 @@ const GPU = props => {
   },[canvasRef, initRef])
 
   return (
-    <div style={{ height: "100vh" }} key="GPUContainer" id="GPUContainer">
+    
       <div
         style={{
-          margin: boardDims.width * 0.015,
-          height: boardDims.height,
-          width: boardDims.width,
-          minHeight: "300px",
-          minWidth: "300px"
+          height: "100%",
+          width: "100%",
+          //minHeight: "300px",
+          //minWidth: "300px",
+          //zIndex: "100"
         }}
         key="canvasDiv"
         id="canvas"
         ref={canvasRef}
       ></div>
-    </div>
   );
 }
 
