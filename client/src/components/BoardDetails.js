@@ -348,7 +348,6 @@ export function BoardDetails({ props }) {
         flag = false;
       }
 
-      //else if ( mbd && !touches.pos ) { return; }
       else if (mbd && !touches.pos) {
         return;
 
@@ -427,7 +426,7 @@ export function BoardDetails({ props }) {
     if (touches.pos && touches.pos.x) {
       handleClick(null, touches.pos.x, touches.pos.y, true);
     }
-  }, [touches]);
+  }, [touches, handleClick]);
 
   React.useEffect(() => {
     let tmpOutput = [];

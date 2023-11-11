@@ -198,11 +198,14 @@ export function GameBoard({ props }) {
   const touch0 = React.useRef({});
 
   function processTouch(ev) {
+
+    ev.preventDefault();
+
     //we need to prevent touch processing when the menu is overlaid
     if (displayMenu === "block") return;
 
     //on iOs devices long press still causes copy/paste dialog to pop up
-    ev.preventDefault();
+
     const tch = ev.touches[0];
     const [x, y] = [tch.clientX, tch.clientY];
     const objects = document.elementsFromPoint(x, y);
@@ -365,6 +368,7 @@ export function GameBoard({ props }) {
             height: boardDims.height,
             position: "absolute",
             top: boardDims.height / 9,
+            touchAction: "none"
           }}
           key="g01"
           className="GameBoard"
