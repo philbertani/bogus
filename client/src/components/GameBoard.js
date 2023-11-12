@@ -320,6 +320,55 @@ export function GameBoard({ props }) {
           {searchString}
         </div>
 
+        <div 
+          ref={boardRef}
+          style={{
+            margin: "1vw",
+            width: boardDims.width,
+            height: boardDims.height,
+            position: "absolute",
+            top: boardDims.height / 9,
+            //zIndex: "1000"
+            //touchAction: "none"
+          }}
+          key="g01"
+          className="GameBoard"
+        >
+          <BoardDetails props={props2} />
+        </div>  
+
+
+
+      </div>
+    ]
+
+    /*
+    boardDims.height &&
+    wordListPos.top && [
+      <div
+        onTouchStart={processTouch}
+        onTouchMove={processTouch}
+        style={{ touchAction: "none", position:"absolute"}}
+      >
+        <div style={{position:"absolute"}}>{JSON.stringify(touchInfo)}</div>
+        <div
+          key="searchString"
+          style={{
+            position:"absolute",
+            margin: "1vw",
+            backgroundImage: searchStringBackGround,
+            width: boardDims.width,
+            textAlign: "center",
+            height: boardDims.height / 10,
+            fontSize: boardDims.height / 11,
+            lineHeight: boardDims.height / 10 + "px",
+            zIndex: "-10", //so it slides under the menu icon
+            border: "solid",
+          }}
+        >
+          {searchString}
+        </div>
+
         <div
           key="menu"
           style={{
@@ -527,5 +576,7 @@ export function GameBoard({ props }) {
             (foundWordsRef.current ? foundWordsRef.current.totalScore ?? 0 : 0)}
       </div>,
     ]
+
+    */
   );
 }

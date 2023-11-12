@@ -336,6 +336,10 @@ export function BoardDetails({ props }) {
 
         //setTouchInfo(['z',torusMove, validMove, i,j,iOld,jOld,selected, debug]);
 
+        //vary color tint from lighter to darker along path
+        //need to be able to follow which letters are connected 
+        //across edges for torus version
+        
         const style = newStyles[i][j];
         const prevStyle = cubeStyles[iOld][jOld];
 
