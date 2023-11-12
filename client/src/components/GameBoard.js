@@ -202,7 +202,7 @@ export function GameBoard({ props }) {
     ev.preventDefault();
     ev.stopPropagation();
 
-    setTouchInfo('wtf?????');
+    //setTouchInfo('wtf?????');
 
     //we need to prevent touch processing when the menu is overlaid
     if (displayMenu === "block") return;
@@ -238,7 +238,7 @@ export function GameBoard({ props }) {
           useDir = true;
         }
         setTouches({ pos: boardPos, dir, useDir, isTouchStart });
-        setTouchInfo( ['xxx',touches]);
+        //setTouchInfo( ['xxx',touches]);
 
         break;
       }
@@ -327,7 +327,7 @@ export function GameBoard({ props }) {
             backgroundColor: "rgba(255,255,255,.9)",
             position: "absolute",
             zIndex: "100",
-            height: 1.02 * boardDims.height,
+            height: 1.01 * boardDims.height,
             width: 1.05 * boardDims.width,
             top: boardDims.height / 8.5,
           }}
@@ -371,7 +371,7 @@ export function GameBoard({ props }) {
             height: boardDims.height,
             position: "absolute",
             top: boardDims.height / 9,
-            zIndex: "1000"
+            //zIndex: "1000"
             //touchAction: "none"
           }}
           key="g01"
