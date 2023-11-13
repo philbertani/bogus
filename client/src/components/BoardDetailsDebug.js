@@ -24,7 +24,8 @@ export function BoardDetails({ props }) {
     setTotalScore,
     foundWordsRef,
     cubeStyles,
-    setCubeStyles
+    setCubeStyles,
+    socket
   } = props;
 
   const [output, setOutput] = React.useState([]);
@@ -44,6 +45,9 @@ export function BoardDetails({ props }) {
   const selectedRef = React.useRef([]);
   const pathRef = React.useRef([]); //may have to make this a useState
   const totalScoreRef = React.useRef(0);
+
+  const [hints,setHints] = React.useState([]);
+
   //console.log(game.words);
 
   React.useEffect(() => {
@@ -210,7 +214,7 @@ export function BoardDetails({ props }) {
 
   //setting colors here
   const boardColor = "radial-gradient(#FF1100,#FFFF00)";
-  const textColor = "#0000AA";
+  const textColor = "#000000";
 
   const selectColor = "radial-gradient(#00FFFF,#0000FF)";
   const selectTextColor = "#FFFFFF";
@@ -218,7 +222,8 @@ export function BoardDetails({ props }) {
   const wordColor = "radial-gradient(#0000FF,#10FF10)";
   const wordTextColor = "#FFFFFF";
 
-  const hintTextColor = "#FFFF00";
+  const hintColor = "radial-gradient(#FFFF00,#FF1100)"
+  const hintTextColor = "#0000FF";
 
   React.useEffect(() => {
     counter.current++;
@@ -399,9 +404,8 @@ export function BoardDetails({ props }) {
     }
 
     if (flag) {
-
-      /*
-      if (!isTouchDevice) {
+  
+      if (1===1) {
 
         function pmod(x, y) {
           //% for negative numbers still gives negative,
@@ -410,18 +414,52 @@ export function BoardDetails({ props }) {
           return a < 0 ? a + y : a;
         }
 
-        const { M, N } = game.rank;
-        for (let row = i - 1; row <= i + 1; row++) {
-          for (let col = j - 1; col <= j + 1; col++) {
-            const style = newStyles[pmod(row, M)][pmod(col, N)];
-            //style.bqckgroundImage = "radial-gradient(#00FFFF,#0000FF)";
-            style.color = "#FFFFFF";
+        //this is really perturbing once again on mobile
+        //devices i and j are text
+        const [ix,jx] = [parseFloat(i),parseFloat(j)];
+
+        if (hints && hints.length > 0) {
+          //restore the normal colors
+          for (const ij of hints) {
+            const [ii,jj] = ij;
+            
+            if ( !(ii==ix && jj==jx) && allSelected[ii][jj]==0 ) {
+              const style = newStyles[ii][jj];
+              //console.log('hints',ij,i,j);
+              style.color = textColor;
+              style.backgroundImage = boardColor;
+            }
           }
         }
+ 
+        const shit = [];
+
+        const newHints = [];
+        const { M, N } = game.rank;
+
+        for (let row = ix - 1; row <= ix + 1; row++) {
+          for (let col = jx - 1; col <= jx + 1; col++) {
+
+            const [ii,jj] = [pmod(row,M),pmod(col,N)];
+
+            shit.push([row,col,ii,jj]);
+
+            if (  !(row === ix && col === jx) && allSelected[ii][jj]==0 ) {
+              const style = newStyles[ii][jj];
+              style.color = hintTextColor;
+              style.backgroundImage = hintColor;
+              newHints.push([ii,jj]);
+            }
+          }
+        }
+        //console.log('hints',newHints);
+
+        //socket.emit('info',JSON.stringify(shit));
+        setHints(newHints);
       }
-      */
-     
-      console.log("setting new colors 1");
+      
+
+      //console.log("setting new colors 1");
 
       newSelected[i][j] = 1;
       setSelected([i, j]);
@@ -550,7 +588,7 @@ export function BoardDetails({ props }) {
 
     } else if (search[1]) {
 
-      console.log("setting new colors 2");
+      //console.log("setting new colors 2");
       
       //add it to the user's found words
       const newWords = foundWordsRef.current.words;

@@ -211,7 +211,8 @@ export function GameBoard({ props }) {
     totalScore,
     foundWordsRef,
     cubeStyles,
-    setCubeStyles
+    setCubeStyles,
+    socket
   };
 
   const touch0 = React.useRef({});
@@ -533,6 +534,7 @@ export function GameBoard({ props }) {
             color: "white",
           }}
           onClick={(ev) => {
+            ev.preventDefault();
             setCount(0);
           }}
         >
