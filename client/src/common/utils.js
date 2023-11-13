@@ -67,4 +67,12 @@ function dot(v,w) {
 }
 const vec={length,normalize,dot}
  
-export  { vec, cloneArray, bsearch };
+
+function blank2dArray(M, N, stuffing = 0) {
+  return new Array(N).fill(stuffing).map(() => new Array(M).fill(stuffing));
+  //do NOT use: Array(N).fill(Array(M).fill(0));
+  //that would create the same reference for the same column on every row
+}
+
+export  { vec, cloneArray, bsearch, blank2dArray };
+

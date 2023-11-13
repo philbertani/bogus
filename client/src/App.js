@@ -202,9 +202,27 @@ export default function App() {
     is3d
   };
 
+
+  //this stops all the crappy ios events but then also prevents
+  //click event from happening
+  React.useEffect( ()=>{
+    window.addEventListener('touchstart',ev=>ev.preventDefault());
+    window.addEventListener('touchmove', ev=>ev.preventDefault());
+    //window.addEventListener('touchend',processTouch);
+    return ()=> { 
+      window.removeEventListener('touchstart');
+      window.removeEventListener('touchmove');
+    }
+  },[]);
+  
+
+
   return (
     [
-      (doneOne && !isDuplicateProcess ) && <GameBoard key="k05" props={props}/> ,
+      (doneOne && !isDuplicateProcess ) &&
+      <div> 
+        <GameBoard key="k05" props={props}/>
+      </div> ,
       isDuplicateProcess && <div>You already are Connected</div>,
       
     ]

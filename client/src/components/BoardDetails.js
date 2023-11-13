@@ -1,13 +1,7 @@
 import React from "react";
 import { useMouseButton } from "./uiHooks";
 import { v4 as uuidv4 } from "uuid";
-import { vec } from "../common/utils.js"
-
-function blank2dArray(M, N, stuffing = 0) {
-  return new Array(N).fill(stuffing).map(() => new Array(M).fill(stuffing));
-  //do NOT use: Array(N).fill(Array(M).fill(0));
-  //that would create the same reference for the same column on every row
-}
+import { vec, blank2dArray } from "../common/utils.js"
 
 export function BoardDetails({ props }) {
   const {
@@ -28,7 +22,9 @@ export function BoardDetails({ props }) {
     isWordRef,
     allWordsFound,
     setTotalScore,
-    foundWordsRef
+    foundWordsRef,
+    cubeStyles,
+    setCubeStyles
   } = props;
 
   const [output, setOutput] = React.useState([]);
@@ -37,11 +33,11 @@ export function BoardDetails({ props }) {
   const mouseButtonDown = useMouseButton();
 
   //have to move all this sh.t up the flagpole, useState is such a waste of time
-  const [cubeStyles, setCubeStyles] = React.useState(blank2dArray(N, M, null));
+  //const [cubeStyles, setCubeStyles] = React.useState(blank2dArray(N, M, null));
   const [selected, setSelected] = React.useState([]);
   const [allSelected, setAllSelected] = React.useState(blank2dArray(N, M));
   //const [searchString, setSearchString] = React.useState("");
-  const [path, setPath] = React.useState([]);
+  //const [path, setPath] = React.useState([]);
 
   const lineHeight = React.useRef(0);
   const fontSize = React.useRef(0);
@@ -339,7 +335,7 @@ export function BoardDetails({ props }) {
         //vary color tint from lighter to darker along path
         //need to be able to follow which letters are connected 
         //across edges for torus version
-        
+
         const style = newStyles[i][j];
         const prevStyle = cubeStyles[iOld][jOld];
 

@@ -96,6 +96,11 @@ export class ioManager {
       });
     });
 
+    io.on("connection", socket => {
+      socket.on('info', msg=>{
+        console.log("touch event",socket.id,msg);
+      });
+    });
     io.on("connection", (socket) => {
       //not being used right now
       socket.on("chat message", (msg) => {
@@ -171,7 +176,6 @@ export class ioManager {
             console.log('Weird no gameRoomId for userId', userId);
           }
     
-
         } else {
           //weird
           console.log("could not find a userId for socket:", socket.id);

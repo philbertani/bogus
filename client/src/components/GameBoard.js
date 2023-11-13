@@ -2,7 +2,7 @@ import React from "react";
 import "./GameBoard.css";
 import { useWindowSize } from "./uiHooks.js";
 import { BoardDetails } from "./BoardDetails";
-import { vec } from "../common/utils.js";
+import { vec, blank2dArray } from "../common/utils.js";
 
 //import GPU from "../components/3d/GPU.js"
 
@@ -31,7 +31,7 @@ export function GameBoard({ props }) {
   const [touchInfo, setTouchInfo] = React.useState(); //for debugging
 
   const { M, N } = game.rank;
-  const cubeRefs = React.useRef(Array(M).fill(() => Array(N).fill(null)));
+  const cubeRefs = React.useRef(blank2dArray(M,N,null));
   const [wordOutput, setWordOutput] = React.useState([]);
 
   //const wordRefs = React.useRef(Array(game.words.length).fill(null));
@@ -50,6 +50,8 @@ export function GameBoard({ props }) {
 
   const [count, setCount] = React.useState(0);
   const [totalScore, setTotalScore] = React.useState(0);
+
+  const [cubeStyles, setCubeStyles] = React.useState(blank2dArray(N, M, null));
 
   React.useEffect(() => {
     //Implementing the setInterval method
@@ -143,11 +145,22 @@ export function GameBoard({ props }) {
             overflow: isTouchDevice ? "scroll" : "hidden", //weirdness here
             //touchAction: "none"
           }}
-          onClick={(ev) => {
+          onClick={ ev => {
             ev.preventDefault();
-            setCount(0);
-            setHideDef("block");
-            setDisplayDefinition(definition);
+            if ( !isTouchDevice ) {
+              setCount(0);
+              setHideDef("block");
+              setDisplayDefinition(definition);
+            }
+          }}
+
+          onTouchStart={ ev => {
+            ev.preventDefault();
+            if ( isTouchDevice ) {
+              setCount(0);
+              setHideDef("block");
+              setDisplayDefinition(definition);
+            }
           }}
         >
           {word}
@@ -192,29 +205,63 @@ export function GameBoard({ props }) {
     allWordsFound,
     setTotalScore,
     totalScore,
-    foundWordsRef
+    foundWordsRef,
+    cubeStyles,
+    setCubeStyles
   };
 
   const touch0 = React.useRef({});
 
+
   function processTouch(ev) {
 
     ev.preventDefault();
-    ev.stopPropagation();
-
-    //setTouchInfo('wtf?????');
 
     //we need to prevent touch processing when the menu is overlaid
     if (displayMenu === "block") return;
 
-    //on iOs devices long press still causes copy/paste dialog to pop up
-
     const tch = ev.touches[0];
+
     const [x, y] = [tch.clientX, tch.clientY];
-    const objects = document.elementsFromPoint(x, y);
+
+    //setTouchInfo(['xxx', x, y, window.screen.width, window.devicePixelRatio]);
+
+    let objects=[];
+
+    let allD = [];
+    const {M,N} = game.rank;
+    for (let i=0; i<M; i++) {
+      for (let j=0; j<N; j++) {
+        const cube = cubeRefs.current[i][j];
+
+        //getBoundindClient gives us the exact same coordinate system 
+        //as the touches[0].clientX and Y!!
+
+        const rect = cube.getBoundingClientRect();
+
+        allD.push( {id:cube.id,rect});
+
+        if ( x > rect.left && x < rect.right && y > rect.top && y < rect.bottom) {
+          objects.push({id:cube.id});
+          break;
+        }
+
+      }
+    }
+
+    /*
+    try {
+      //ios was crashing on this:
+      objects = document.elementsFromPoint(x, y ) ?? [];
+    }
+    catch (err) {
+      socket.emit('info',{msg:JSON.stringify(err)});
+    }
+    */
+
     let letter = "none";
     let boardPos = {};
-
+    
     //we have to dig through the elements at this point
     //but it works well enough
     for (let i = 0; i < objects.length; i++) {
@@ -238,8 +285,6 @@ export function GameBoard({ props }) {
           useDir = true;
         }
         setTouches({ pos: boardPos, dir, useDir, isTouchStart });
-        //setTouchInfo( ['xxx',touches]);
-
         break;
       }
     }
@@ -265,19 +310,22 @@ export function GameBoard({ props }) {
   React.useEffect(() => {
     if (!boardDims.width) return;
 
+    const windowHeight = isTouchDevice ? window.screen.height : window.innerHeight;
+
     //console.log(Date.now(),boardDims);
     if ( (isTouchDevice && windowSize.width > 1.4 * windowSize.height)
         || (!isTouchDevice && window.innerWidth > window.innerHeight) ) {
+  
       setWordListPos({
-        top: boardDims.height / 7,
+        top: boardDims.height / 8,
         left: 1.1 * boardDims.width,
-        height: window.innerHeight - boardDims.height / 7,
+        height: windowHeight - boardDims.height/1.3 ,
       });
     } else {
       setWordListPos({
-        top: 1.18 * boardDims.height + 0.02 * window.innerHeight,
+        top: 1.2 * boardDims.height + 0.02 * windowHeight,
         left: 0,
-        height: 0.62 * (window.innerHeight - boardDims.height),
+        height: 0.4 * (windowHeight - boardDims.height),
       });
     }
   }, [windowSize, boardDims, isTouchDevice]);
@@ -298,16 +346,16 @@ export function GameBoard({ props }) {
     boardDims.height &&
     wordListPos.top && [
       <div
-        onTouchStart={processTouch}
-        onTouchMove={processTouch}
-        style={{ touchAction: "none", position:"absolute"}}
+        style={{ 
+          touchAction: "none",
+          position:"absolute"}}
       >
         <div style={{position:"absolute"}}>{JSON.stringify(touchInfo)}</div>
         <div
           key="searchString"
           style={{
             position:"absolute",
-            margin: "1vw",
+            margin: .005*windowSize.width + "px",
             backgroundImage: searchStringBackGround,
             width: boardDims.width,
             textAlign: "center",
@@ -364,16 +412,17 @@ export function GameBoard({ props }) {
           </div>
         </div>
 
-        <div 
+        <div
+          onTouchStart={processTouch}
+          onTouchMove={processTouch}
           ref={boardRef}
           style={{
-            margin: "1vw",
+            margin: .005*windowSize.width + "px", //"1vw",
             width: boardDims.width,
             height: boardDims.height,
             position: "absolute",
             top: boardDims.height / 9,
-            //zIndex: "1000"
-            //touchAction: "none"
+
           }}
           key="g01"
           className="GameBoard"
@@ -404,17 +453,30 @@ export function GameBoard({ props }) {
               fontSize: boardDims.height / 10,
               backgroundColor: "rgba(250,250,100,.5)",
               width: boardDims.height / 9,
-              //borderRadius: "30%",
               color: "rgba(0,50,150,1)",
             }}
-            onClick={(ev) => {
-              displayMenu === "none"
-                ? setDisplayMenu("block")
-                : setDisplayMenu("none");
+
+            onTouchStart = { ev=>{
+              if ( isTouchDevice) {
+                displayMenu === "none"
+                  ? setDisplayMenu("block")
+                  : setDisplayMenu("none"); 
+                }
+              }
+            }
+
+            onClick = { ev => {
+              if ( !isTouchDevice) {
+                displayMenu === "none"
+                  ? setDisplayMenu("block")
+                  : setDisplayMenu("none");
+              } 
             }}
+            
           >
             {"\u22ee"}
           </div>
+
           <div>
             You:{" "}
             {foundWordsRef.current
@@ -422,13 +484,14 @@ export function GameBoard({ props }) {
               : 0}{" "}
             Everyone: {Object.keys(allWordsFound).length}
           </div>
+
           <div
             key="junk01"
             style={{
-              color: isConnected ? "green" : "red",
+              color: isConnected ? "rgba(0,200,200,1)" : "rgba(255,0,0,1)",
               position: "absolute",
               right: boardDims.width / 30,
-              top: "-1.5vh",
+              top: "-2vh",
               backgroundColor: "rgba(250,250,100,.5)",
               width: boardDims.height / 9,
               fontSize: boardDims.height / 12,
@@ -506,7 +569,7 @@ export function GameBoard({ props }) {
           position: "absolute",
           zIndex: "500",
           top: ( window.innerHeight > window.innerWidth ) ?
-            boardDims.height + wordListPos.height + boardDims.height/4.8 : 
+            boardDims.height + wordListPos.height + boardDims.height/4.4 : 
             boardDims.height + boardDims.height / 5,
           backgroundColor: "rgba(200,100,0,.9)",
           color: "rgba(250,250,0,1)",
