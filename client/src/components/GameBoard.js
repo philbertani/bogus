@@ -1,7 +1,7 @@
 import React from "react";
 import "./GameBoard.css";
 import { useWindowSize } from "./uiHooks.js";
-import { BoardDetails } from "./BoardDetails";
+import { BoardDetails } from "./BoardDetailsDebug";
 import { vec, blank2dArray } from "../common/utils.js";
 
 //import GPU from "../components/3d/GPU.js"
@@ -41,7 +41,7 @@ export function GameBoard({ props }) {
   const [searchString, setSearchString] = React.useState("");
   const [isWord, setIsWord] = React.useState(false);
   const [searchStringBackGround, setSearchStringBackground] =
-    React.useState("");
+    React.useState({front:"#000000",back:"#FFFFFF"});
 
   const [wordListPos, setWordListPos] = React.useState({});
   const [displayMenu, setDisplayMenu] = React.useState("none");
@@ -109,7 +109,7 @@ export function GameBoard({ props }) {
     //have the word list scroll to the closest match and center it in the div
 
     //at the end of the game we can run through game.words to show all words
-    for (const word of sortedWords) {
+    for (const word of sortedWords) { // game.words){ //sortedWords) {
       //game.words
       let bgColor = "inherit";
       let color = "black";
@@ -147,13 +147,15 @@ export function GameBoard({ props }) {
           }}
           onClick={ ev => {
             ev.preventDefault();
-            if ( !isTouchDevice ) {
+            if ( !isTouchDevice || isTouchDevice) {
               setCount(0);
               setHideDef("block");
               setDisplayDefinition(definition);
             }
           }}
 
+          //old iphones do not associate touchstart with click
+          /*
           onTouchStart={ ev => {
             ev.preventDefault();
             if ( isTouchDevice ) {
@@ -162,6 +164,8 @@ export function GameBoard({ props }) {
               setDisplayDefinition(definition);
             }
           }}
+          */
+
         >
           {word}
         </div>,
@@ -337,6 +341,9 @@ export function GameBoard({ props }) {
     socket.emit("new board");
   }
 
+  //coming through as null sometimes but apparently the css can deal with it
+  //console.log(searchStringBackGround);
+
   //"\u2261" is the 3 line menu
   //pad the beginning of searchString with spaces so it does not overwrite menu
   const sp = "\u00a0";
@@ -356,7 +363,7 @@ export function GameBoard({ props }) {
           style={{
             position:"absolute",
             margin: .005*windowSize.width + "px",
-            backgroundImage: searchStringBackGround,
+            backgroundImage: searchStringBackGround.back,
             width: boardDims.width,
             textAlign: "center",
             height: boardDims.height / 10,
@@ -364,6 +371,7 @@ export function GameBoard({ props }) {
             lineHeight: boardDims.height / 10 + "px",
             zIndex: "-10", //so it slides under the menu icon
             border: "solid",
+            color: searchStringBackGround.front
           }}
         >
           {searchString}
@@ -405,7 +413,10 @@ export function GameBoard({ props }) {
                 fontWeight: "bold",
                 fontSize: boardDims.height / 12,
               }}
-              onClick={(ev) => {
+              onClick={ ev=>{
+                generateNewBoard(ev);
+              }}
+              onTouchStart={ev=>{
                 generateNewBoard(ev);
               }}
             >

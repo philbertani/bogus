@@ -209,8 +209,8 @@ export default function App() {
     window.addEventListener('touchmove', ev=>ev.preventDefault());
     //window.addEventListener('touchend',processTouch);
     return ()=> { 
-      window.removeEventListener('touchstart');
-      window.removeEventListener('touchmove');
+      window.removeEventListener('touchstart',null);
+      window.removeEventListener('touchmove',null);
     }
   },[]);
   
