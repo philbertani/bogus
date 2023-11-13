@@ -202,7 +202,6 @@ export default function App() {
     is3d
   };
 
-
   //this stops all the crappy ios events but then also prevents
   //click event from happening
   React.useEffect( ()=>{
@@ -215,8 +214,6 @@ export default function App() {
     }
   },[]);
   
-
-
   return (
     [
       (doneOne && !isDuplicateProcess ) &&

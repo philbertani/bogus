@@ -383,6 +383,9 @@ export function GameBoard({ props }) {
           onClick={(ev) => {
             setDisplayMenu("none");
           }}
+          onTouchStart={ev=>{
+            setDisplayMenu("none");
+          }}
         >
           <p
             style={{
