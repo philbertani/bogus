@@ -48,6 +48,10 @@ export function BoardDetails({ props }) {
 
   const [hints,setHints] = React.useState([]);
 
+  const countx = React.useRef(0);
+  countx.current ++;
+  if ( countx.current%100===0) console.log('BoardDetails count',countx.current);
+
   //console.log(game.words);
 
   React.useEffect(() => {
@@ -268,7 +272,7 @@ export function BoardDetails({ props }) {
       top += boardDims.height / N;
     }
 
-    if (counter.current % 100 === 0) console.log(counter.current);
+    if (counter.current % 100 === 0) console.log("set styles useEffect", counter.current);
 
     //setTouchInfo(boardDims);
     //console.log("in first useEffect", reset);

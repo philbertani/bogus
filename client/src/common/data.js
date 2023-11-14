@@ -3,6 +3,65 @@
 const rank = {M:5, N:5}
 const minLetters = 4
 
+const gameTypes = {
+  four: {
+    rank: {M:4, N:4},
+    minLetters: 3,
+    ld: [
+      "AAEEGN",
+      "ABBJOO",
+      "ACHOPS",
+      "AFFKPS",
+      "AOOTTW",
+      "CIMOTU",
+      "DEILRX",
+      "DELRVY",
+      "DISTTY",
+      "EEGHNW",
+      "EEINSU",
+      "EHRTVW",
+      "EIOSST",
+      "ELRTTY",
+      "HIMNUQu",
+      "HLNNRZ",
+    ]
+  },
+
+  five: {
+    rank: {M:5, N:5},
+    minLetters: 4,
+    ld: [
+      "AAAFRS",
+      "AAEEEE",
+      "AAFIRS",
+      "ADENNN",
+      "AEEEEM",
+      "AEEGMU",
+      "AEGMNN",
+      "AFIRSY",
+      //"BJKQXZ",
+      "BJKXZQU",
+      "CCNSTW",
+      "CEIILT",
+      "CEILPT",
+      "CEIPST",
+      "DHHNOT",
+      "DHHLOR",
+      "DHLNOR",
+      "DDLNOR",
+      "EIIITT",
+      "EMOTTT",
+      "ENSSSU",
+      "FIPRSY",
+      "GORRVW",
+      "HIPRRY",
+      "NOOTUW",
+      "OOOTTU",
+    ]
+  }
+}
+
+
 const ld = {
 
   //4x4
@@ -80,7 +139,7 @@ const ld = {
     "CEIILT",
     "CEILPT",
     "CEIPST",
-    "DHHNOT ",
+    "DHHNOT",
     "DHHLOR",
     "DHLNOR",
     "DDLNOR",
@@ -95,6 +154,4 @@ const ld = {
   ],
 };
 
-
-
-export {rank, minLetters, ld}
+export {rank, minLetters, ld, gameTypes}

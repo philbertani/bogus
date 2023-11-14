@@ -70,7 +70,9 @@ export class ioManager {
       defs: gameRoom.game.defsFound,
       boardId: gameRoom.boardId,
       boardType: gameRoom.game.boardType,
-      bogus3d: process.env.bogusEnv
+      bogus3d: process.env.bogusEnv,
+      rank: gameRoom.game.rank
+
     });
 
     console.log('bogusEnv is:',process.env.bogusEnv);

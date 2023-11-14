@@ -17,11 +17,11 @@ export default function App() {
 
   const [isConnected, setIsConnected] = useState(socket.connected);
   const [fooEvents, setFooEvents] = useState([]);
-  const [mainGame, setMainGame] = React.useState(new bogusMain( {words:["none"], definitions:["none"]} ) );
+  const [mainGame, setMainGame] = React.useState();//new bogusMain( {words:["none"], definitions:["none"]} ) );
   const [doneOne, setDoneOne] = React.useState(false);
   const [reset, setReset] = React.useState(false);
 
-  const foundWordsRef = React.useRef();
+  const foundWordsRef = React.useRef({words:[]});
   const [foundWords, setFoundWords] = React.useState( {} );  //we need to persist this across page refreshes and reconnects
   const [isDuplicateProcess, setIsDuplicateProcess] = React.useState(false);
   const [checkConnection, setCheckConnection] = React.useState(false);
@@ -34,6 +34,11 @@ export default function App() {
 
   const [stats, setStats] = React.useState({});
   const [is3d, setIs3d] = React.useState(false);
+
+  const countx = React.useRef(0);
+  countx.current ++;
+  if ( countx.current%100===0) console.log('App count',countx.current);
+
 
   useEffect(() => {
 
@@ -112,28 +117,32 @@ export default function App() {
       //if ( !mainGame.boardsAreSame(msg.game.board) ) { setFoundWords({});}
       //we need to save found words in local storage or on server
 
-      mainGame.board = cloneArray(msg.game.board);
-      mainGame.output = cloneArray(msg.game.output);
-      mainGame.words = [...msg.words];
-      mainGame.definitions = [...msg.defs];
-      mainGame.boardId = msg.boardId;
-      mainGame.boardType = msg.boardType;
+      const mainGameX = new bogusMain( {words:["none"], definitions:["none"]} );
+      console.log('zzzzzzzzzz',msg.game);
+
+      mainGameX.board = cloneArray(msg.game.board);
+      mainGameX.output = cloneArray(msg.game.output);
+      mainGameX.rank = msg.rank;
+      mainGameX.words = [...msg.words];
+      mainGameX.definitions = [...msg.defs];
+      mainGameX.boardId = msg.boardId;
+      mainGameX.boardType = msg.boardType;
 
       if ( msg.bogus3d ) {
         console.log('3d is coming through!', msg.bogus3d);
         setIs3d(true);
       }
 
+      setMainGame(mainGameX);
       //console.log(mainGame.definitions);
-      window.bogus = mainGame;  //remove this when we are live on the internet obviously
+      window.bogus = mainGameX;  //remove this when we are live on the internet obviously
 
-      localStorage.setItem("bogusMain",JSON.stringify(mainGame));
+      localStorage.setItem("bogusMain",JSON.stringify(mainGameX));
 
-      setMainGame( mainGame );
       setDoneOne(true);
  
       setReset(true);
-      console.log('setting mainGame', mainGame.boardId);
+      console.log('setting mainGame', mainGameX.boardId);
 
       const td = window.matchMedia("(pointer: coarse)").matches;
 

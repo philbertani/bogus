@@ -10,19 +10,23 @@ class bogusMain {
   defsFound;
   words;
   definitions;
-  rank = data.rank;
-  M = data.rank.M;
-  N = data.rank.N;
+
+  rank; //= data.rank;
+  M;    //= data.rank.M;
+  N;    //= data.rank.N;
+  minLetters; // = data.minLetters;
+
+  //gameTypes are keyed by "four" and  "five"
+  gameType;
 
   BOARDTYPES = {NORMAL:0,TORUS:1};
   boardType; 
   //maybe add an option to build a board based on 2 or 3 nice long
   //words
 
-  minLetters = data.minLetters;
   wordFindingFunctions = {};
 
-  constructor(dictionary, boardType ) {
+  constructor(dictionary, boardType,  gameType="five" ) {
     //for server we pass in the whole dictionary
     //for clients we pass in just the words we know are in the word grid
     if (!dictionary.words) {
@@ -33,13 +37,26 @@ class bogusMain {
       this.definitions = dictionary.definitions;
     }
 
+    console.log('zzzzzzzzzz',gameType);
+    //console.log(data);
+
+    this.gameType = gameType;
+    const gameData = data.gameTypes[gameType];
+    this.rank = gameData.rank;
+    this.minLetters = gameData.minLetters;
+    this.M = this.rank.M;
+    this.N = this.rank.N;
+    this.ld = gameData.ld;  //letter distribution - the "dice"
+
     this.boardType = boardType;
     //assign functions to different elements of array
     this.wordFindingFunctions[this.BOARDTYPES.NORMAL] = this.findWords;
     this.wordFindingFunctions[this.BOARDTYPES.TORUS] = this.findWords2;
 
+    //console.log("ranky",this.rank);
     //map from sequential order to board i,j indices so we just have
     //to do this double loop once
+
     for (let j=0; j<this.N; j++) {
       for (let i=0; i<this.M; i++) {
         this.indexMap.push({i,j});
@@ -291,8 +308,10 @@ class bogusMain {
   }
 
   makeBoard() {
-    const TYPE = "five"; //old vs new boggle letter distribution vs 5x5 (five)
-    const letters = data.ld[TYPE];
+
+    //const TYPE = "five"; //old vs new boggle letter distribution vs 5x5 (five)
+    //const letters = data.ld[TYPE];
+    const letters = this.ld;  //should rename this to "dice"
 
     let dieNum = 0;
     //randomize the sequence of iteration through the dice

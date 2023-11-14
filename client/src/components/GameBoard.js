@@ -54,6 +54,10 @@ export function GameBoard({ props }) {
   const [cubeStyles, setCubeStyles] = React.useState(blank2dArray(N, M, null));
   const [unsentWords, setUnsentWords] = React.useState([]);
 
+  const countx = React.useRef(0);
+  countx.current ++;
+  if ( countx.current%100===0) console.log('GameBoard count',countx.current);
+
   React.useEffect(() => {
     //Implementing the setInterval method
     const interval = setInterval(() => {
@@ -96,7 +100,7 @@ export function GameBoard({ props }) {
 
     const wordsRef = foundWordsRef.current.words;
 
-    setTouchInfo(foundWordsRef.current);
+    //setTouchInfo(foundWordsRef.current);
 
     const newWordOutput = [];
     const words = Object.keys(wordsRef);
@@ -195,8 +199,10 @@ export function GameBoard({ props }) {
 
     setWordOutput(newWordOutput);
 
-  }, [reset, foundWordsRef, boardDims.height, isWordRef,
-    game.words, allWordsFound, game, isTouchDevice, isConnected]);
+  }, [ foundWordsRef.current.words, allWordsFound, isConnected ] ); 
+    //one of these is now causing rendering to blow up to 100k
+    //reset, foundWordsRef, boardDims.height, isWordRef,
+    //game.words, allWordsFound, game, isTouchDevice, isConnected]);
 
   let props2 = {
     game,
@@ -311,7 +317,7 @@ export function GameBoard({ props }) {
     //isWordRef is the easiest solution, React is annoying
     if (isWordRef.current) {
 
-      setTouchInfo(foundWordsRef.current.words);
+      //setTouchInfo(foundWordsRef.current.words);
 
       if (isConnected) {
 
