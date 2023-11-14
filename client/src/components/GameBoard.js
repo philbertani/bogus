@@ -532,7 +532,7 @@ export function GameBoard({ props }) {
           <div
             key="junk01"
             style={{
-              color: isConnected ? "rgba(0,200,200,1)" : "rgba(255,0,0,1)",
+              color: isConnected ? "rgba(0,150,0,1)" : "rgba(255,0,0,1)",
               position: "absolute",
               right: boardDims.width / 30,
               top: "-2vh",

@@ -3,6 +3,20 @@ import { useMouseButton } from "./uiHooks";
 import { v4 as uuidv4 } from "uuid";
 import { vec, blank2dArray } from "../common/utils.js"
 
+//setting colors here
+const boardColor = "radial-gradient(#FFFFA0,#B05000)";
+const textColor = "#000000";
+
+const selectColor = "radial-gradient(#30FFFF,#0000FF)"; //"radial-gradient(#00FFFF,#0000FF)";
+const selectTextColor = "#FFFFFF";
+
+const wordColor = "radial-gradient(#FFFFFF,#10A010)";
+const wordTextColor = "#1000A0";
+
+const hintColor = "radial-gradient(#F0FFFF,#2030FF)";
+const hintTextColor = "#0010A0";
+
+
 export function BoardDetails({ props }) {
   const {
     game,
@@ -98,7 +112,7 @@ export function BoardDetails({ props }) {
           zIndex: 50,
           width: width,
           height: height,
-          backgroundImage: "linear-gradient(#000000,#FFFFFF)",
+          backgroundImage: "linear-gradient(#000000,#FF00FF)",
           opacity: "60%",
         }}
       ></div>
@@ -111,8 +125,8 @@ export function BoardDetails({ props }) {
     //console.log("torusMove", i,j,iOld,jOld);
     const sc = 1.42;
     const {M,N} = game.rank;
-    const height = "1vh";
-    const width = boardDims.width / N;
+    const height = ".5vh";
+    const width = .6*boardDims.width / M;
     let transformText = "rotate(0deg)";
 
     //so annoying i,j,iold,jold are being converted to text somewhere
@@ -162,7 +176,7 @@ export function BoardDetails({ props }) {
 
       const left = Math.min(x, xOld);
       let top = Math.min(y, yOld);
-      let height = "1vh";
+      let height = ".5vh";
       const sc = 1.42;
 
       if (j === jOld) {
@@ -171,9 +185,10 @@ export function BoardDetails({ props }) {
         transformText = "translate(-50%,50%) rotate(90deg) ";
 
       } else if (i !== iOld && j !== jOld) {
+
         top += SN(style.height) / 1.9; //should be 2 but it is off by some factor
 
-        height = ".7vh";
+        height = ".3vh";
   
         if (i > iOld && j > jOld) {
           transformText = "rotate(45deg) scale(" + sc +  ")";
@@ -216,18 +231,6 @@ export function BoardDetails({ props }) {
   }, [addPathDiv, cubeStyles, game]);
 
 
-  //setting colors here
-  const boardColor = "radial-gradient(#FF1100,#FFFF00)";
-  const textColor = "#000000";
-
-  const selectColor = "radial-gradient(#00FFFF,#0000FF)";
-  const selectTextColor = "#FFFFFF";
-
-  const wordColor = "radial-gradient(#0000FF,#10FF10)";
-  const wordTextColor = "#FFFFFF";
-
-  const hintColor = "radial-gradient(#FFFF00,#FF1100)"
-  const hintTextColor = "#0000FF";
 
   React.useEffect(() => {
     counter.current++;
@@ -328,7 +331,9 @@ export function BoardDetails({ props }) {
         return;
       }
     }
+
     let flag = true;
+    let resetAll = false;
 
     //console.log(searchString.length,allSelected[i][j],mbd);
 
@@ -377,6 +382,8 @@ export function BoardDetails({ props }) {
         return;
 
       } else {
+
+        resetAll = true;
 
         for (let j = 0; j < N; j++) {
           for (let i = 0; i < M; i++) {
@@ -427,7 +434,7 @@ export function BoardDetails({ props }) {
           for (const ij of hints) {
             const [ii,jj] = ij;
             
-            if ( !(ii==ix && jj==jx) && allSelected[ii][jj]==0 ) {
+            if ( !(ii==ix && jj==jx) && (allSelected[ii][jj]==0 || resetAll) ) {
               const style = newStyles[ii][jj];
               //console.log('hints',ij,i,j);
               style.color = textColor;
@@ -448,7 +455,7 @@ export function BoardDetails({ props }) {
 
             shit.push([row,col,ii,jj]);
 
-            if (  !(row === ix && col === jx) && allSelected[ii][jj]==0 ) {
+            if (  !(row === ix && col === jx) && (allSelected[ii][jj]==0 || resetAll) ) {
               const style = newStyles[ii][jj];
               style.color = hintTextColor;
               style.backgroundImage = hintColor;
