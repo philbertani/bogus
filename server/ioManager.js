@@ -119,22 +119,30 @@ export class ioManager {
           return;
         }
 
-        const {word,count,totalScore} = msg;
+        console.log('words message',msg);
+        const {words,count,totalScore} = msg;
 
-
-        console.log(Date.now(),"word found by",socket.id,"in room:",gameRoom.id, word, count, totalScore);
+        console.log(Date.now(),"words found by",socket.id,"in room:",gameRoom.id, words, count, totalScore);
         gameRoom.setPlayerWordCount(userId,count,totalScore);
 
-        if (gameRoom.allWordsFound[word]) { 
-          gameRoom.allWordsFound[word] ++ ;
+        if (words.length > 0) {
+
+          for (const word of words) {
+            if (gameRoom.allWordsFound[word]) {
+              gameRoom.allWordsFound[word] ++;
+            } else {
+              gameRoom.allWordsFound[word] = 1;
+            }
+          }
+
+          //console.log(gameRoom.allWordsFound);
+          io.to(gameRoom.id).emit("allWordsFound", gameRoom.allWordsFound);
         }
         else {
-          gameRoom.allWordsFound[word] = 1;
+          console.log('weird words is not ann array or null', words,socket.id);
         }
 
-        //console.log(gameRoom.allWordsFound);
-        io.to(gameRoom.id).emit('allWordsFound',gameRoom.allWordsFound);
-        
+
       });
       
     });

@@ -52,6 +52,7 @@ export function GameBoard({ props }) {
   const [totalScore, setTotalScore] = React.useState(0);
 
   const [cubeStyles, setCubeStyles] = React.useState(blank2dArray(N, M, null));
+  const [unsentWords, setUnsentWords] = React.useState([]);
 
   React.useEffect(() => {
     //Implementing the setInterval method
@@ -85,11 +86,18 @@ export function GameBoard({ props }) {
   }, [windowSize]);
 
   React.useEffect(() => {
+
     if (isNaN(boardDims.height)) return;
 
     if (!foundWordsRef.current) return;
 
+    //when disconnected new words found are not getting displayed
+    //setTouchInfo(foundWordsRef.current);
+
     const wordsRef = foundWordsRef.current.words;
+
+    setTouchInfo(foundWordsRef.current);
+
     const newWordOutput = [];
     const words = Object.keys(wordsRef);
 
@@ -187,7 +195,8 @@ export function GameBoard({ props }) {
 
     setWordOutput(newWordOutput);
 
-  }, [reset, foundWordsRef, boardDims.height, game.words, allWordsFound, game, isTouchDevice]);
+  }, [reset, foundWordsRef, boardDims.height, isWordRef,
+    game.words, allWordsFound, game, isTouchDevice, isConnected]);
 
   let props2 = {
     game,
@@ -302,15 +311,29 @@ export function GameBoard({ props }) {
     //isWordRef is the easiest solution, React is annoying
     if (isWordRef.current) {
 
-      const words = Object.keys(foundWordsRef.current.words);
-      //console.log("trying to send word to server", isWord, searchString, score);
-      socket.emit("word", {
-        word: searchString,
-        count: words.length,
-        totalScore: foundWordsRef.current.totalScore
-      });
+      setTouchInfo(foundWordsRef.current.words);
+
+      if (isConnected) {
+
+        //allWords is not being sent from server when this user
+        //reconnects, only when they find a new word, annoying
+        const wordsToSend = [...unsentWords,searchString];
+
+        const words = Object.keys(foundWordsRef.current.words);
+        console.log("trying to send words to server", isWord, wordsToSend);
+        socket.emit("word", {
+          words: words, //wordsToSend, //searchString,
+          count: words.length,
+          totalScore: foundWordsRef.current.totalScore,
+        });
+      }
+      else {
+        //not being used but keep here for now
+        setUnsentWords(prev=>[...prev,searchString]);
+      }
     }
-  }, [isWord, searchString, isWordRef, socket, foundWordsRef, game.minLetters]);
+  }, [isWord, searchString, isWordRef, socket,
+    foundWordsRef, game.minLetters, isConnected, unsentWords]);
 
   React.useEffect(() => {
     if (!boardDims.width) return;

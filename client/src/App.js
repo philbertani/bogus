@@ -199,7 +199,7 @@ export default function App() {
     isConnected,
     stats,
     foundWordsRef,
-    is3d
+    is3d,
   };
 
   //this stops all the crappy ios events but then also prevents
