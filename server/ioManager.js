@@ -35,7 +35,7 @@ export class ioManager {
 
       this.numRooms ++;
       const hebrewRoom = uuidv4();
-      this.gameRooms[hebrewRoom] = new gameRoom(newRoomId, this.io, dict.hebrew, this.BOARDTYPES.NORMAL, "hebrewFive");
+      this.gameRooms[hebrewRoom] = new gameRoom(newRoomId, this.io, dict.hebrew, this.BOARDTYPES.TORUS, "hebrewFive");
       this.roomMap.push(hebrewRoom);
 
       //add a gameRoom for testing, so we don't interfere with ongoing games
