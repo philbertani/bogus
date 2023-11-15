@@ -326,7 +326,8 @@ export function GameBoard({ props }) {
         const wordsToSend = [...unsentWords,searchString];
 
         const words = Object.keys(foundWordsRef.current.words);
-        console.log("trying to send words to server", isWord, wordsToSend);
+        //console.log("trying to send words to server", isWord, wordsToSend);
+        
         socket.emit("word", {
           words: words, //wordsToSend, //searchString,
           count: words.length,

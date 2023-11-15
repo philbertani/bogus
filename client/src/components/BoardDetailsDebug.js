@@ -126,20 +126,31 @@ export function BoardDetails({ props }) {
     const sc = 1.42;
     const {M,N} = game.rank;
     const height = ".55vh";
-    const width = .6*boardDims.width / M;
+    let width = .6*boardDims.width / M;
     let transformText = "rotate(0deg)";
 
+    let dx1=0,dy1=0,dx2=0,dy2=0;
     //so annoying i,j,iold,jold are being converted to text somewhere
     if ( jOld==0 && j==N-1 )  {
+      if ( iOld==0 && i==M-1) {
+        transformText = "rotate(45deg)"; dy1=-width/2; dy2=-dy1; width*=1.2;
+      }
+      else if ( i>iOld) {transformText = "rotate(-45deg)"; dy1=width/2; dy2=-dy1; width*=1.2}
       return [
-        pathDiv(yOld,xOld-width,width,height,transformText),
-        pathDiv(y,x,width,height,transformText)
+        pathDiv(yOld + dy1,xOld-width,width,height,transformText),
+        pathDiv(y + dy2,x,width,height,transformText)
       ];
     }   
     else if ( jOld==N-1 && j==0) {
+      if ( iOld==M-1 && i==0) {
+        transformText = "rotate(45deg)"; dy1=width/2; dy2=-dy1; width*=1.2; 
+      }
+      else if (i<iOld) {
+        transformText = "rotate(-45deg)"; dy1=-width/2; dy2=-dy1; width*=1.2; 
+      }
       return [
-        pathDiv(yOld,xOld,width,height,transformText),
-        pathDiv(y,x-width,width,height,transformText)     
+        pathDiv(yOld+dy1,xOld,width,height,transformText),
+        pathDiv(y+dy2,x-width,width,height,transformText)     
       ]
     }
     else if ( iOld==0 && i==M-1) {
@@ -625,7 +636,7 @@ export function BoardDetails({ props }) {
       //add word to map for this user if it does not exist
       if ( !thisUserFoundWord && isWordRef.current) {  
         newWords[searchString] = ln ; 
-        console.log('3', searchString, foundWordsRef.current.words);
+        //console.log('3', searchString, foundWordsRef.current.words);
       }
 
       let newStyles = deepClone(cubeStyles); //this is ugly
