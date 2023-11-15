@@ -123,48 +123,85 @@ export function BoardDetails({ props }) {
     (i,j,iOld,jOld,x,y,xOld,yOld) => {
     //we need 2 separate divs for path  
     //console.log("torusMove", i,j,iOld,jOld);
-    const sc = 1.42;
+    const sc = 1.4;
     const {M,N} = game.rank;
     const height = ".55vh";
     let width = .6*boardDims.width / M;
     let transformText = "rotate(0deg)";
 
+    const adj = 2;
+    const adjX = 4;
+
     let dx1=0,dy1=0,dx2=0,dy2=0;
     //so annoying i,j,iold,jold are being converted to text somewhere
+
+    //this section is ugly and repetitive but it works - so not wasting more time on it
     if ( jOld==0 && j==N-1 )  {
       if ( iOld==0 && i==M-1) {
-        transformText = "rotate(45deg)"; dy1=-width/2; dy2=-dy1; width*=1.2;
+        transformText = "rotate(45deg)"; dy1=-width/adj; dy2=-dy1; dx1=width/adjX; dx2=-dx1; width*=sc;
       }
-      else if ( i>iOld) {transformText = "rotate(-45deg)"; dy1=width/2; dy2=-dy1; width*=1.2}
+      else if ( iOld==M-1 && i==0) {
+        transformText = "rotate(-45deg)"; dy1=width/adj; dy2=-dy1; dx1=width/adjX; dx2=-dx1; width*=sc; 
+      }
+      else if ( i>iOld) {
+        transformText = "rotate(-45deg)"; dy1=width/adj; dy2=-dy1; dx1=width/adjX; dx2=-dx1; width*=sc;
+      }
+      else if (i<iOld) {
+        transformText = "rotate(45deg)"; dy1=-width/adj; dy2=-dy1; dx1=width/adjX; dx2=-dx1; width*=sc;       
+      }
+
       return [
-        pathDiv(yOld + dy1,xOld-width,width,height,transformText),
-        pathDiv(y + dy2,x,width,height,transformText)
+        pathDiv(yOld + dy1,xOld-width + dx1,width,height,transformText),
+        pathDiv(y + dy2,x + dx2,width,height,transformText)
       ];
     }   
     else if ( jOld==N-1 && j==0) {
       if ( iOld==M-1 && i==0) {
-        transformText = "rotate(45deg)"; dy1=width/2; dy2=-dy1; width*=1.2; 
+        transformText = "rotate(45deg)"; dy1=width/adj; dy2=-dy1; dx1=-width/adjX; dx2=-dx1; width*=sc; 
+      }
+      else if (iOld==0 && i==M-1) {
+        transformText = "rotate(-45deg)"; dy1=-width/adj; dy2=-dy1; dx1=-width/adjX; dx2=-dx1; width*=sc;
       }
       else if (i<iOld) {
-        transformText = "rotate(-45deg)"; dy1=-width/2; dy2=-dy1; width*=1.2; 
+        transformText = "rotate(-45deg)"; dy1=-width/adj; dy2=-dy1; dx1=-width/adjX; dx2=-dx1; width*=sc; 
       }
+      else if (i>iOld) {
+        transformText = "rotate(45deg)"; dy1=width/adj; dy2=-dy1; dx1=-width/adjX; dx2=-dx1; width*=sc;
+      }
+      
       return [
-        pathDiv(yOld+dy1,xOld,width,height,transformText),
-        pathDiv(y+dy2,x-width,width,height,transformText)     
+        pathDiv(yOld+dy1,xOld + dx1,width,height,transformText),
+        pathDiv(y+dy2,x-width + dx2,width,height,transformText)     
       ]
     }
     else if ( iOld==0 && i==M-1) {
       transformText = "rotate(90deg)"
+
+      if ( j>jOld) {
+        transformText = "rotate(-45deg)"; dx1=width/adj; dx2=-dx1; dy1=width/adjX; dy2=-dy1; width*=sc;
+      }
+      else if ( j<jOld) {
+        transformText = "rotate(45deg)"; dx1=-width/adj; dx2=-dx1; dy1=width/adjX; dy2=-dy1;width*=sc;
+      }
+
       return [
-        pathDiv(yOld-width/2,xOld-width/2,width,height,transformText),
-        pathDiv(y+width/2,x-width/2,width,height,transformText)     
+        pathDiv(yOld-width/2 + dy1,xOld-width/2+dx1,width,height,transformText),
+        pathDiv(y+width/2+dy2 ,x-width/2+dx2,width,height,transformText)     
       ]
     }
     else if ( iOld==M-1 && i==0) {
       transformText = "rotate(90deg)"
+      
+      if ( j<jOld) {
+        transformText = "rotate(-45deg)"; dx1=-width/adj; dx2=-dx1; dy1=-width/adjX; dy2=-dy1; width*=sc;
+      }
+      else if (j>jOld) {
+        transformText = "rotate(45deg)"; dx1=width/adj; dx2=-dx1; dy1=-width/adjX; dy2=-dy1; width*=sc;
+      }
+
       return [
-        pathDiv(yOld+width/2,xOld-width/2,width,height,transformText),
-        pathDiv(y-width/2,x-width/2,width,height,transformText)     
+        pathDiv(yOld+width/2 +dy1,xOld-width/2+dx1,width,height,transformText),
+        pathDiv(y-width/2+dy2,x-width/2+dx2,width,height,transformText)     
       ]
     }
 
@@ -426,7 +463,7 @@ export function BoardDetails({ props }) {
 
     if (flag) {
   
-      if (1===1) {
+      if ( game.boardType === game.BOARDTYPES.TORUS ) {
 
         function pmod(x, y) {
           //% for negative numbers still gives negative,
@@ -473,8 +510,8 @@ export function BoardDetails({ props }) {
             }
           }
         }
+        
         //console.log('hints',newHints);
-
         //socket.emit('info',JSON.stringify(shit));
         setHints(newHints);
       }

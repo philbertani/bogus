@@ -25,13 +25,18 @@ export class ioManager {
 
       this.setHandlers(this.io);
       const newRoomId = uuidv4();
-      this.gameRooms[newRoomId] = new gameRoom(newRoomId, this.io, dict, this.BOARDTYPES.NORMAL) ;
+      this.gameRooms[newRoomId] = new gameRoom(newRoomId, this.io, dict.english, this.BOARDTYPES.NORMAL, "five");
       this.roomMap.push(newRoomId);
 
       this.numRooms ++;
       const room2 = uuidv4();
-      this.gameRooms[room2] = new gameRoom(room2, this.io, dict, this.BOARDTYPES.TORUS);
+      this.gameRooms[room2] = new gameRoom(room2, this.io, dict.english, this.BOARDTYPES.TORUS, "four");
       this.roomMap.push(room2); 
+
+      this.numRooms ++;
+      const hebrewRoom = uuidv4();
+      this.gameRooms[hebrewRoom] = new gameRoom(newRoomId, this.io, dict.hebrew, this.BOARDTYPES.NORMAL, "hebrewFive");
+      this.roomMap.push(hebrewRoom);
 
       //add a gameRoom for testing, so we don't interfere with ongoing games
 
@@ -144,7 +149,6 @@ export class ioManager {
           console.log('weird words is not ann array or null', words,socket.id);
         }
 
-
       });
       
     });
@@ -219,12 +223,13 @@ export class ioManager {
           this.numUsers++;
         }
 
+        //currently we are hard coding the choice of game room here:
         this.users[msg.userId] = {
           sessionId: msg.sessionId,
           connTime: time,
           seqno: seqno,
           socketId: socket.id,
-          roomId: this.roomMap[1]  
+          roomId: this.roomMap[2]  
         };
 
         const roomId = this.users[msg.userId].roomId;

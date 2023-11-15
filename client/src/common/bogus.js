@@ -26,7 +26,7 @@ class bogusMain {
 
   wordFindingFunctions = {};
 
-  constructor(dictionary, boardType,  gameType="five" ) {
+  constructor( dictionary, boardType,  gameType="five" ) {
     //for server we pass in the whole dictionary
     //for clients we pass in just the words we know are in the word grid
     if (!dictionary.words) {

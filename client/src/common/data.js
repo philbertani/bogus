@@ -1,7 +1,5 @@
 // ld = letter distribution
 
-const rank = {M:5, N:5}
-const minLetters = 4
 
 const gameTypes = {
   four: {
@@ -39,7 +37,6 @@ const gameTypes = {
       "AEEGMU",
       "AEGMNN",
       "AFIRSY",
-      //"BJKQXZ",
       "BJKXZQU",
       "CCNSTW",
       "CEIILT",
@@ -58,14 +55,46 @@ const gameTypes = {
       "NOOTUW",
       "OOOTTU",
     ]
+  },
+
+  hebrewFive: {
+    rank: {M:5, N:5},
+    minLetters: 4,
+    ld: [
+      "הההפוב",
+      "ההיייץ",
+      "ההפלוב",
+      "הםיתתת",
+      "הייייכ",
+      "הייחכע",
+      "היחכתת",
+      "הפלובס",
+      "קךגצןף",
+      "ששתברז",
+      "שיללמר",
+      "שילמנר",
+      "שילנבר",
+      "םדדתאר",
+      "םדדמאו",
+      "םדמתאו",
+      "םםמתאו",
+      "ילללרר",
+      "יכאררר",
+      "יתבבבע",
+      "פלנובס",
+      "חאווטז",
+      "דלנווס",
+      "תאארעז",
+      "אאאררע"
+    ]
+    
   }
+
 }
 
+/*
 
-const ld = {
-
-  //4x4
-  old: [
+old 4x4
     "AACIOT",
     "ABILTY",
     "ABJMOQu",
@@ -82,77 +111,7 @@ const ld = {
     "EHINPS",
     "ELPSTU",
     "GILRUW",
-  ],
 
-  //4x4
-  //not sure if this works well enough for 5x5
-  new: [
-    //"QQQQQQ",
-    "AAEEGN",
-    "ABBJOO",
-    "ACHOPS",
-    "AFFKPS",
-    "AOOTTW",
-    "CIMOTU",
-    "DEILRX",
-    "DELRVY",
-    "DISTTY",
-    "EEGHNW",
-    "EEINSU",
-    "EHRTVW",
-    "EIOSST",
-    "ELRTTY",
-    "HIMNUQu",
-    "HLNNRZ",
-
-    "AAEEGN",
-    "ABBJOO",
-    "ACHOPS",
-    "AFFKPS",
-    "AOOTTW",
-    "CIMOTU",
-    "DEILRX",
-    "DELRVY",
-    "DISTTY",
-    "EEGHNW",
-    "EEINSU",
-    "EHRTVW",
-    "EIOSST",
-    "ELRTTY",
-    "HIMNUQu",
-    "HLNNRZ",
-  ],
-
-  //5x5  this distribution actually produces more multi syllable words
-  five: [
-    "AAAFRS",
-    "AAEEEE",
-    "AAFIRS",
-    "ADENNN",
-    "AEEEEM",
-    "AEEGMU",
-    "AEGMNN",
-    "AFIRSY",
-    //"BJKQXZ",
-    "BJKXZQU",
-    "CCNSTW",
-    "CEIILT",
-    "CEILPT",
-    "CEIPST",
-    "DHHNOT",
-    "DHHLOR",
-    "DHLNOR",
-    "DDLNOR",
-    "EIIITT",
-    "EMOTTT",
-    "ENSSSU",
-    "FIPRSY",
-    "GORRVW",
-    "HIPRRY",
-    "NOOTUW",
-    "OOOTTU",
-  ],
-};
 
 //we can make up letter distributions in other languages 
 //by comparing its letter freq list vs english and then
@@ -186,4 +145,35 @@ J: 0.1965,
 Q: 0.1962
 }
 
-export {rank, minLetters, ld, gameTypes}
+hebrew 5x5
+"הההפוב",
+"ההיייץ",
+"ההפלוב",
+"הםיתתת",
+"הייייכ",
+"הייחכע",
+"היחכתת",
+"הפלובס",
+"קךגצןף",
+"ששתברז",
+"שיללמר",
+"שילמנר",
+"שילנבר",
+"םדדתאר",
+"םדדמאו",
+"םדמתאו",
+"םםמתאו",
+"ילללרר",
+"יכאררר",
+"יתבבבע",
+"פלנובס",
+"חאווטז",
+"דלנווס",
+"תאארעז",
+"אאאררע"
+
+
+*/
+
+
+export {gameTypes}

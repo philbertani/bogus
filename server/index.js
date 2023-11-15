@@ -25,7 +25,7 @@ async function initialize()  {
     console.log("finished loadDictionary");
     }
   );
-  console.log("after await: ",dict.words.length);
+  console.log("after await: ",dict.english.words.length);
 
   //add option to spawn child processes on different ports at some point
   await mainLoop(dict);
@@ -37,7 +37,7 @@ async function mainLoop(dict) {
 
   //const manualBoard = [['C','O','G','O'],['I','E','I','T'],['N','T','K','R'],['Y','N','O','I']];
   //const manualBoard = [['I','E','L','S'],['O','O','S','E'],['G','H','C','U'],['Y','N','S','Y']];
-  const bg = new bogusMain(dict);
+  const bg = new bogusMain(dict.english);
   bg.debugBoard();
   //save a few boards and their words so we can have valid tests
 
