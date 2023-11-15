@@ -522,7 +522,7 @@ export function BoardDetails({ props }) {
 
       const thisUserFoundWord = newWords[searchString];
 
-      //console.log("xxxxxx",thisUserFoundWord);
+      //console.log(searchString, allWordsFound);
 
       if ( thisUserFoundWord || allWordsFound[searchString]) {
         //if we already found this word color it grey-ish

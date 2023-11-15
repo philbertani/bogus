@@ -4,17 +4,17 @@ import { v4 as uuidv4 } from "uuid";
 import { vec, blank2dArray } from "../common/utils.js"
 
 //setting colors here
-const boardColor = "radial-gradient(#FFFFA0,#B05000)";
-const textColor = "#000000";
+const boardColor = "radial-gradient(#FF7D00,#FFFF00)";
+const textColor = "#0000A0";
 
-const selectColor = "radial-gradient(#30FFFF,#0000FF)"; //"radial-gradient(#00FFFF,#0000FF)";
+const selectColor = "radial-gradient(#00FFFF,#0000FF)";
 const selectTextColor = "#FFFFFF";
 
-const wordColor = "radial-gradient(#FFFFFF,#10A010)";
-const wordTextColor = "#1000A0";
+const wordColor = "radial-gradient(#001000,#00FF00)"; 
+const wordTextColor = "#FFFFFF";//"#1000A0";
 
-const hintColor = "radial-gradient(#F0FFFF,#2030FF)";
-const hintTextColor = "#0010A0";
+const hintColor = "radial-gradient(#FFFF00,#FF7D00)";
+const hintTextColor = "#4040FF";
 
 
 export function BoardDetails({ props }) {
@@ -62,9 +62,9 @@ export function BoardDetails({ props }) {
 
   const [hints,setHints] = React.useState([]);
 
-  const countx = React.useRef(0);
-  countx.current ++;
-  if ( countx.current%100===0) console.log('BoardDetails count',countx.current);
+  //const countx = React.useRef(0);
+  //countx.current ++;
+  //if ( countx.current%100===0) console.log('BoardDetails count',countx.current);
 
   //console.log(game.words);
 
@@ -112,8 +112,8 @@ export function BoardDetails({ props }) {
           zIndex: 50,
           width: width,
           height: height,
-          backgroundImage: "linear-gradient(#000000,#FF00FF)",
-          opacity: "60%",
+          backgroundImage: "linear-gradient(#FFF000,#FF0000)",
+          opacity: "80%",
         }}
       ></div>
     );
@@ -125,7 +125,7 @@ export function BoardDetails({ props }) {
     //console.log("torusMove", i,j,iOld,jOld);
     const sc = 1.42;
     const {M,N} = game.rank;
-    const height = ".5vh";
+    const height = ".55vh";
     const width = .6*boardDims.width / M;
     let transformText = "rotate(0deg)";
 
@@ -176,7 +176,7 @@ export function BoardDetails({ props }) {
 
       const left = Math.min(x, xOld);
       let top = Math.min(y, yOld);
-      let height = ".5vh";
+      let height = ".55vh";
       const sc = 1.42;
 
       if (j === jOld) {
@@ -188,7 +188,7 @@ export function BoardDetails({ props }) {
 
         top += SN(style.height) / 1.9; //should be 2 but it is off by some factor
 
-        height = ".3vh";
+        height = ".4vh";
   
         if (i > iOld && j > jOld) {
           transformText = "rotate(45deg) scale(" + sc +  ")";
@@ -229,7 +229,6 @@ export function BoardDetails({ props }) {
       pathRef.current.push(addPathDiv(style, prevStyle, i, j, iOld, jOld, torusMove));
     }
   }, [addPathDiv, cubeStyles, game]);
-
 
 
   React.useEffect(() => {
@@ -475,7 +474,7 @@ export function BoardDetails({ props }) {
       newSelected[i][j] = 1;
       setSelected([i, j]);
       setAllSelected(newSelected);
-      setSearchString((prev) => prev + game.board[i][j]);
+      setSearchString( prev => prev + game.board[i][j]);
       setCubeStyles(newStyles);
       selectedRef.current.push({ i, j });
     }
@@ -584,10 +583,11 @@ export function BoardDetails({ props }) {
   //don't listen to React about adding: handleClick and handleMouseOver
 
   React.useEffect(() => {
+
     const search = game.isWord(searchString, false);
     const ln = searchString.length - (game.minLetters-1);
 
-    //console.log(searchString, ln);
+    //console.log('1', searchString, foundWordsRef.current.words);
     //console.log(game.output);
     //console.log(searchString, search);
 
@@ -613,6 +613,8 @@ export function BoardDetails({ props }) {
 
       //console.log("xxxxxx",thisUserFoundWord);
 
+      //console.log('2', searchString, foundWordsRef.current.words);
+
       if ( thisUserFoundWord || allWordsFound[searchString]) {
         //if we already found this word color it grey-ish
         newBackgroundImage = "radial-gradient(#FFFFFF,#000000)";
@@ -621,7 +623,10 @@ export function BoardDetails({ props }) {
       }
 
       //add word to map for this user if it does not exist
-      if ( !thisUserFoundWord) {  newWords[searchString] = ln ; }
+      if ( !thisUserFoundWord && isWordRef.current) {  
+        newWords[searchString] = ln ; 
+        console.log('3', searchString, foundWordsRef.current.words);
+      }
 
       let newStyles = deepClone(cubeStyles); //this is ugly
       for (const Index of selectedRef.current) {
@@ -653,7 +658,7 @@ export function BoardDetails({ props }) {
       setIsWord(true);
       setSearchStringBackground({back:newBackgroundImage,front:newColor});
     }
-  }, [searchString, game, setIsWord ]);
+  }, [searchString, game ]);
   //React is wrong about adding foundWords and cubeStyles here: it causes infinite renders
   //also wrong about isWordRef
 

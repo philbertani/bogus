@@ -54,9 +54,9 @@ export function GameBoard({ props }) {
   const [cubeStyles, setCubeStyles] = React.useState(blank2dArray(N, M, null));
   const [unsentWords, setUnsentWords] = React.useState([]);
 
-  const countx = React.useRef(0);
-  countx.current ++;
-  if ( countx.current%100===0) console.log('GameBoard count',countx.current);
+  //const countx = React.useRef(0);
+  //countx.current ++;
+  //if ( countx.current%100===0) console.log('GameBoard count',countx.current);
 
   React.useEffect(() => {
     //Implementing the setInterval method
