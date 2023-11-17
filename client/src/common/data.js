@@ -5,6 +5,7 @@ const gameTypes = {
   four: {
     rank: {M:4, N:4},
     minLetters: 3,
+    name: "English 4x4",
     ld: [
       "AAEEGN",
       "ABBJOO",
@@ -28,6 +29,7 @@ const gameTypes = {
   five: {
     rank: {M:5, N:5},
     minLetters: 4,
+    name: "English 5x5",
     ld: [
       "AAAFRS",
       "AAEEEE",
@@ -60,6 +62,7 @@ const gameTypes = {
   hebrewFive: {
     rank: {M:5, N:5},
     minLetters: 4,
+    name: "Hebrew 5x5",
     ld: [
       "הההפוב",
       "ההיייץ",
@@ -88,6 +91,39 @@ const gameTypes = {
       "אאאררע"
     ]
     
+  },
+
+  spanishFive: {
+    rank: {M:5, N:5},
+    minLetters: 4,
+    name: "Spanish 5x5",
+    ld: [
+      "YRRVET",
+      "RRAAAÁ",
+      "RRVOET",
+      "RUACCC",
+      "RAAAÑP",
+      "RAAGPD",
+      "RAGPCC",
+      "RVOETÓ",
+      "FXZÍÁQU",
+      "SSCTNH",
+      "SAOOLN",
+      "SAOLMN",
+      "SAOMTN",
+      "UBBCIN",
+      "UBBLIE",
+      "UBLCIE",
+      "UULCIE",
+      "AOOÜNN",
+      "APINNN",
+      "ÉCTTTD",
+      "VOMETÓ",
+      "GIEEJH",
+      "BOMEEÓ",
+      "CIINDH",
+      "ÚIINND"
+    ]
   }
 
 }

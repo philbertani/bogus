@@ -4,3 +4,6 @@ acquired from: https://github.com/sbosio/rla-es/blob/master/sinonimos/palabras/t
 
 //windows has iconv
 cat spanish.dat | iconv -f iso8959-1 -t utf-8
+
+warning: DON'T sort the spanish.txt file because it has a word followed by n lines of definitions
+

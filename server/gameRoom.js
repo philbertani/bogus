@@ -16,11 +16,19 @@ export class gameRoom {
     boardType;
     maxScore = 0;   //need to persist maxScore separate from users who might disconnect
 
+    gameType;
+    data;
+    
+
     constructor(roomId,io,dict,boardType,gameType) {
         this.io = io;
         this.id = roomId;
+        this.gameType = gameType;
+
         console.log("new game room - id is: ",this.id);
+
         this.game = new bogusMain(dict,boardType,gameType);
+        this.data = this.game.data;
 
         this.newBoard();
 

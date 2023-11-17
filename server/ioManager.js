@@ -2,7 +2,6 @@ import { gameRoom } from "./gameRoom.js";
 import { Server } from "socket.io";
 import { v4 as uuidv4 } from "uuid";
 
-
 export class ioManager {
 
   users = {};
@@ -14,6 +13,8 @@ export class ioManager {
   roomMap = [];
   numRooms = 0;
   
+  roomInfo = [];
+
   BOARDTYPES = {NORMAL:0,TORUS:1};
   boardType;
 
@@ -24,21 +25,13 @@ export class ioManager {
       });
 
       this.setHandlers(this.io);
-      const newRoomId = uuidv4();
-      this.gameRooms[newRoomId] = new gameRoom(newRoomId, this.io, dict.english, this.BOARDTYPES.NORMAL, "five");
-      this.roomMap.push(newRoomId);
 
-      this.numRooms ++;
-      const room2 = uuidv4();
-      this.gameRooms[room2] = new gameRoom(room2, this.io, dict.english, this.BOARDTYPES.TORUS, "four");
-      this.roomMap.push(room2); 
+      this.newGameRoom(dict.english,this.BOARDTYPES.NORMAL,"five");
+      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"five");
+      this.newGameRoom(dict.hebrew,this.BOARDTYPES.TORUS,"hebrewFive");
+      this.newGameRoom(dict.spanish,this.BOARDTYPES.TORUS,"spanishFive");
 
-      this.numRooms ++;
-      const hebrewRoom = uuidv4();
-      this.gameRooms[hebrewRoom] = new gameRoom(newRoomId, this.io, dict.hebrew, this.BOARDTYPES.TORUS, "hebrewFive");
-      this.roomMap.push(hebrewRoom);
-
-      //add a gameRoom for testing, so we don't interfere with ongoing games
+      console.log('game rooms:',this.roomInfo);
 
       this.statsInterval = setInterval( ()=>{
         for (const gameRoom of Object.values(this.gameRooms) ) {
@@ -49,6 +42,15 @@ export class ioManager {
     } catch (error) {
       console.log("aweful happenings in ioManager Constructor", error);
     }
+  }
+
+  newGameRoom(dictionary,boardType,gameType) {
+    const newRoomId = uuidv4();
+    this.gameRooms[newRoomId] = new gameRoom(newRoomId, this.io, dictionary, boardType, gameType);
+    this.roomMap.push(newRoomId);
+    const roomName = this.gameRooms[newRoomId].data.name + " " + boardType;
+    this.roomInfo.push({displayId:this.numRooms,id:newRoomId,name:roomName});
+    this.numRooms ++;   
   }
 
   getGameRoom(socketId) {
@@ -99,6 +101,7 @@ export class ioManager {
           heartbeatId: msg.heartbeatId,
           receive: msg.time,
           sent: Date.now(),
+          roomInfo: this.roomInfo
         });
       });
     });
@@ -174,6 +177,25 @@ export class ioManager {
       });
     });
 
+    //not working properly, missing something, causing out of bounds and undefined errors 
+    io.on("connection", (socket) => {
+      socket.on("setGameRoom", (roomId) => {
+        //roomId is simply the indes into roomInfo
+        const userId = this.socketMap[socket.id];
+        if ( !this.users[userId]) {
+          console.log('weird no user for socket id',socket.id);
+        }
+
+        const user = this.users[userId];
+        user.roomId = this.roomInfo[roomId].id;  //switch to the new game room
+        const gameRoom = this.gameRooms[user.roomId];
+
+        this.emitGame(io, gameRoom, socket.id);
+
+      });
+    });
+
+
     io.on("connection", (socket) => {
       socket.on("disconnect", (reason) => {
         //on disconnect all we have is the socket id
@@ -229,8 +251,15 @@ export class ioManager {
           connTime: time,
           seqno: seqno,
           socketId: socket.id,
-          roomId: this.roomMap[2]  
+          roomId: this.roomMap[0]  
         };
+
+        if (msg.roomId) {
+          //msg.roomId shoudl be the index of the room in this.roomInfo
+          const roomInfo = this.roomInfo[roomId];
+          const roomId = roomInfo.id; //the big long string
+          this.users[msg.userId].roomId = roomId;
+        }
 
         const roomId = this.users[msg.userId].roomId;
         console.log('roomid',roomId, this.gameRooms[roomId].id);

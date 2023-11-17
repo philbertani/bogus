@@ -34,11 +34,11 @@ export default function App() {
 
   const [stats, setStats] = React.useState({});
   const [is3d, setIs3d] = React.useState(false);
+  const [roomInfo,setRoomInfo] = React.useState([]);
 
   //const countx = React.useRef(0);
   //countx.current ++;
   //if ( countx.current%100===0) console.log('App count',countx.current);
-
 
   useEffect(() => {
 
@@ -164,6 +164,7 @@ export default function App() {
 
     function onHeartBeat(msg) {
       //five seconds is good enough
+      setRoomInfo(msg.roomInfo);
       setTimeout( ()=>{setWaitingForHeartbeat(false); }, 5000 );
     }
 
@@ -209,6 +210,7 @@ export default function App() {
     stats,
     foundWordsRef,
     is3d,
+    roomInfo
   };
 
   //this stops all the crappy ios events but then also prevents

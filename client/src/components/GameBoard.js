@@ -19,7 +19,8 @@ export function GameBoard({ props }) {
     isConnected,
     stats,
     foundWordsRef,
-    is3d
+    is3d,
+    roomInfo
   } = props;
 
   const [boardDims, setBoardDims] = React.useState({});
@@ -368,10 +369,14 @@ export function GameBoard({ props }) {
   function generateNewBoard(ev) {
     ev.preventDefault();
     console.log("trying to get new board");
-
     socket.emit("new board");
   }
 
+  function setGameRoom(roomId) {
+    console.log('setting Game Room',roomId);
+    socket.emit('setGameRoom',roomId);
+  }
+  
   //coming through as null sometimes but apparently the css can deal with it
   //console.log(searchStringBackGround);
 
@@ -455,6 +460,10 @@ export function GameBoard({ props }) {
             </button>
             <div> {sp} Warning RESETS EVERYONE!!</div>
           </div>
+
+          {roomInfo.length>0 && roomInfo.map(room=>
+            <div onClick={ev=>{setGameRoom(room.displayId)}}>{room.name}</div>)
+          }
         </div>
 
         <div

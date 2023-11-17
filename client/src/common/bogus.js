@@ -18,6 +18,7 @@ class bogusMain {
 
   //gameTypes are keyed by "four" and  "five"
   gameType;
+  data;
 
   BOARDTYPES = {NORMAL:0,TORUS:1};
   boardType; 
@@ -37,11 +38,12 @@ class bogusMain {
       this.definitions = dictionary.definitions;
     }
 
-    console.log('zzzzzzzzzz',gameType);
+    console.log('gameType',gameType);
     //console.log(data);
 
     this.gameType = gameType;
     const gameData = data.gameTypes[gameType];
+    this.data = gameData;
     this.rank = gameData.rank;
     this.minLetters = gameData.minLetters;
     this.M = this.rank.M;
