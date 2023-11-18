@@ -90,7 +90,8 @@ export class ioManager {
 
     console.log('bogusEnv is:',process.env.bogusEnv);
 
-    io.to(gameRoom.id).emit("allWordsFound", gameRoom.allWordsFound);  
+    io.to(gameRoom.id).emit("allWordsFound", 
+      {words:gameRoom.allWordsFound, roomId:gameRoom.roomInfo.displayId});  
   }
 
   setHandlers(io) {
@@ -152,7 +153,8 @@ export class ioManager {
           }
 
           //console.log(gameRoom.allWordsFound);
-          io.to(gameRoom.id).emit("allWordsFound", gameRoom.allWordsFound);
+          io.to(gameRoom.id).emit("allWordsFound", 
+            {words:gameRoom.allWordsFound,roomId:gameRoom.roomInfo.displayId});
         }
         else {
           console.log('weird words is not ann array or null', words,socket.id);
@@ -190,6 +192,8 @@ export class ioManager {
         const userId = this.socketMap[socket.id];
         if ( !this.users[userId]) {
           console.log('weird no user for socket id',socket.id);
+          //need to do something else here
+          return;
         }
 
         const user = this.users[userId];
@@ -200,6 +204,10 @@ export class ioManager {
         gameRoom.newPlayer(userId);
 
         this.emitGame(io, gameRoom, socket.id);
+
+        //we need to make sure this particular user gets the updated list from everyone
+        io.to(socket.id).emit("allWordsFound", 
+          {words:gameRoom.allWordsFound, roomId:gameRoom.roomInfo.displayId});  
 
       });
     });
@@ -264,14 +272,14 @@ export class ioManager {
         };
 
         if (msg.roomId) {
-          console.log("debug room",msg);
+          //console.log("debug room",msg);
           //msg.roomId shoudl be the index of the room in this.roomInfo
           //console.log(this.roomInfo);
           const roomId = parseFloat(msg.roomId);
 
           this.users[msg.userId].roomId = this.roomMap[roomId] ?? this.roomMap[0];
 
-          console.log(this.users[msg.userId]);
+          //console.log(this.users[msg.userId]);
 
         }
 
@@ -304,6 +312,9 @@ export class ioManager {
         socket.join( gameRoom.id );
     
         this.emitGame(io,gameRoom,socket.id);
+
+        io.to(socket.id).emit("allWordsFound", 
+          {words:gameRoom.allWordsFound, roomId:gameRoom.roomInfo.displayId});  
 
       });
 

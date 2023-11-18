@@ -39,7 +39,8 @@ export function BoardDetails({ props }) {
     foundWordsRef,
     cubeStyles,
     setCubeStyles,
-    socket
+    socket,
+    setAllWordsFound
   } = props;
 
   const [output, setOutput] = React.useState([]);
@@ -58,8 +59,6 @@ export function BoardDetails({ props }) {
   const totalScoreRef = React.useRef(0);
 
   const [hints,setHints] = React.useState([]);
-
-
 
   //const countx = React.useRef(0);
   //countx.current ++;
@@ -81,6 +80,8 @@ export function BoardDetails({ props }) {
       setSearchString("");
       setReset(false);
       selectedRef.current = [];
+
+      //setAllWordsFound({});  we can not do this here
 
       setFoundWords({});
       totalScoreRef.current = 0;
@@ -554,6 +555,10 @@ export function BoardDetails({ props }) {
     ev.preventDefault();
 
     let newStyles = deepClone(cubeStyles); //this is ugly
+
+    const checkStyle = newStyles[0][0];
+    //newStyles[0][0] might exist but properties might not so prevent crashing here
+    //if ( !checkStyle.hasOwnProperty("fontsize"))  return;
 
     //set all other fontSizes back to normal
     for (let j = 0; j < N; j++) {

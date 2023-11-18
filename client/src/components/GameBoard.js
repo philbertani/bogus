@@ -22,7 +22,8 @@ export function GameBoard({ props }) {
     is3d,
     roomInfo,
     currentRoomId,
-    setCurrentRoomId
+    setCurrentRoomId,
+    setAllWordsFound
   } = props;
 
   const [boardDims, setBoardDims] = React.useState({});
@@ -220,7 +221,8 @@ export function GameBoard({ props }) {
     foundWordsRef,
     cubeStyles,
     setCubeStyles,
-    socket
+    socket,
+    setAllWordsFound
   };
 
   const touch0 = React.useRef({});
@@ -372,6 +374,12 @@ export function GameBoard({ props }) {
   }
 
   function setGameRoom(roomId) {
+
+    if ( !isConnected) {
+      alert('you are not connected, try again later');
+      return;
+    }
+    
     //roomId here is an index starting at 0 that just counts the game rooms
     setCurrentRoomId(roomId);
     localStorage.setItem('bogusRoomId',roomId);
@@ -472,7 +480,8 @@ export function GameBoard({ props }) {
               width:boardDims.width,height:boardDims.height/14,
               fontSize:boardDims.height/15,border:"2px",
               borderStyle:"solid",
-              background: room.displayId===currentRoomId?"yellow":"inherit",
+              //once again numbers are text sometimes and not others so use weak ==
+              background: room.displayId==currentRoomId?"yellow":"inherit",
               lineHeight:boardDims.height/14 + "px"
             }}
               onTouchStart={ev=>{setGameRoom(room.displayId)}} 

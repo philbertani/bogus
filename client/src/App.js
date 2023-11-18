@@ -100,6 +100,9 @@ export default function App() {
 
       let roomId = localStorage.getItem("bogusRoomId");
       if (roomId == null) roomId = 0;
+      setCurrentRoomId(roomId);
+
+      console.log("current room id",roomId);
 
       socket.emit('current board',{userId,sessionId,roomId}); //since we are connected ask for the current board
     }
@@ -167,7 +170,12 @@ export default function App() {
     }
 
     function onAllWordsFound(msg) {
-      setAllWordsFound(msg);
+
+      console.log('all words', msg, currentRoomId);
+
+      if (msg.roomId == currentRoomId) {
+        setAllWordsFound(msg.words);
+      }
     }
 
     function onHeartBeat(msg) {
@@ -203,7 +211,7 @@ export default function App() {
       socket.off('stats', onStats);
     };
 
-  }, [mainGame, isDuplicateProcess]);
+  }, [mainGame, isDuplicateProcess, currentRoomId]);
 
   const props = {
     game: mainGame,
@@ -220,7 +228,8 @@ export default function App() {
     is3d,
     roomInfo,
     currentRoomId,
-    setCurrentRoomId
+    setCurrentRoomId,
+    setAllWordsFound
   };
 
   //this stops all the crappy ios events but then also prevents

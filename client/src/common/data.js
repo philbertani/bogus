@@ -95,7 +95,7 @@ const gameTypes = {
 
   spanishFive: {
     rank: {M:5, N:5},
-    minLetters: 4,
+    minLetters: 3,
     name: "Spanish 5x5",
     ld: [
       "YRRVET",
