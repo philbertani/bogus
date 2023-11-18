@@ -61,8 +61,6 @@ export function GameBoard({ props }) {
   //countx.current ++;
   //if ( countx.current%100===0) console.log('GameBoard count',countx.current);
 
-  try {
-
   React.useEffect(() => {
     //Implementing the setInterval method
     const interval = setInterval(() => {
@@ -668,8 +666,4 @@ export function GameBoard({ props }) {
 
   );
 
-  }
-  catch (err) {
-    return (<div>JSON.stringify(err)</div>);
-  }
 }

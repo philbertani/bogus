@@ -67,7 +67,6 @@ export function BoardDetails({ props }) {
 
   //console.log('zzzzz',M,N,game.rank);
 
-  try {
 
   React.useEffect(() => {
     //we do not need to access any of these from higher up, but we do
@@ -732,8 +731,5 @@ export function BoardDetails({ props }) {
   //also wrong about isWordRef
 
   return <div>{output}</div>;
-  }
-  catch(err) {
-    return ( <div>JSON.stringify(err)</div>)
-  }
+  
 }
