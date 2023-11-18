@@ -61,7 +61,7 @@ const gameTypes = {
 
   hebrewFive: {
     rank: {M:5, N:5},
-    minLetters: 4,
+    minLetters: 3,
     name: "Hebrew 5x5",
     ld: [
       "הההפוב",
