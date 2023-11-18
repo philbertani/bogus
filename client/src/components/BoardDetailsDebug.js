@@ -44,15 +44,12 @@ export function BoardDetails({ props }) {
 
   const [output, setOutput] = React.useState([]);
   const counter = React.useRef(0);
-  const { M, N } = game.rank;
+
   const mouseButtonDown = useMouseButton();
 
-  //have to move all this sh.t up the flagpole, useState is such a waste of time
-  //const [cubeStyles, setCubeStyles] = React.useState(blank2dArray(N, M, null));
+  const { M, N } = game.rank;
   const [selected, setSelected] = React.useState([]);
-  const [allSelected, setAllSelected] = React.useState(blank2dArray(N, M));
-  //const [searchString, setSearchString] = React.useState("");
-  //const [path, setPath] = React.useState([]);
+  const [allSelected, setAllSelected] = React.useState(blank2dArray(M, N));
 
   const lineHeight = React.useRef(0);
   const fontSize = React.useRef(0);
@@ -62,20 +59,26 @@ export function BoardDetails({ props }) {
 
   const [hints,setHints] = React.useState([]);
 
+
+
   //const countx = React.useRef(0);
   //countx.current ++;
   //if ( countx.current%100===0) console.log('BoardDetails count',countx.current);
 
-  //console.log(game.words);
+  //console.log('zzzzz',M,N,game.rank);
+
+  try {
 
   React.useEffect(() => {
     //we do not need to access any of these from higher up, but we do
     //need to know when to reset from above
     if (reset) {
-      console.log("resetting arrays");
-      //setCubeStyles(blank2dArray(N, M, null));
+      console.log("resetting arrays", M, N);
+
+      //setCubeStyles(blank2dArray(M, N, null));
+
       setSelected([]);
-      setAllSelected(blank2dArray(N, M));
+      setAllSelected(blank2dArray(M, N));
       setSearchString("");
       setReset(false);
       selectedRef.current = [];
@@ -84,7 +87,8 @@ export function BoardDetails({ props }) {
       totalScoreRef.current = 0;
       foundWordsRef.current = {words:{},totalscore:0};
 
-      const savedWords = JSON.parse( localStorage.getItem("bogusSavedWords") ) ?? {};
+      const keyId = savedWordsKeyId();
+      const savedWords = JSON.parse( localStorage.getItem(keyId) ) ?? {};
       if ( savedWords.boardId && savedWords.boardId === game.boardId) {
         //we could have just checked that the boards are the same but this is 
         //the lazy way - but still kind of annoying
@@ -124,12 +128,12 @@ export function BoardDetails({ props }) {
     //we need 2 separate divs for path  
     //console.log("torusMove", i,j,iOld,jOld);
     const sc = 1.4;
-    const {M,N} = game.rank;
+    //const {M,N} = game.rank;
     const height = ".55vh";
     let width = .6*boardDims.width / M;
     let transformText = "rotate(0deg)";
 
-    const adj = 2;
+    const adj = 2.2;
     const adjX = 4;
 
     let dx1=0,dy1=0,dx2=0,dy2=0;
@@ -280,6 +284,11 @@ export function BoardDetails({ props }) {
 
 
   React.useEffect(() => {
+
+    //console.log('zzzzzzzzzzzzzz',cubeStyles);
+
+    //if ( cubeStyles.length < M) return;
+
     counter.current++;
     let tmpStyles = [];
     let top = 3;
@@ -305,8 +314,8 @@ export function BoardDetails({ props }) {
         };
 
         //this gets called before the reset useEffect gets called so
-        //have to catch this here
-        if (cubeStyles[j][i] && !reset) {
+        //have to catch this here, still causing problems
+        if (  cubeStyles[j][i] && !reset) {
           //if cubeStyles elements have been set already then preserve the
           //colors which may have changed due to selection or found words
           boxStyle.backgroundImage = cubeStyles[j][i].backgroundImage;
@@ -342,6 +351,16 @@ export function BoardDetails({ props }) {
   function SN(str) {
     //parseFloat ?
     return Number(str.replace("px", ""));
+  }
+
+  function savedWordsKeyId() {
+    //we want to have different local storage locations for different languages
+    let keyId = "bogusSavedWords";
+    const roomId = localStorage.getItem("bogusRoomId");
+    if (roomId != null) {
+      keyId += roomId;
+    }
+    return keyId
   }
 
   function handleClick(ev, i, j, mbd = false) {
@@ -493,7 +512,7 @@ export function BoardDetails({ props }) {
         const shit = [];
 
         const newHints = [];
-        const { M, N } = game.rank;
+        //const { M, N } = game.rank;
 
         for (let row = ix - 1; row <= ix + 1; row++) {
           for (let col = jx - 1; col <= jx + 1; col++) {
@@ -562,6 +581,7 @@ export function BoardDetails({ props }) {
   }, [touches]); //dont listen to React suggestions
 
   React.useEffect(() => {
+
     let tmpOutput = [];
     for (let j = 0; j < M; j++) {
       for (let i = 0; i < N; i++) {
@@ -693,8 +713,9 @@ export function BoardDetails({ props }) {
           totalScore: totalScoreRef.current,
         };
 
+        const keyId = savedWordsKeyId();
         localStorage.setItem(
-          "bogusSavedWords",
+          keyId,
           JSON.stringify({
             foundWords: newWords,
             boardId: game.boardId,
@@ -711,4 +732,8 @@ export function BoardDetails({ props }) {
   //also wrong about isWordRef
 
   return <div>{output}</div>;
+  }
+  catch(err) {
+    return ( <div>JSON.stringify(err)</div>)
+  }
 }

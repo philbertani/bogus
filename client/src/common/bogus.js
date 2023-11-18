@@ -21,6 +21,8 @@ class bogusMain {
   data;
 
   BOARDTYPES = {NORMAL:0,TORUS:1};
+  BOARDTYPE_NAMES = ["GRID","TORUS"];
+
   boardType; 
   //maybe add an option to build a board based on 2 or 3 nice long
   //words

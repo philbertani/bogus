@@ -20,7 +20,9 @@ export function GameBoard({ props }) {
     stats,
     foundWordsRef,
     is3d,
-    roomInfo
+    roomInfo,
+    currentRoomId,
+    setCurrentRoomId
   } = props;
 
   const [boardDims, setBoardDims] = React.useState({});
@@ -52,12 +54,14 @@ export function GameBoard({ props }) {
   const [count, setCount] = React.useState(0);
   const [totalScore, setTotalScore] = React.useState(0);
 
-  const [cubeStyles, setCubeStyles] = React.useState(blank2dArray(N, M, null));
+  const [cubeStyles, setCubeStyles] = React.useState(blank2dArray(M, N, null));
   const [unsentWords, setUnsentWords] = React.useState([]);
 
   //const countx = React.useRef(0);
   //countx.current ++;
   //if ( countx.current%100===0) console.log('GameBoard count',countx.current);
+
+  try {
 
   React.useEffect(() => {
     //Implementing the setInterval method
@@ -168,16 +172,6 @@ export function GameBoard({ props }) {
           }}
 
           //old iphones do not associate touchstart with click
-          /*
-          onTouchStart={ ev => {
-            ev.preventDefault();
-            if ( isTouchDevice ) {
-              setCount(0);
-              setHideDef("block");
-              setDisplayDefinition(definition);
-            }
-          }}
-          */
 
         >
           {word}
@@ -349,15 +343,22 @@ export function GameBoard({ props }) {
     const windowHeight = isTouchDevice ? window.screen.height : window.innerHeight;
 
     //console.log(Date.now(),boardDims);
-    if ( (isTouchDevice && windowSize.width > 1.4 * windowSize.height)
-        || (!isTouchDevice && window.innerWidth > window.innerHeight) ) {
+    if ( isTouchDevice && windowSize.width > 1.4 * windowSize.height) {
   
       setWordListPos({
         top: boardDims.height / 8,
         left: 1.1 * boardDims.width,
         height: windowHeight - boardDims.height/1.3 ,
-      });
-    } else {
+      });  
+    } 
+    else if ( !isTouchDevice && window.innerWidth > 1.5*window.innerHeight ) {
+      setWordListPos({
+        top: boardDims.height / 8,
+        left: 1.1 * boardDims.width,
+        height: Math.max(boardDims.height, windowHeight - boardDims.height/2 ),
+      });  
+    }
+    else {
       setWordListPos({
         top: 1.2 * boardDims.height + 0.02 * windowHeight,
         left: 0,
@@ -373,6 +374,10 @@ export function GameBoard({ props }) {
   }
 
   function setGameRoom(roomId) {
+    //roomId here is an index starting at 0 that just counts the game rooms
+    setCurrentRoomId(roomId);
+    localStorage.setItem('bogusRoomId',roomId);
+    
     console.log('setting Game Room',roomId);
     socket.emit('setGameRoom',roomId);
   }
@@ -461,9 +466,23 @@ export function GameBoard({ props }) {
             <div> {sp} Warning RESETS EVERYONE!!</div>
           </div>
 
+          <div style={{width:boardDims.width, textAlign:"center"
+            ,fontSize:boardDims.height/17, marginLeft:boardDims.width*.005}}>
+             Choose a Game Room
           {roomInfo.length>0 && roomInfo.map(room=>
-            <div onClick={ev=>{setGameRoom(room.displayId)}}>{room.name}</div>)
+            <div style={{
+              width:boardDims.width,height:boardDims.height/14,
+              fontSize:boardDims.height/15,border:"2px",
+              borderStyle:"solid",
+              background: room.displayId===currentRoomId?"yellow":"inherit",
+              lineHeight:boardDims.height/14 + "px"
+            }}
+              onTouchStart={ev=>{setGameRoom(room.displayId)}} 
+              onClick={ev=>{setGameRoom(room.displayId)}}
+              >{room.name}
+            </div>)
           }
+          </div>
         </div>
 
         <div
@@ -623,7 +642,7 @@ export function GameBoard({ props }) {
         style={{
           position: "absolute",
           zIndex: "500",
-          top: ( window.innerHeight > window.innerWidth ) ?
+          top: ( 1.5*window.innerHeight > window.innerWidth ) ?
             boardDims.height + wordListPos.height + boardDims.height/4.4 : 
             boardDims.height + boardDims.height / 5,
           backgroundColor: "rgba(200,100,0,.9)",
@@ -648,4 +667,9 @@ export function GameBoard({ props }) {
     ]
 
   );
+
+  }
+  catch (err) {
+    return (<div>JSON.stringify(err)</div>);
+  }
 }

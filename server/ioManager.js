@@ -26,10 +26,11 @@ export class ioManager {
 
       this.setHandlers(this.io);
 
-      this.newGameRoom(dict.english,this.BOARDTYPES.NORMAL,"five");
       this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"five");
+      this.newGameRoom(dict.english,this.BOARDTYPES.NORMAL,"five");
       this.newGameRoom(dict.hebrew,this.BOARDTYPES.TORUS,"hebrewFive");
       this.newGameRoom(dict.spanish,this.BOARDTYPES.TORUS,"spanishFive");
+      //this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"four");
 
       console.log('game rooms:',this.roomInfo);
 
@@ -48,8 +49,12 @@ export class ioManager {
     const newRoomId = uuidv4();
     this.gameRooms[newRoomId] = new gameRoom(newRoomId, this.io, dictionary, boardType, gameType);
     this.roomMap.push(newRoomId);
-    const roomName = this.gameRooms[newRoomId].data.name + " " + boardType;
-    this.roomInfo.push({displayId:this.numRooms,id:newRoomId,name:roomName});
+    const roomName = this.gameRooms[newRoomId].data.name + " "  +
+      this.gameRooms[newRoomId].game.BOARDTYPE_NAMES[boardType]; // + boardType;
+
+    const roomInfo = {displayId:this.numRooms,id:newRoomId,name:roomName};
+    this.roomInfo.push(roomInfo);
+    this.gameRooms[newRoomId].roomInfo = roomInfo;
     this.numRooms ++;   
   }
 
@@ -78,7 +83,8 @@ export class ioManager {
       boardId: gameRoom.boardId,
       boardType: gameRoom.game.boardType,
       bogus3d: process.env.bogusEnv,
-      rank: gameRoom.game.rank
+      rank: gameRoom.game.rank,
+      roomId: gameRoom.roomInfo.displayId
 
     });
 
@@ -190,6 +196,9 @@ export class ioManager {
         user.roomId = this.roomInfo[roomId].id;  //switch to the new game room
         const gameRoom = this.gameRooms[user.roomId];
 
+        socket.join( gameRoom.id );
+        gameRoom.newPlayer(userId);
+
         this.emitGame(io, gameRoom, socket.id);
 
       });
@@ -255,15 +264,21 @@ export class ioManager {
         };
 
         if (msg.roomId) {
+          console.log("debug room",msg);
           //msg.roomId shoudl be the index of the room in this.roomInfo
-          const roomInfo = this.roomInfo[roomId];
-          const roomId = roomInfo.id; //the big long string
-          this.users[msg.userId].roomId = roomId;
+          //console.log(this.roomInfo);
+          const roomId = parseFloat(msg.roomId);
+
+          this.users[msg.userId].roomId = this.roomMap[roomId] ?? this.roomMap[0];
+
+          console.log(this.users[msg.userId]);
+
         }
 
         const roomId = this.users[msg.userId].roomId;
-        console.log('roomid',roomId, this.gameRooms[roomId].id);
-        const gameRoom = this.gameRooms[roomId];
+
+        //console.log('roomid',roomId, this.gameRooms[roomId].id);
+        let gameRoom = this.gameRooms[roomId];
 
         if (
           this.userIdSockets[msg.userId] &&

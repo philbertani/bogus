@@ -33,9 +33,9 @@ export function BoardDetails({ props }) {
   const mouseButtonDown = useMouseButton();
 
   //have to move all this sh.t up the flagpole, useState is such a waste of time
-  //const [cubeStyles, setCubeStyles] = React.useState(blank2dArray(N, M, null));
+  //const [cubeStyles, setCubeStyles] = React.useState(blank2dArray(M, N, null));
   const [selected, setSelected] = React.useState([]);
-  const [allSelected, setAllSelected] = React.useState(blank2dArray(N, M));
+  const [allSelected, setAllSelected] = React.useState(blank2dArray(M, N));
   //const [searchString, setSearchString] = React.useState("");
   //const [path, setPath] = React.useState([]);
 
@@ -53,7 +53,7 @@ export function BoardDetails({ props }) {
       console.log("resetting arrays");
       //setCubeStyles(blank2dArray(N, M, null));
       setSelected([]);
-      setAllSelected(blank2dArray(N, M));
+      setAllSelected(blank2dArray(M, N));
       setSearchString("");
       setReset(false);
       selectedRef.current = [];
@@ -245,6 +245,7 @@ export function BoardDetails({ props }) {
         lineHeight.current = (0.9 * marginFac * boardDims.height) / N;
         left += boardDims.width / M;
         row.push(boxStyle);
+
       }
       tmpStyles.push(row);
       top += boardDims.height / N;

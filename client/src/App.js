@@ -36,6 +36,8 @@ export default function App() {
   const [is3d, setIs3d] = React.useState(false);
   const [roomInfo,setRoomInfo] = React.useState([]);
 
+  const [currentRoomId, setCurrentRoomId] = React.useState(0);
+
   //const countx = React.useRef(0);
   //countx.current ++;
   //if ( countx.current%100===0) console.log('App count',countx.current);
@@ -95,7 +97,11 @@ export default function App() {
         sessionId = uuid;        
       }
       setReset(true);
-      socket.emit('current board',{userId,sessionId}); //since we are connected ask for the current board
+
+      let roomId = localStorage.getItem("bogusRoomId");
+      if (roomId == null) roomId = 0;
+
+      socket.emit('current board',{userId,sessionId,roomId}); //since we are connected ask for the current board
     }
 
     function onDisconnect() {
@@ -127,6 +133,7 @@ export default function App() {
       mainGameX.definitions = [...msg.defs];
       mainGameX.boardId = msg.boardId;
       mainGameX.boardType = msg.boardType;
+      mainGameX.roomId = msg.roomId;
 
       if ( msg.bogus3d ) {
         console.log('3d is coming through!', msg.bogus3d);
@@ -138,7 +145,8 @@ export default function App() {
       window.bogus = mainGameX;  //remove this when we are live on the internet obviously
 
       localStorage.setItem("bogusMain",JSON.stringify(mainGameX));
-
+      localStorage.setItem("bogusRoomId", msg.roomId);
+      
       setDoneOne(true);
  
       setReset(true);
@@ -210,7 +218,9 @@ export default function App() {
     stats,
     foundWordsRef,
     is3d,
-    roomInfo
+    roomInfo,
+    currentRoomId,
+    setCurrentRoomId
   };
 
   //this stops all the crappy ios events but then also prevents
@@ -224,6 +234,7 @@ export default function App() {
       window.removeEventListener('touchmove',null);
     }
   },[]);
+
   
   return (
     [
@@ -235,4 +246,5 @@ export default function App() {
       
     ]
   );
+
 }
