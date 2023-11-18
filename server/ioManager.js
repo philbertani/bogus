@@ -298,8 +298,8 @@ export class ioManager {
             console.log("already in socket map");
           } else {
             this.socketMap[socket.id] = msg.userId;
-            io.to(socket.id).emit("duplicate");
-            return;
+            //io.to(socket.id).emit("duplicate");
+            //return;
           }
 
           this.userIdSockets[msg.userId].push({ id: socket.id, active: false });
