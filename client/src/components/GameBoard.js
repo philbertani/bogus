@@ -104,7 +104,7 @@ export function GameBoard({ props }) {
 
     const wordsRef = foundWordsRef.current.words;
 
-    //setTouchInfo(foundWordsRef.current);
+    //console.log("wordsRef", wordsRef);
 
     const newWordOutput = [];
     const words = Object.keys(wordsRef);
@@ -126,11 +126,11 @@ export function GameBoard({ props }) {
 
     //at the end of the game we can run through game.words to show all words
     for (const word of sortedWords) { // game.words){ //sortedWords) {
-      //game.words
+      
       let bgColor = "inherit";
       let color = "black";
       let backgroundImage = "";
-      if (wordsRef[word]) {
+      if (wordsRef[word] !== undefined) {
         //word.localeCompare(mostRecent) === 0) {
         backgroundImage = "linear-gradient(#FFFF00,#00FFFF)";
         color = "#A000A0";
@@ -400,11 +400,12 @@ export function GameBoard({ props }) {
     boardDims.height &&
     wordListPos.top && [
       <div
+        key="gameBoard"
         style={{ 
           touchAction: "none",
           position:"absolute"}}
       >
-        <div style={{position:"absolute"}}>{JSON.stringify(touchInfo)}</div>
+        <div key="debug" style={{position:"absolute"}}>{JSON.stringify(touchInfo)}</div>
         <div
           key="searchString"
           style={{
@@ -451,7 +452,7 @@ export function GameBoard({ props }) {
           >
             There are {game.words.length} words!
           </p>
-          <div style={{ textAlign: "center", margin: "2vw" }}>
+          <div key="reset" style={{ textAlign: "center", margin: "2vw" }}>
             <button
               style={{
                 height: boardDims.height / 5,
@@ -472,11 +473,11 @@ export function GameBoard({ props }) {
             <div> {sp} Warning RESETS EVERYONE!!</div>
           </div>
 
-          <div style={{width:boardDims.width, textAlign:"center"
+          <div key="gameRooms" style={{width:boardDims.width, textAlign:"center"
             ,fontSize:boardDims.height/17, marginLeft:boardDims.width*.005}}>
              Choose a Game Room
           {roomInfo.length>0 && roomInfo.map(room=>
-            <div style={{
+            <div key={"room" + room.displayId} style={{
               width:boardDims.width,height:boardDims.height/14,
               fontSize:boardDims.height/15,border:"2px",
               borderStyle:"solid",
@@ -525,15 +526,18 @@ export function GameBoard({ props }) {
           }}
         >
           <div
+            key="menu"
             style={{
               margin: "0",
               position: "absolute",
-              top: "-2.5vh",
+              top: "-2vh",
               left: boardDims.width / 18,
-              fontSize: boardDims.height / 10,
+              fontSize: boardDims.height / 12,
               backgroundColor: "rgba(250,250,100,.5)",
               width: boardDims.height / 9,
+              height: boardDims.height / 9,
               color: "rgba(0,50,150,1)",
+              lineHeight: boardDims.height / 9 + "px"
             }}
 
             onTouchStart = { ev=>{
@@ -557,7 +561,7 @@ export function GameBoard({ props }) {
             {"\u22ee"}
           </div>
 
-          <div>
+          <div key="score">
             You:{" "}
             {foundWordsRef.current
               ? Object.keys(foundWordsRef.current.words).length

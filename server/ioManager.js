@@ -78,13 +78,17 @@ export class ioManager {
         board: gameRoom.board,
         output: gameRoom.output,
       },
+
+      //this is a half assed way to serialize the game object
+      //write a proper function
       words: gameRoom.game.wordsFound,
       defs: gameRoom.game.defsFound,
       boardId: gameRoom.boardId,
       boardType: gameRoom.game.boardType,
       bogus3d: process.env.bogusEnv,
       rank: gameRoom.game.rank,
-      roomId: gameRoom.roomInfo.displayId
+      roomId: gameRoom.roomInfo.displayId,
+      minLetters: gameRoom.game.minLetters
 
     });
 

@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useDebugValue } from 'react';
 import { socket } from './socket';
-import { ConnectionState } from './components/ConnectionState';
+
+//import { ConnectionState } from './components/ConnectionState';
 //import { MyForm } from './components/MyForm';
 //import { Events} from './components/Events';
+
 import { GameBoard } from './components/GameBoard';
 import bogusMain from './common/bogus.js';
 import {cloneArray} from './common/utils.js';
 import {v4 as uuidv4} from 'uuid';
 import './App.css';
-import GPU from './components/3d/GPU.js';
+//import GPU from './components/3d/GPU.js';
 
 //if we lose connection and reload page, load the previous board from
 //localStorage
@@ -17,7 +19,7 @@ export default function App() {
 
   const [isConnected, setIsConnected] = useState(socket.connected);
   const [fooEvents, setFooEvents] = useState([]);
-  const [mainGame, setMainGame] = React.useState();//new bogusMain( {words:["none"], definitions:["none"]} ) );
+  const [mainGame, setMainGame] = React.useState();
   const [doneOne, setDoneOne] = React.useState(false);
   const [reset, setReset] = React.useState(false);
 
@@ -127,7 +129,7 @@ export default function App() {
       //we need to save found words in local storage or on server
 
       const mainGameX = new bogusMain( {words:["none"], definitions:["none"]} );
-      console.log('zzzzzzzzzz',msg.game);
+      console.log('new board msg',msg.game);
 
       mainGameX.board = cloneArray(msg.game.board);
       mainGameX.output = cloneArray(msg.game.output);
@@ -137,6 +139,7 @@ export default function App() {
       mainGameX.boardId = msg.boardId;
       mainGameX.boardType = msg.boardType;
       mainGameX.roomId = msg.roomId;
+      mainGameX.minLetters = msg.minLetters;
 
       if ( msg.bogus3d ) {
         console.log('3d is coming through!', msg.bogus3d);
@@ -171,7 +174,7 @@ export default function App() {
 
     function onAllWordsFound(msg) {
 
-      console.log('all words', msg, currentRoomId);
+      //console.log('all words', msg, currentRoomId);
 
       if (msg.roomId == currentRoomId) {
         setAllWordsFound(msg.words);
@@ -248,10 +251,10 @@ export default function App() {
   return (
     [
       (doneOne && !isDuplicateProcess ) &&
-      <div> 
+      <div key="app"> 
         <GameBoard key="k05" props={props}/>
       </div> ,
-      isDuplicateProcess && <div>You already are Connected</div>,
+      isDuplicateProcess && <div key="conn">You already are Connected</div>,
       
     ]
   );

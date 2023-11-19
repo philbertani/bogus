@@ -659,20 +659,13 @@ export function BoardDetails({ props }) {
     const search = game.isWord(searchString, false);
     const ln = searchString.length - (game.minLetters-1);
 
-    //console.log('1', searchString, foundWordsRef.current.words);
-    //console.log(game.output);
-    //console.log(searchString, search);
-
     if (!search[1]) {
-      //set colors to Red ish
       setSearchStringBackground("");
       setIsWord(false);
       isWordRef.current = false;
 
     } else if (search[1]) {
-
-      //console.log("setting new colors 2");
-      
+    
       //add it to the user's found words
       const newWords = foundWordsRef.current.words;
 
@@ -683,10 +676,6 @@ export function BoardDetails({ props }) {
 
       const thisUserFoundWord = newWords[searchString];
 
-      //console.log("xxxxxx",thisUserFoundWord);
-
-      //console.log('2', searchString, foundWordsRef.current.words);
-
       if ( thisUserFoundWord || allWordsFound[searchString]) {
         //if we already found this word color it grey-ish
         newBackgroundImage = "radial-gradient(#FFFFFF,#000000)";
@@ -694,10 +683,10 @@ export function BoardDetails({ props }) {
         isWordRef.current = false;
       }
 
+      console.log("words", searchString, thisUserFoundWord, isWordRef.current);
       //add word to map for this user if it does not exist
       if ( !thisUserFoundWord && isWordRef.current) {  
         newWords[searchString] = ln ; 
-        //console.log('3', searchString, foundWordsRef.current.words);
       }
 
       let newStyles = deepClone(cubeStyles); //this is ugly
