@@ -189,7 +189,10 @@ export default function App() {
 
     function onStats(msg) {
       //console.log('stats',msg);
-      setStats(msg);
+      //need to differentiate gameRooms
+      if (msg.roomId == currentRoomId) {
+        setStats(msg.stats);
+      }
     }
 
     socket.on('connect', onConnect);

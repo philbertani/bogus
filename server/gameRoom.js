@@ -75,16 +75,18 @@ export class gameRoom {
             }
         }
         this.maxScore = maxScore;
+        //console.log(this.id, maxScore);
         return {playerCount, maxWordCount, maxScore, numWords:this.game.wordsFound.length}
     }
 
     setPlayerWordCount(userId, count, totalScore) {
+        console.log("stats",userId,count,totalScore);
         this.players[userId].wordCount = count;
         this.players[userId].score = totalScore;
     }
 
     sendStats() {
         //console.log("sending stats for",this.id);
-        this.io.to(this.id).emit("stats",this.gameStats());
+        this.io.to(this.id).emit("stats",{stats:this.gameStats(),roomId:this.roomInfo.displayId});
     }
 }
