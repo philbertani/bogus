@@ -126,6 +126,40 @@ const gameTypes = {
       "CIINDH",
       "ÚIINND"
     ]
+  },
+
+  spanishFiveLoose: {
+    rank: {M:5, N:5},
+    minLetters: 3,
+    name: "Spanish 5x5 No Accents",
+
+    ld: [
+      "YRRVET",
+      "RRAAAA",
+      "RRVOET",
+      "RUACCC",
+      "RAAAÑP",
+      "RAAGPD",
+      "RAGPCC",
+      "RVOETO",
+      "FXZIAQU",
+      "SSCTNH",
+      "SAOOLN",
+      "SAOLMN",
+      "SAOMTN",
+      "UBBCIN",
+      "UBBLIE",
+      "UBLCIE",
+      "UULCIE",
+      "AOOUNN",
+      "APINNN",
+      "ECTTTD",
+      "VOMETO",
+      "GIEEJH",
+      "BOMEEO",
+      "CIINDH",
+      "UIINND"
+    ]
   }
 
 }

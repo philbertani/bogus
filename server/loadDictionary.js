@@ -9,12 +9,13 @@ export function loadDictionary(cb) {
 
     const { hebrewWords, hebrewDefinitions } = await loadHebrewDict();
 
-    const { spanishWords, spanishDefs } = await loadSpanish();
+    const { spanishWords, spanishDefs, spanishLooseWords, spanishLooseDefs } = await loadSpanish();
 
     return { 
             english:{ words, definitions },
             hebrew:{ words:hebrewWords, definitions:hebrewDefinitions},
-            spanish:{ words:spanishWords, definitions:spanishDefs }
+            spanish:{ words:spanishWords, definitions:spanishDefs },
+            spanishLoose:{ words:spanishLooseWords, definitions:spanishLooseDefs}
           };
   };
 
@@ -316,18 +317,44 @@ export function loadDictionary(cb) {
       //we need sorted arrays for the main program
       const sortedWords = Object.keys(words).sort();
       const sortedDefs = [];
+
+      const letterMap = {Á:"A", É:"E", Í:"I", Ó:"O", Ú:"U", Ü:"U" };
+      const spanishLooseWords = [];
+      const spanishLooseDefs = [];
+
       for (const word of sortedWords) {
+        const looseWord = mapLetters(word, letterMap);
+        spanishLooseWords.push(looseWord);
+        spanishLooseDefs.push( word + "," + defs[word])
         sortedDefs.push( defs[word] );
       }
 
       console.log("Spanish Words:",sortedWords.length);
+      console.log("Spanish loose Words:",looseCount);
 
-      return {spanishWords:sortedWords,spanishDefs:sortedDefs};
+      return {spanishWords:sortedWords,spanishDefs:sortedDefs,spanishLooseWords, spanishLooseDefs};
 
     } catch (error) {
       throw error;
     }
 
+  }
+
+  let looseCount = 0;
+  function mapLetters(word, letterMap) {
+    let looseWord = "";
+    let loose = 0;
+    for (const letter of word) {
+      if ( letterMap.hasOwnProperty(letter)) {
+        looseWord += letterMap[letter];
+        loose = 1;
+      }
+      else {
+        looseWord += letter;
+      }
+    } 
+    looseCount += loose;
+    return looseWord;
   }
 
   return loadData(cb);

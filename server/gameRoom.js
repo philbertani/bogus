@@ -63,6 +63,7 @@ export class gameRoom {
     }
 
     gameStats() {
+      //check last player time to see if they are actually active
         let playerCount = 0;
         let maxWordCount = 0;
         let maxScore = this.maxScore;

@@ -30,6 +30,7 @@ export class ioManager {
       this.newGameRoom(dict.english,this.BOARDTYPES.NORMAL,"five");
       this.newGameRoom(dict.hebrew,this.BOARDTYPES.TORUS,"hebrewFive");
       this.newGameRoom(dict.spanish,this.BOARDTYPES.TORUS,"spanishFive");
+      this.newGameRoom(dict.spanishLoose,this.BOARDTYPES.TORUS,"spanishFiveLoose");
       //this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"four");
 
       console.log('game rooms:',this.roomInfo);
