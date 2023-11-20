@@ -13,7 +13,7 @@ const selectTextColor = "#FFFFFF";
 const wordColor = "radial-gradient(#001000,#00FF00)"; 
 const wordTextColor = "#FFFFFF";//"#1000A0";
 
-const hintColor = "radial-gradient(#FFFF00,#FF7D00)";
+const hintColor = "radial-gradient(#FFFFFF,#A0A0FF)"; //"radial-gradient(#FFFF00,#FF7D00)";
 const hintTextColor = "#4040FF";
 
 
