@@ -128,18 +128,22 @@ export default function App() {
       //if ( !mainGame.boardsAreSame(msg.game.board) ) { setFoundWords({});}
       //we need to save found words in local storage or on server
 
-      const mainGameX = new bogusMain( {words:["none"], definitions:["none"]} );
+      //const mainGameX = new bogusMain( {words:["none"], definitions:["none"]} );
+
+      const mainGameX = new bogusMain( {words:msg.words, definitions:msg.defs},msg.boardType, msg.gameType );
       console.log('new board msg',msg.game);
 
       mainGameX.board = cloneArray(msg.game.board);
       mainGameX.output = cloneArray(msg.game.output);
-      mainGameX.rank = msg.rank;
-      mainGameX.words = [...msg.words];
-      mainGameX.definitions = [...msg.defs];
+
       mainGameX.boardId = msg.boardId;
-      mainGameX.boardType = msg.boardType;
       mainGameX.roomId = msg.roomId;
-      mainGameX.minLetters = msg.minLetters;
+
+      //mainGameX.rank = msg.rank;
+      //mainGameX.words = [...msg.words];
+      //mainGameX.definitions = [...msg.defs];
+      //mainGameX.boardType = msg.boardType;
+      //mainGameX.minLetters = msg.minLetters;
 
       if ( msg.bogus3d ) {
         console.log('3d is coming through!', msg.bogus3d);

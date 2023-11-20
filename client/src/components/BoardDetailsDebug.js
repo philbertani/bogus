@@ -656,8 +656,15 @@ export function BoardDetails({ props }) {
 
   React.useEffect(() => {
 
-    const search = game.isWord(searchString, false);
+    let search = game.isWord(searchString, false);
     const ln = searchString.length - (game.minLetters-1);
+
+    //console.log(game.data);
+    if ( !search[1] && game.data.hasOwnProperty("prefixes")) {
+      if ( game.data.prefixes[ searchString[0]] ) {
+        //console.log('starts with prefix');
+      }
+    }
 
     if (!search[1]) {
       setSearchStringBackground("");

@@ -76,7 +76,8 @@ export function loadDictionary(cb) {
     return str.replace(/"/g,'');
   }
 
-  async function loadSpanishCSV() {
+  async function loadSpanishCSV(words,defs) {
+
     const header = {
       infinitive: 0,
       infinitive_english: 1,
@@ -145,17 +146,21 @@ export function loadDictionary(cb) {
 
       console.log(colNames);
 
+      let count=0;
       let ignoreCount = 0;
       let errCount = 0;
-      const words = {},
-        defs = {};
+
+      //const words = {},
+      //  defs = {};
 
       for (let i = 1; i < lines.length; i++) {
         const columns = lines[i].split(delim);
 
-        if (columns.length < 17) {
+        //console.log(columns.length,lines[i]);
+
+        if (columns.length < 16) {
           errCount ++;
-          console.log('ERROR',columns,lines[i],i);
+          console.log('ERROR',columns,lines[i],"line #",i);
         }
         else if (
           ignoreTenses[columns[header.tense_english]] ||
@@ -164,6 +169,7 @@ export function loadDictionary(cb) {
           ignoreCount++;
         } else {
 
+          count ++;
           const  last = columns.length - 1;
           columns[0] = removeQuote(columns[0]);
           columns[last] = removeQuote(columns[last]);
@@ -188,14 +194,12 @@ export function loadDictionary(cb) {
         }
       }
 
-      const spanishWords = Array.from(words).sort();
-
+      console.log("Num Good Records",count);
       console.log("Num Records Ignored", ignoreCount);
       console.log("Errors",errCount);
 
       //throw('shit');
-
-      return {words,defs};
+      //return {words,defs};
 
     } catch (err) {
       console.log("something aweful happened loading spanish_verbs.csv", err);
@@ -203,16 +207,42 @@ export function loadDictionary(cb) {
     }
   }
 
+  async function loadSimpleWordList(filename,words,defs) {
+    try {
+      const wordListFile = await fs.readFile(filename, "utf-8");
+      const lines = wordListFile.replace(/\r/g, "").split(/\n/); 
+
+      let alreadyInList=0;
+      for (let i=0; i<lines.length; i++) {
+        const word = lines[i].toLocaleUpperCase();
+        
+        if ( words.hasOwnProperty(word)) {
+          alreadyInList ++
+        }
+        else {
+          words[word] = 1;
+          defs[word] = word;  //just set the definition to the word since we have no other info but need it
+        }
+
+      }
+
+    }
+    catch (err) {
+      console.log('error loading simple word list',filename,err);
+    }
+  }
+    
+
   async function loadSpanish() {
     try {
 
       //don't over write definitions that already exist when we add to these maps
-      const {words, defs} = await loadSpanishCSV();
+      //const {words, defs} = await loadSpanishCSV();
 
       const dictText = await fs.readFile("./spanish.txt", "utf-8");
       const lines = dictText.replace(/\r/g, "").split(/\n/); //making sure to remove carriage controls first
 
-      //const words={}, defs={};
+      const words={}, defs={};
   
       let j = 0;
 
@@ -265,6 +295,18 @@ export function loadDictionary(cb) {
     
       }
       
+      //add to the words and defs objects - keyed by word
+
+      console.log( "words before", Object.keys(words).length);
+
+      await loadSimpleWordList("./spanish_words.txt",words,defs);
+
+      console.log("words after simple list", Object.keys(words).length);
+
+      await loadSpanishCSV(words,defs);
+
+      console.log( "words after verbs", Object.keys(words).length);
+
       const stats={};
       let numLetters=0;
       for ( const word of Object.keys(words)) {

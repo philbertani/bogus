@@ -63,6 +63,8 @@ const gameTypes = {
     rank: {M:5, N:5},
     minLetters: 3,
     name: "Hebrew 5x5",
+    prefixes: {"ה":1,"ל":1},  //adding these to beginning forms new words
+    prefixMeaning: ["the","to"],
     ld: [
       "הההפוב",
       "ההיייץ",

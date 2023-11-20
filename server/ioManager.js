@@ -88,7 +88,8 @@ export class ioManager {
       bogus3d: process.env.bogusEnv,
       rank: gameRoom.game.rank,
       roomId: gameRoom.roomInfo.displayId,
-      minLetters: gameRoom.game.minLetters
+      minLetters: gameRoom.game.minLetters,
+      gameType: gameRoom.game.gameType
 
     });
 
