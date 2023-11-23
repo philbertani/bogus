@@ -33,8 +33,14 @@ export class ioManager {
       this.newGameRoom(dict.spanishLoose,this.BOARDTYPES.TORUS,"spanishFiveLoose");
       this.newGameRoom(dict.italian,this.BOARDTYPES.TORUS,"italianFive");
       
-      //this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"four");
-
+      const noLunaBoard = [
+        ['O','Ñ','D','S','E'],
+        ['U','N','E','I','S'],
+        ['R','D','L','L','C'],
+        ['O','I','U','N','A'],
+        ['N','I','C','N','N'] ];
+      this.newGameRoom(dict.spanish,this.BOARDTYPES.TORUS,"spanishDebug",noLunaBoard);
+      
       console.log('game rooms:',this.roomInfo);
 
       this.statsInterval = setInterval( ()=>{
@@ -48,9 +54,9 @@ export class ioManager {
     }
   }
 
-  newGameRoom(dictionary,boardType,gameType) {
+  newGameRoom(dictionary,boardType,gameType,debugBoard=[]) {
     const newRoomId = uuidv4();
-    this.gameRooms[newRoomId] = new gameRoom(newRoomId, this.io, dictionary, boardType, gameType);
+    this.gameRooms[newRoomId] = new gameRoom(newRoomId, this.io, dictionary, boardType, gameType, debugBoard);
     this.roomMap.push(newRoomId);
     const roomName = this.gameRooms[newRoomId].data.name + " "  +
       this.gameRooms[newRoomId].game.BOARDTYPE_NAMES[boardType]; // + boardType;

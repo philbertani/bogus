@@ -268,9 +268,17 @@ class bogusMain {
     this.board = [];
   }
 
-  newBoard() {
-    
-    this.makeBoard();
+  newBoard(debugBoard=[]) {
+    if ( debugBoard.length > 0) {
+      //we want to be able 
+      this.board = cloneArray(debugBoard);
+      this.output = cloneArray(debugBoard);
+      
+      console.log ("using debug board",debugBoard);
+    }
+    else {
+      this.makeBoard();
+    }
 
     this.findWordsDriver(this.wordFindingFunctions[this.boardType]);
     return {board:this.board,output:this.output};

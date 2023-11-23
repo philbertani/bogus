@@ -18,9 +18,11 @@ export class gameRoom {
 
     gameType;
     data;
+
+    debugBoard = [];
     
 
-    constructor(roomId,io,dict,boardType,gameType) {
+    constructor(roomId,io,dict,boardType,gameType, debugBoard=[]) {
         this.io = io;
         this.id = roomId;
         this.gameType = gameType;
@@ -30,12 +32,15 @@ export class gameRoom {
         this.game = new bogusMain(dict,boardType,gameType);
         this.data = this.game.data;
 
+        this.debugBoard = debugBoard;
+
         this.newBoard();
 
     }
 
     newBoard() {
-        const tmp = this.game.newBoard();
+
+        const tmp = this.game.newBoard(this.debugBoard);
         this.board = tmp.board;
         this.output = tmp.output;
         this.boardId = uuidv4();
