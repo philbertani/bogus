@@ -31,6 +31,8 @@ export class ioManager {
       this.newGameRoom(dict.hebrew,this.BOARDTYPES.TORUS,"hebrewFive");
       this.newGameRoom(dict.spanish,this.BOARDTYPES.TORUS,"spanishFive");
       this.newGameRoom(dict.spanishLoose,this.BOARDTYPES.TORUS,"spanishFiveLoose");
+      this.newGameRoom(dict.italian,this.BOARDTYPES.TORUS,"italianFive");
+      
       //this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"four");
 
       console.log('game rooms:',this.roomInfo);
@@ -163,7 +165,7 @@ export class ioManager {
             {words:gameRoom.allWordsFound,roomId:gameRoom.roomInfo.displayId});
         }
         else {
-          console.log('weird words is not ann array or null', words,socket.id);
+          console.log('weird - words is not ann array or null', words,socket.id);
         }
 
       });

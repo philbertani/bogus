@@ -11,11 +11,14 @@ export function loadDictionary(cb) {
 
     const { spanishWords, spanishDefs, spanishLooseWords, spanishLooseDefs } = await loadSpanish();
 
+    const { italianWords, italianDefs } = await loadItalian();
+
     return { 
             english:{ words, definitions },
             hebrew:{ words:hebrewWords, definitions:hebrewDefinitions},
             spanish:{ words:spanishWords, definitions:spanishDefs },
-            spanishLoose:{ words:spanishLooseWords, definitions:spanishLooseDefs}
+            spanishLoose:{ words:spanishLooseWords, definitions:spanishLooseDefs},
+            italian: { words:italianWords, definitions:italianDefs}
           };
   };
 
@@ -208,21 +211,70 @@ export function loadDictionary(cb) {
     }
   }
 
-  async function loadSimpleWordList(filename,words,defs) {
+  function italianFilter(word, stats) {
+    //there are funky characters > 122 which I don't know what to do with so ignore them
+
+    //there are a few words that have qq: soqquadrare  (actually just one verb)
+
+    let unknown = false;
+    const count = "count";
+
+    if ( !stats[count] ) stats[count] = 0;
+
+    for (const letter of word) {
+      if ( letter.charCodeAt(0) > 122 || isNaN(letter.charCodeAt(0)) ) {
+        unknown = true;
+        stats[count] ++ ;
+      }
+
+      if ( !stats[letter] ) stats[letter] = 0;
+      stats[letter] ++;
+
+    }
+
+    return unknown ? null : word;
+
+  }
+
+  async function loadItalian() {
+    const words={}, defs={}, stats={};
+    await loadSimpleWordList("./italian.txt",{words,defs,stats,filter:italianFilter});
+
+    const italianWords = Object.keys(words).sort();
+    const italianDefs = [...italianWords];
+
+    console.log('italian stats',stats);
+    console.log('italian words:',italianWords.length);
+
+    return {italianWords, italianDefs};
+
+  }
+
+  async function loadSimpleWordList(filename,args) {
     try {
       const wordListFile = await fs.readFile(filename, "utf-8");
       const lines = wordListFile.replace(/\r/g, "").split(/\n/); 
+
+      const words = args.words ? args.words : {};
+      const defs  = args.defs ? args.defs : {};
+      const stats = args.stats ? args.stats : null;
+      const filter = args.filter ? args.filter : null;
 
       let alreadyInList=0;
       for (let i=0; i<lines.length; i++) {
         const word = lines[i].toLocaleUpperCase();
         
-        if ( words.hasOwnProperty(word)) {
+        const filteredWord = filter ? filter(word, stats) : word;
+        
+        if ( filteredWord == null) {
+          //we may want to skip the word as well as change some characters
+        }
+        else if ( words.hasOwnProperty(filteredWord)) {
           alreadyInList ++
         }
         else {
-          words[word] = 1;
-          defs[word] = word;  //just set the definition to the word since we have no other info but need it
+          words[filteredWord] = 1;
+          defs[filteredWord] = filteredWord;  //just set the definition to the word since we have no other info but need it
         }
 
       }
@@ -300,7 +352,7 @@ export function loadDictionary(cb) {
 
       console.log( "words before", Object.keys(words).length);
 
-      await loadSimpleWordList("./spanish_words.txt",words,defs);
+      await loadSimpleWordList("./spanish_words.txt", {words,defs} );
 
       console.log("words after simple list", Object.keys(words).length);
 

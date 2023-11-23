@@ -373,16 +373,18 @@ export function GameBoard({ props }) {
     socket.emit("new board");
   }
 
-  function setGameRoom(roomId) {
+  function setGameRoom(room) {
 
     if ( !isConnected) {
       alert('you are not connected, try again later');
       return;
     }
     
+    const roomId = room.displayId;
     //roomId here is an index starting at 0 that just counts the game rooms
     setCurrentRoomId(roomId);
     localStorage.setItem('bogusRoomId',roomId);
+    localStorage.setItem('bogusRoomName',room.name);
     
     console.log('setting Game Room',roomId);
     socket.emit('setGameRoom',roomId);
@@ -485,8 +487,8 @@ export function GameBoard({ props }) {
               background: room.displayId==currentRoomId?"yellow":"inherit",
               lineHeight:boardDims.height/14 + "px"
             }}
-              onTouchStart={ev=>{setGameRoom(room.displayId)}} 
-              onClick={ev=>{setGameRoom(room.displayId)}}
+              onTouchStart={ev=>{setGameRoom(room)}} 
+              onClick={ev=>{setGameRoom(room)}}
               >{room.name}
             </div>)
           }

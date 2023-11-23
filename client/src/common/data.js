@@ -160,7 +160,42 @@ const gameTypes = {
       "CIINDH",
       "UIINND"
     ]
-  }
+  },
+
+  italianFive: {
+    rank: {M:5, N:5},
+    minLetters: 3,
+    name: "Italian",
+
+    ld: [
+      "EEEZOS",
+      "EEAAAA",
+      "EEZIOS",
+      "EPANNN",
+      "EAAAAD",
+      "EAAVDM",
+      "EAVDNN",
+      "EZIOSI",
+      "BEIEHQU",
+      "LLNSTI",
+      "LAIICT",
+      "LAICGT",
+      "LAIGST",
+      "PUUNRT",
+      "PUUCRO",
+      "PUCNRO",
+      "PPCNRO",
+      "AIIITT",
+      "ADRTTT",
+      "ANSSSM",
+      "ZIGOSI",
+      "VROOFI",
+      "UIGOOI",
+      "NRRTMI",
+      "RRRTTM"
+    ]
+  },
+
 
 }
 

@@ -92,6 +92,7 @@ export default function App() {
         localStorage.setItem("bogusId",uuid);
         userId = uuid;
       } 
+
       let sessionId = sessionStorage.getItem("bogusId");
       if ( !sessionId ) {
         const uuid = uuidv4();
@@ -103,6 +104,17 @@ export default function App() {
       let roomId = localStorage.getItem("bogusRoomId");
       if (roomId == null) roomId = 0;
       setCurrentRoomId(roomId);
+
+      const roomName = localStorage.getItem("bogusRoomName") ?? "English";
+
+      const userInfo = localStorage.getItem("bogusUserInfo");
+      if ( userInfo == null) {
+        //alert ('would you like to set a user id??');
+        //localStorage.setItem("bogusUserInfo","dumbass");
+      }
+      else {
+        //alert ('your user name is: ' + userInfo + ", you are in: " + roomName);
+      }
 
       console.log("current room id",roomId);
 
@@ -171,6 +183,7 @@ export default function App() {
     }
 
     function onDupe(msg) {
+      //this logic was causing too many problems so just let a user have multiple instances - for now
       console.log('duplicate process');
       setIsDuplicateProcess(true);
       socket.disconnect();
