@@ -39,7 +39,7 @@ export class ioManager {
         ['R','D','L','L','C'],
         ['O','I','U','N','A'],
         ['N','I','C','N','N'] ];
-      this.newGameRoom(dict.spanish,this.BOARDTYPES.TORUS,"spanishDebug",noLunaBoard);
+      this.newGameRoom(dict.spanishLoose,this.BOARDTYPES.TORUS,"spanishDebug",noLunaBoard);
       
       console.log('game rooms:',this.roomInfo);
 

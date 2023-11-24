@@ -41,7 +41,7 @@ class bogusMain {
     }
 
     console.log('gameType',gameType);
-    //console.log(data);
+    //console.log("zzzzzzzzzzzzzz ", dictionary.words.slice(66100,66200));
 
     this.gameType = gameType;
     const gameData = data.gameTypes[gameType];

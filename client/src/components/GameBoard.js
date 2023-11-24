@@ -447,9 +447,9 @@ export function GameBoard({ props }) {
         >
           <p
             style={{
-              fontSize: boardDims.height / 14,
+              fontSize: boardDims.height / 15,
               textAlign: "center",
-              margin: "2vw",
+              margin: "0"
             }}
           >
             There are {game.words.length} words!
@@ -461,7 +461,7 @@ export function GameBoard({ props }) {
                 backgroundColor: "red",
                 color: "yellow",
                 fontWeight: "bold",
-                fontSize: boardDims.height / 12,
+                fontSize: boardDims.height / 13,
               }}
               onClick={ ev=>{
                 generateNewBoard(ev);
@@ -619,7 +619,7 @@ export function GameBoard({ props }) {
           className="wordList"
           style={{
             touchAction: "none",
-            marginLeft: "1vw",
+            marginLeft: boardDims.width*.01,
             backgroundColor: "#A0B0FF",
             maxWidth: boardDims.width,
             minWidth: boardDims.width,
@@ -640,7 +640,7 @@ export function GameBoard({ props }) {
               display: "flex",
               flexDirection: "row",
               flexWrap: "wrap",
-              margin: "1vw",
+              marginLeft: boardDims.width*.01,
               overflow: "auto", //isTouchDevice ? "scroll" : "hidden",
               touchAction: "none",
             }}
@@ -661,7 +661,7 @@ export function GameBoard({ props }) {
           backgroundColor: "rgba(200,100,0,.9)",
           color: "rgba(250,250,0,1)",
           textAlign: "Center",
-          margin: "1vw",
+          marginLeft: boardDims.width*.01,
           height: "3.5vh",
           fontSize: "2.5vh",
           lineHeight: "3.5vh",

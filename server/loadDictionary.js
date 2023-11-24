@@ -355,6 +355,7 @@ export function loadDictionary(cb) {
       await loadSimpleWordList("./spanish_words.txt", {words,defs} );
 
       console.log("words after simple list", Object.keys(words).length);
+      console.log("luna",words['LUNA']);
 
       await loadSpanishCSV(words,defs);
 
@@ -373,10 +374,17 @@ export function loadDictionary(cb) {
       const letterMap = {Á:"A", É:"E", Í:"I", Ó:"O", Ú:"U", Ü:"U" };
       const spanishLooseWords = [];
       const spanishLooseDefs = [];
+      const tmpWords = [];
 
+      //mapping the letters messes up the sort order!!
       for (const word of sortedWords) {
         const looseWord = mapLetters(word, letterMap);
-        spanishLooseWords.push(looseWord);
+        tmpWords.push(looseWord);
+      }
+
+      //jeez - I could have just used words{} map instead of words[] array and bsearch
+      for (const word of tmpWords.sort()) {
+        spanishLooseWords.push(word);
         spanishLooseDefs.push( word + "," + defs[word])
         sortedDefs.push( defs[word] );
       }
@@ -396,6 +404,8 @@ export function loadDictionary(cb) {
   function mapLetters(word, letterMap) {
     let looseWord = "";
     let loose = 0;
+
+
     for (const letter of word) {
       if ( letterMap.hasOwnProperty(letter)) {
         looseWord += letterMap[letter];
@@ -406,6 +416,8 @@ export function loadDictionary(cb) {
       }
     } 
     looseCount += loose;
+
+    if (word == 'LUNA') console.log('found luna',word,looseWord);
     return looseWord;
   }
 
