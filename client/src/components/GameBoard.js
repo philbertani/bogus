@@ -128,7 +128,7 @@ export function GameBoard({ props }) {
     //have the word list scroll to the closest match and center it in the div
 
     //at the end of the game we can run through game.words to show all words
-    for (const word of game.words){ // game.words){ //sortedWords) {
+    for (const word of sortedWords) { // game.words){ //sortedWords) {
       
       let bgColor = "inherit";
       let color = "black";
