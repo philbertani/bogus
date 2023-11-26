@@ -1,24 +1,7 @@
 import React from "react";
-import { useMouseButton } from "./uiHooks";
+import { useMouseButton } from "./uiHooks.js";
 import { v4 as uuidv4 } from "uuid";
 import { vec, blank2dArray } from "../common/utils.js"
-
-//setting colors here
-const boardColor = "radial-gradient(#100030,#B000C0)"; //"radial-gradient(#FF7D00,#FFFF00)";
-const textColor = "#FFFFFF"; //"#0000A0";
-
-//"radial-gradient(#F4F4F0,#A000A4)";
-const selectColor =  "radial-gradient(#FFF0FF, #F000F0)"; //"radial-gradient(#F0FFF0, #1000C0)";//"radial-gradient(#00FFFF,#0000FF)";
-const selectTextColor = "#1A00B0"; //"#100010"; //"#FFFFFF";
-
-const wordColor = "linear-gradient(#FFFF00,#00FFFF)"; //"radial-gradient(#001000,#00FF00)"; 
-const wordTextColor = "#1A00A0"; //"#FFFFFF"; //"#1000A0";
-
-const hintColor =  "radial-gradient(#1000C0,#F000F0)"; //"radial-gradient(#FFFFFF,#A0A0FF)"; 
-const hintTextColor = "#FFFFFF"; //"#4040FF";
-
-const pathColor = "linear-gradient(#A0A0A0,#101010)"; //"linear-gradient(#FFF000,#FF0000)";
-
 
 export function BoardDetails({ props }) {
   const {
@@ -41,57 +24,45 @@ export function BoardDetails({ props }) {
     setTotalScore,
     foundWordsRef,
     cubeStyles,
-    setCubeStyles,
-    socket,
-    setAllWordsFound
+    setCubeStyles
   } = props;
 
   const [output, setOutput] = React.useState([]);
   const counter = React.useRef(0);
-
+  const { M, N } = game.rank;
   const mouseButtonDown = useMouseButton();
 
-  const { M, N } = game.rank;
+  //have to move all this sh.t up the flagpole, useState is such a waste of time
+  //const [cubeStyles, setCubeStyles] = React.useState(blank2dArray(M, N, null));
   const [selected, setSelected] = React.useState([]);
   const [allSelected, setAllSelected] = React.useState(blank2dArray(M, N));
+  //const [searchString, setSearchString] = React.useState("");
+  //const [path, setPath] = React.useState([]);
 
   const lineHeight = React.useRef(0);
   const fontSize = React.useRef(0);
   const selectedRef = React.useRef([]);
   const pathRef = React.useRef([]); //may have to make this a useState
   const totalScoreRef = React.useRef(0);
-
-  const [hints,setHints] = React.useState([]);
-
-  //const countx = React.useRef(0);
-  //countx.current ++;
-  //if ( countx.current%100===0) console.log('BoardDetails count',countx.current);
-
-  //console.log('zzzzz',M,N,game.rank);
-
+  //console.log(game.words);
 
   React.useEffect(() => {
     //we do not need to access any of these from higher up, but we do
     //need to know when to reset from above
     if (reset) {
-      console.log("resetting arrays", M, N);
-
-      //setCubeStyles(blank2dArray(M, N, null));
-
+      console.log("resetting arrays");
+      //setCubeStyles(blank2dArray(N, M, null));
       setSelected([]);
       setAllSelected(blank2dArray(M, N));
       setSearchString("");
       setReset(false);
       selectedRef.current = [];
 
-      //setAllWordsFound({});  we can not do this here
-
       setFoundWords({});
       totalScoreRef.current = 0;
       foundWordsRef.current = {words:{},totalscore:0};
 
-      const keyId = savedWordsKeyId();
-      const savedWords = JSON.parse( localStorage.getItem(keyId) ) ?? {};
+      const savedWords = JSON.parse( localStorage.getItem("bogusSavedWords") ) ?? {};
       if ( savedWords.boardId && savedWords.boardId === game.boardId) {
         //we could have just checked that the boards are the same but this is 
         //the lazy way - but still kind of annoying
@@ -119,8 +90,8 @@ export function BoardDetails({ props }) {
           zIndex: 50,
           width: width,
           height: height,
-          backgroundImage: pathColor, //"linear-gradient(#FFF000,#FF0000)",
-          opacity: "50%",
+          backgroundImage: "linear-gradient(#000000,#FFFFFF)",
+          opacity: "30%",
         }}
       ></div>
     );
@@ -130,85 +101,37 @@ export function BoardDetails({ props }) {
     (i,j,iOld,jOld,x,y,xOld,yOld) => {
     //we need 2 separate divs for path  
     //console.log("torusMove", i,j,iOld,jOld);
-    const sc = 1.4;
-    //const {M,N} = game.rank;
-    const height = ".55vh";
-    let width = .6*boardDims.width / M;
+    const sc = 1.42;
+    const {M,N} = game.rank;
+    const height = "1vh";
+    const width = boardDims.width / N;
     let transformText = "rotate(0deg)";
 
-    const adj = 2.2;
-    const adjX = 4;
-
-    let dx1=0,dy1=0,dx2=0,dy2=0;
     //so annoying i,j,iold,jold are being converted to text somewhere
-
-    //this section is ugly and repetitive but it works - so not wasting more time on it
     if ( jOld==0 && j==N-1 )  {
-      if ( iOld==0 && i==M-1) {
-        transformText = "rotate(45deg)"; dy1=-width/adj; dy2=-dy1; dx1=width/adjX; dx2=-dx1; width*=sc;
-      }
-      else if ( iOld==M-1 && i==0) {
-        transformText = "rotate(-45deg)"; dy1=width/adj; dy2=-dy1; dx1=width/adjX; dx2=-dx1; width*=sc; 
-      }
-      else if ( i>iOld) {
-        transformText = "rotate(-45deg)"; dy1=width/adj; dy2=-dy1; dx1=width/adjX; dx2=-dx1; width*=sc;
-      }
-      else if (i<iOld) {
-        transformText = "rotate(45deg)"; dy1=-width/adj; dy2=-dy1; dx1=width/adjX; dx2=-dx1; width*=sc;       
-      }
-
       return [
-        pathDiv(yOld + dy1,xOld-width + dx1,width,height,transformText),
-        pathDiv(y + dy2,x + dx2,width,height,transformText)
+        pathDiv(yOld,xOld-width,width,height,transformText),
+        pathDiv(y,x,width,height,transformText)
       ];
     }   
     else if ( jOld==N-1 && j==0) {
-      if ( iOld==M-1 && i==0) {
-        transformText = "rotate(45deg)"; dy1=width/adj; dy2=-dy1; dx1=-width/adjX; dx2=-dx1; width*=sc; 
-      }
-      else if (iOld==0 && i==M-1) {
-        transformText = "rotate(-45deg)"; dy1=-width/adj; dy2=-dy1; dx1=-width/adjX; dx2=-dx1; width*=sc;
-      }
-      else if (i<iOld) {
-        transformText = "rotate(-45deg)"; dy1=-width/adj; dy2=-dy1; dx1=-width/adjX; dx2=-dx1; width*=sc; 
-      }
-      else if (i>iOld) {
-        transformText = "rotate(45deg)"; dy1=width/adj; dy2=-dy1; dx1=-width/adjX; dx2=-dx1; width*=sc;
-      }
-      
       return [
-        pathDiv(yOld+dy1,xOld + dx1,width,height,transformText),
-        pathDiv(y+dy2,x-width + dx2,width,height,transformText)     
+        pathDiv(yOld,xOld,width,height,transformText),
+        pathDiv(y,x-width,width,height,transformText)     
       ]
     }
     else if ( iOld==0 && i==M-1) {
       transformText = "rotate(90deg)"
-
-      if ( j>jOld) {
-        transformText = "rotate(-45deg)"; dx1=width/adj; dx2=-dx1; dy1=width/adjX; dy2=-dy1; width*=sc;
-      }
-      else if ( j<jOld) {
-        transformText = "rotate(45deg)"; dx1=-width/adj; dx2=-dx1; dy1=width/adjX; dy2=-dy1;width*=sc;
-      }
-
       return [
-        pathDiv(yOld-width/2 + dy1,xOld-width/2+dx1,width,height,transformText),
-        pathDiv(y+width/2+dy2 ,x-width/2+dx2,width,height,transformText)     
+        pathDiv(yOld-width/2,xOld-width/2,width,height,transformText),
+        pathDiv(y+width/2,x-width/2,width,height,transformText)     
       ]
     }
     else if ( iOld==M-1 && i==0) {
       transformText = "rotate(90deg)"
-      
-      if ( j<jOld) {
-        transformText = "rotate(-45deg)"; dx1=-width/adj; dx2=-dx1; dy1=-width/adjX; dy2=-dy1; width*=sc;
-      }
-      else if (j>jOld) {
-        transformText = "rotate(45deg)"; dx1=width/adj; dx2=-dx1; dy1=-width/adjX; dy2=-dy1; width*=sc;
-      }
-
       return [
-        pathDiv(yOld+width/2 +dy1,xOld-width/2+dx1,width,height,transformText),
-        pathDiv(y-width/2+dy2,x-width/2+dx2,width,height,transformText)     
+        pathDiv(yOld+width/2,xOld-width/2,width,height,transformText),
+        pathDiv(y-width/2,x-width/2,width,height,transformText)     
       ]
     }
 
@@ -231,7 +154,7 @@ export function BoardDetails({ props }) {
 
       const left = Math.min(x, xOld);
       let top = Math.min(y, yOld);
-      let height = ".55vh";
+      let height = "1vh";
       const sc = 1.42;
 
       if (j === jOld) {
@@ -240,10 +163,9 @@ export function BoardDetails({ props }) {
         transformText = "translate(-50%,50%) rotate(90deg) ";
 
       } else if (i !== iOld && j !== jOld) {
-
         top += SN(style.height) / 1.9; //should be 2 but it is off by some factor
 
-        height = ".4vh";
+        height = ".7vh";
   
         if (i > iOld && j > jOld) {
           transformText = "rotate(45deg) scale(" + sc +  ")";
@@ -285,13 +207,7 @@ export function BoardDetails({ props }) {
     }
   }, [addPathDiv, cubeStyles, game]);
 
-
   React.useEffect(() => {
-
-    //console.log('zzzzzzzzzzzzzz',cubeStyles);
-
-    //if ( cubeStyles.length < M) return;
-
     counter.current++;
     let tmpStyles = [];
     let top = 3;
@@ -301,25 +217,24 @@ export function BoardDetails({ props }) {
       let row = [];
       for (let i = 0; i < M; i++) {
         let boxStyle = {
-          color: textColor, //"#FFFFFF",
+          color: "#FFFFFF",
           position: "absolute",
           boxSizing: "borderBox",
           borderRadius: "10px",
           fontWeight: "700",
           fontFamily: "Times New Roman, Times, serif",
-          backgroundImage: boardColor,
+          backgroundImage: "radial-gradient(#400040,#A000F0)",
           userSelect: "none",
           top: top,
           left: left,
           height: (marginFac * boardDims.height) / N + "px",
           width: (marginFac * boardDims.width) / M + "px",
           fontSize: (0.6 * boardDims.height) / N + "px",
-          textShadow: "3px 1px 3px black"
         };
 
         //this gets called before the reset useEffect gets called so
-        //have to catch this here, still causing problems
-        if (  cubeStyles[j][i] && !reset) {
+        //have to catch this here
+        if (cubeStyles[j][i] && !reset) {
           //if cubeStyles elements have been set already then preserve the
           //colors which may have changed due to selection or found words
           boxStyle.backgroundImage = cubeStyles[j][i].backgroundImage;
@@ -330,12 +245,13 @@ export function BoardDetails({ props }) {
         lineHeight.current = (0.9 * marginFac * boardDims.height) / N;
         left += boardDims.width / M;
         row.push(boxStyle);
+
       }
       tmpStyles.push(row);
       top += boardDims.height / N;
     }
 
-    if (counter.current % 100 === 0) console.log("set styles useEffect", counter.current);
+    if (counter.current % 100 === 0) console.log(counter.current);
 
     //setTouchInfo(boardDims);
     //console.log("in first useEffect", reset);
@@ -355,16 +271,6 @@ export function BoardDetails({ props }) {
   function SN(str) {
     //parseFloat ?
     return Number(str.replace("px", ""));
-  }
-
-  function savedWordsKeyId() {
-    //we want to have different local storage locations for different languages
-    let keyId = "bogusSavedWords";
-    const roomId = localStorage.getItem("bogusRoomId");
-    if (roomId != null) {
-      keyId += roomId;
-    }
-    return keyId
   }
 
   function handleClick(ev, i, j, mbd = false) {
@@ -401,16 +307,14 @@ export function BoardDetails({ props }) {
         return;
       }
     }
-
     let flag = true;
-    let resetAll = false;
 
     //console.log(searchString.length,allSelected[i][j],mbd);
 
     if (selected.length === 0) {
-      newStyles[i][j].backgroundImage = selectColor;
-      newStyles[i][j].color = selectTextColor;
-     
+      newStyles[i][j].backgroundImage = "radial-gradient(#FFFF00,#F000FF)";
+      newStyles[i][j].color = "#A000F0";
+
     } else {
 
       //"weird" touchDevice is treating i,j,selected as numberic characters instead of numbers, who would have thought??
@@ -436,8 +340,8 @@ export function BoardDetails({ props }) {
         const style = newStyles[i][j];
         const prevStyle = cubeStyles[iOld][jOld];
 
-        style.backgroundImage = selectColor; 
-        style.color = selectTextColor;  
+        style.backgroundImage = "radial-gradient(#FFFF00,#F000FF)";
+        style.color = "#A000F0";
 
         pathRef.current.push(addPathDiv(style, prevStyle, i, j, iOld, jOld, torusMove));
 
@@ -452,14 +356,11 @@ export function BoardDetails({ props }) {
         return;
 
       } else {
-
-        resetAll = true;
-
         for (let j = 0; j < N; j++) {
           for (let i = 0; i < M; i++) {
-            newStyles[i][j].backgroundImage = boardColor;
-            newStyles[i][j].color = textColor; 
-          
+            newStyles[i][j].backgroundImage =
+              "radial-gradient(#400040,#A000F0)";
+            newStyles[i][j].color = "#FFFFFF";
           }
         }
 
@@ -470,9 +371,8 @@ export function BoardDetails({ props }) {
           allSelected[i][j] === 0 ||
           (searchString.length === 1 && allSelected[i][j] === 1)
         ) {
-          newStyles[i][j].backgroundImage = selectColor;
-          newStyles[i][j].color = selectTextColor;
-          
+          newStyles[i][j].backgroundImage = "radial-gradient(#FFFF00,#F000FF)";
+          newStyles[i][j].color = "#A000F0";
         } else {
           flag = false;
           setCubeStyles(newStyles);
@@ -487,68 +387,10 @@ export function BoardDetails({ props }) {
     }
 
     if (flag) {
-  
-      if ( game.boardType === game.BOARDTYPES.TORUS ) {
-
-        function pmod(x, y) {
-          //% for negative numbers still gives negative,
-          //need to add the modulus back to result
-          const a = x % y;
-          return a < 0 ? a + y : a;
-        }
-
-        //this is really perturbing once again on mobile
-        //devices i and j are text
-        const [ix,jx] = [parseFloat(i),parseFloat(j)];
-
-        if (hints && hints.length > 0) {
-          //restore the normal colors
-          for (const ij of hints) {
-            const [ii,jj] = ij;
-            
-            if ( !(ii==ix && jj==jx) && (allSelected[ii][jj]==0 || resetAll) ) {
-              const style = newStyles[ii][jj];
-              //console.log('hints',ij,i,j);
-              style.color = textColor;
-              style.backgroundImage = boardColor;
-              
-            }
-          }
-        }
- 
-        const shit = [];
-
-        const newHints = [];
-        //const { M, N } = game.rank;
-
-        for (let row = ix - 1; row <= ix + 1; row++) {
-          for (let col = jx - 1; col <= jx + 1; col++) {
-
-            const [ii,jj] = [pmod(row,M),pmod(col,N)];
-
-            shit.push([row,col,ii,jj]);
-
-            if (  !(row === ix && col === jx) && (allSelected[ii][jj]==0 || resetAll) ) {
-              const style = newStyles[ii][jj];
-              style.color = hintTextColor;
-              style.backgroundImage = hintColor;
-              newHints.push([ii,jj]);
-            }
-          }
-        }
-        
-        //console.log('hints',newHints);
-        //socket.emit('info',JSON.stringify(shit));
-        setHints(newHints);
-      }
-      
-
-      //console.log("setting new colors 1");
-
       newSelected[i][j] = 1;
       setSelected([i, j]);
       setAllSelected(newSelected);
-      setSearchString( prev => prev + game.board[i][j]);
+      setSearchString((prev) => prev + game.board[i][j]);
       setCubeStyles(newStyles);
       selectedRef.current.push({ i, j });
     }
@@ -562,10 +404,6 @@ export function BoardDetails({ props }) {
     ev.preventDefault();
 
     let newStyles = deepClone(cubeStyles); //this is ugly
-
-    const checkStyle = newStyles[0][0];
-    //newStyles[0][0] might exist but properties might not so prevent crashing here
-    //if ( !checkStyle.hasOwnProperty("fontsize"))  return;
 
     //set all other fontSizes back to normal
     for (let j = 0; j < N; j++) {
@@ -589,10 +427,9 @@ export function BoardDetails({ props }) {
     if (touches.pos && touches.pos.x) {
       handleClick(null, touches.pos.x, touches.pos.y, true);
     }
-  }, [touches]); //dont listen to React suggestions
+  }, [touches]);
 
   React.useEffect(() => {
-
     let tmpOutput = [];
     for (let j = 0; j < M; j++) {
       for (let i = 0; i < N; i++) {
@@ -662,33 +499,31 @@ export function BoardDetails({ props }) {
   //don't listen to React about adding: handleClick and handleMouseOver
 
   React.useEffect(() => {
-
-    let search = game.isWord(searchString, false);
+    const search = game.isWord(searchString, false);
     const ln = searchString.length - (game.minLetters-1);
 
-    //console.log(game.data);
-    if ( !search[1] && game.data.hasOwnProperty("prefixes")) {
-      if ( game.data.prefixes[ searchString[0]] ) {
-        //console.log('starts with prefix');
-      }
-    }
+    //console.log(searchString, ln);
+    //console.log(game.output);
+    //console.log(searchString, search);
 
     if (!search[1]) {
+      //set colors to Red ish
       setSearchStringBackground("");
       setIsWord(false);
       isWordRef.current = false;
 
     } else if (search[1]) {
-    
       //add it to the user's found words
-      const newWords = foundWordsRef.current.words;
+      const newWords = foundWordsRef.current.words; //JSON.parse(JSON.stringify(foundWords));
 
       isWordRef.current = true;
 
-      let newBackgroundImage = wordColor;
-      let newColor = wordTextColor;
+      let newBackgroundImage = "radial-gradient(#FFFF00,#00FFFF)";
+      let newColor = "#E000E0";
 
       const thisUserFoundWord = newWords[searchString];
+
+      //console.log(searchString, allWordsFound);
 
       if ( thisUserFoundWord || allWordsFound[searchString]) {
         //if we already found this word color it grey-ish
@@ -697,11 +532,8 @@ export function BoardDetails({ props }) {
         isWordRef.current = false;
       }
 
-      console.log("words", searchString, thisUserFoundWord, isWordRef.current);
       //add word to map for this user if it does not exist
-      if ( !thisUserFoundWord && isWordRef.current) {  
-        newWords[searchString] = ln ; 
-      }
+      if ( !thisUserFoundWord) {  newWords[searchString] = ln ; }
 
       let newStyles = deepClone(cubeStyles); //this is ugly
       for (const Index of selectedRef.current) {
@@ -720,9 +552,8 @@ export function BoardDetails({ props }) {
           totalScore: totalScoreRef.current,
         };
 
-        const keyId = savedWordsKeyId();
         localStorage.setItem(
-          keyId,
+          "bogusSavedWords",
           JSON.stringify({
             foundWords: newWords,
             boardId: game.boardId,
@@ -732,12 +563,11 @@ export function BoardDetails({ props }) {
       }
 
       setIsWord(true);
-      setSearchStringBackground({back:newBackgroundImage,front:newColor});
+      setSearchStringBackground(newBackgroundImage);
     }
-  }, [searchString, game ]);
+  }, [searchString, game, setIsWord ]);
   //React is wrong about adding foundWords and cubeStyles here: it causes infinite renders
   //also wrong about isWordRef
 
   return <div>{output}</div>;
-  
 }

@@ -1,7 +1,7 @@
 import React from "react";
 import "./GameBoard.css";
 import { useWindowSize } from "./uiHooks.js";
-import { BoardDetails } from "./BoardDetails";
+import { BoardDetails } from "./BoardDetailsDebug";
 import { vec, blank2dArray } from "../common/utils.js";
 
 //import GPU from "../components/3d/GPU.js"
@@ -148,19 +148,20 @@ export function GameBoard({ props }) {
           //ref={(el) => (wordRefs.current[index] = el)}
           key={"key" + word}
           style={{
-            margin: ".5vh",
+            //margin: ".5vh",
             marginBottom: "0px",
             marginTop: "0px",
             textAlign: "center",
-            color: color,
+            color: "black", //color,
             backgroundImage: backgroundImage,
             backgroundColor: bgColor,
             fontSize: boardDims.height / 20,
-            height: "fit-content",
-            width: "fit-content",
-            borderRadius: "5px",
+            height: boardDims.height / 20,
+            lineHeight: boardDims.height/20 + "px",
+            width: "auto",
+            //borderRadius: "5px",
             overflow: isTouchDevice ? "scroll" : "hidden", //weirdness here
-            //touchAction: "none"  //annoying, if set then nothing scrolls
+            //touchAction: "none"
           }}
           onClick={ ev => {
             ev.preventDefault();
@@ -564,7 +565,11 @@ export function GameBoard({ props }) {
             {"\u22ee"}
           </div>
 
-          <div key="score">
+          <div style={{marginLeft:boardDims.width*.01,position:"absolute",left:boardDims.width/2,transform:"translate(-50%,-60%)"}}>latest:{latestWord}</div>
+
+          <div 
+            style={{position:"absolute",left:boardDims.width/2,transform:"translate(-50%,20%)"}}
+            key="score">
             You:{" "}
             {foundWordsRef.current
               ? Object.keys(foundWordsRef.current.words).length
@@ -572,6 +577,7 @@ export function GameBoard({ props }) {
             Everyone: {Object.keys(allWordsFound).length}
           </div>
  
+
           <div
             key="junk01"
             style={{
@@ -604,8 +610,7 @@ export function GameBoard({ props }) {
             width: boardDims.width,
             display: hideDef,
             color: "white",
-            zIndex: "1000"
-            //touchAction: "none"
+            touchAction: "none"
           }}
           onClick={(ev) => {
             ev.preventDefault();
@@ -621,7 +626,7 @@ export function GameBoard({ props }) {
           key="i01"
           className="wordList"
           style={{
-            //touchAction: "none",
+            touchAction: "none",
             marginLeft: boardDims.width*.01,
             backgroundColor: "#A0B0FF",
             maxWidth: boardDims.width,
@@ -643,9 +648,11 @@ export function GameBoard({ props }) {
               display: "flex",
               flexDirection: "row",
               flexWrap: "wrap",
-              marginTop: boardDims.width*.01,
+              marginTop: boardDims.height*.01,
               marginLeft: boardDims.width*.01,
-              overflow: "auto", //isTouchDevice ? "scroll" : "hidden",
+              overflow: "hidden",
+              overflowY: "scroll",
+              //overflow: isTouchDevice ? "scroll" : "hidden",
               touchAction: "none",
             }}
           >

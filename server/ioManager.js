@@ -156,6 +156,7 @@ export class ioManager {
         console.log(Date.now(),"words found by",socket.id,"in room:",gameRoom.id, words, count, totalScore);
         gameRoom.setPlayerWordCount(userId,count,totalScore);
 
+        let latestWord = "";
         if (words.length > 0) {
 
           for (const word of words) {
@@ -163,12 +164,13 @@ export class ioManager {
               gameRoom.allWordsFound[word] ++;
             } else {
               gameRoom.allWordsFound[word] = 1;
+              latestWord = word;
             }
           }
 
           //console.log(gameRoom.allWordsFound);
           io.to(gameRoom.id).emit("allWordsFound", 
-            {words:gameRoom.allWordsFound,roomId:gameRoom.roomInfo.displayId});
+            {words:gameRoom.allWordsFound,roomId:gameRoom.roomInfo.displayId,latestWord});
         }
         else {
           console.log('weird - words is not ann array or null', words,socket.id);

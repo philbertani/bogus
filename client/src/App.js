@@ -39,6 +39,7 @@ export default function App() {
   const [roomInfo,setRoomInfo] = React.useState([]);
 
   const [currentRoomId, setCurrentRoomId] = React.useState(0);
+  const [latestWord, setLatestWord] = React.useState("");
 
   //const countx = React.useRef(0);
   //countx.current ++;
@@ -195,6 +196,7 @@ export default function App() {
 
       if (msg.roomId == currentRoomId) {
         setAllWordsFound(msg.words);
+        setLatestWord(msg.latestWord);
       }
     }
 
@@ -252,7 +254,8 @@ export default function App() {
     roomInfo,
     currentRoomId,
     setCurrentRoomId,
-    setAllWordsFound
+    setAllWordsFound,
+    latestWord
   };
 
   //this stops all the crappy ios events but then also prevents

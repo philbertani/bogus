@@ -4,17 +4,19 @@ import { v4 as uuidv4 } from "uuid";
 import { vec, blank2dArray } from "../common/utils.js"
 
 //setting colors here
-const boardColor = "radial-gradient(#FF7D00,#FFFF00)";
-const textColor = "#0000A0";
+const boardColor = "radial-gradient(#100030,#B000C0)"; //"radial-gradient(#FF7D00,#FFFF00)";
+const textColor = "#FFFFFF"; //"#0000A0";
 
-const selectColor = "radial-gradient(#00FFFF,#0000FF)";
-const selectTextColor = "#FFFFFF";
+const selectColor = "radial-gradient(#FFFFF0,#0050F0)"; //"radial-gradient(#00FFFF,#0000FF)";
+const selectTextColor = "#100010"; //"#FFFFFF";
 
-const wordColor = "radial-gradient(#001000,#00FF00)"; 
-const wordTextColor = "#FFFFFF";//"#1000A0";
+const wordColor = "linear-gradient(#FFFF00,#00FFFF)"; //"radial-gradient(#001000,#00FF00)"; 
+const wordTextColor = "#100010"; //"#FFFFFF"; //"#1000A0";
 
-const hintColor = "radial-gradient(#FFFFFF,#A0A0FF)"; //"radial-gradient(#FFFF00,#FF7D00)";
-const hintTextColor = "#4040FF";
+const hintColor =  "radial-gradient(#1000C0,#F000F0)"; //"radial-gradient(#FFFFFF,#A0A0FF)"; 
+const hintTextColor = "#FFFFFF"; //"#4040FF";
+
+const pathColor = "linear-gradient(#FFF000,#FF0000)";
 
 
 export function BoardDetails({ props }) {
@@ -116,8 +118,8 @@ export function BoardDetails({ props }) {
           zIndex: 50,
           width: width,
           height: height,
-          backgroundImage: "linear-gradient(#FFF000,#FF0000)",
-          opacity: "80%",
+          backgroundImage: pathColor, //"linear-gradient(#FFF000,#FF0000)",
+          opacity: "60%",
         }}
       ></div>
     );
