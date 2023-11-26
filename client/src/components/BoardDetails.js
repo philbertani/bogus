@@ -4,20 +4,20 @@ import { v4 as uuidv4 } from "uuid";
 import { vec, blank2dArray } from "../common/utils.js"
 
 //setting colors here
-const boardColor = "radial-gradient(#100030,#B000C0)"; //"radial-gradient(#FF7D00,#FFFF00)";
-const textColor = "#FFFFFF"; //"#0000A0";
+const boardColor = ["radial-gradient(#100030,#B000C0)", "radial-gradient(#F0E0E0,#D0A000)"];
+const textColor = ["#FFFFFF", "#1E1EF0"];
 
 //"radial-gradient(#F4F4F0,#A000A4)";
-const selectColor =  "radial-gradient(#FFF0FF, #F000F0)"; //"radial-gradient(#F0FFF0, #1000C0)";//"radial-gradient(#00FFFF,#0000FF)";
-const selectTextColor = "#1A00B0"; //"#100010"; //"#FFFFFF";
+const selectColor =  ["radial-gradient(#FFF0FF, #F000F0)", "radial-gradient(#00FFFF,#0000FF)"];
+const selectTextColor = ["#1A00B0", "#FFFFFF"];
 
-const wordColor = "linear-gradient(#FFFF00,#00FFFF)"; //"radial-gradient(#001000,#00FF00)"; 
-const wordTextColor = "#1A00A0"; //"#FFFFFF"; //"#1000A0";
+const wordColor = ["radial-gradient(#FFFF00,#00FFFF)", "radial-gradient(#001000,#00FF00)"]; 
+const wordTextColor = ["#1A00A0", "#FFFFFF"];
 
-const hintColor =  "radial-gradient(#1000C0,#F000F0)"; //"radial-gradient(#FFFFFF,#A0A0FF)"; 
-const hintTextColor = "#FFFFFF"; //"#4040FF";
+const hintColor =  ["radial-gradient(#1000C0,#F000F0)", "radial-gradient(#FFFFFF,#A0A0FF)"]; 
+const hintTextColor = ["#FFFFFF", "#4040FF"];
 
-const pathColor = "linear-gradient(#A0A0A0,#101010)"; //"linear-gradient(#FFF000,#FF0000)";
+const pathColor = ["linear-gradient(#A0A0A0,#101010)", "linear-gradient(#FFF000,#FF0000)"];
 
 
 export function BoardDetails({ props }) {
@@ -27,13 +27,11 @@ export function BoardDetails({ props }) {
     cubeRefs,
     reset,
     setReset,
-    foundWords,
     setFoundWords,
     isTouchDevice,
     searchString,
     setSearchString,
     touches,
-    setTouchInfo,
     setIsWord,
     setSearchStringBackground,
     isWordRef,
@@ -42,9 +40,10 @@ export function BoardDetails({ props }) {
     foundWordsRef,
     cubeStyles,
     setCubeStyles,
-    socket,
-    setAllWordsFound
+    colorSchemeRef
   } = props;
+
+  const colorScheme = colorSchemeRef.current;
 
   const [output, setOutput] = React.useState([]);
   const counter = React.useRef(0);
@@ -69,6 +68,10 @@ export function BoardDetails({ props }) {
 
   //console.log('zzzzz',M,N,game.rank);
 
+  //console.log("color scheme", colorScheme);
+
+
+  React.useEffect( ()=> { console.log(colorScheme); setReset(true) }, [colorScheme, setReset] );
 
   React.useEffect(() => {
     //we do not need to access any of these from higher up, but we do
@@ -119,7 +122,7 @@ export function BoardDetails({ props }) {
           zIndex: 50,
           width: width,
           height: height,
-          backgroundImage: pathColor, //"linear-gradient(#FFF000,#FF0000)",
+          backgroundImage: pathColor[colorScheme],
           opacity: "50%",
         }}
       ></div>
@@ -301,13 +304,13 @@ export function BoardDetails({ props }) {
       let row = [];
       for (let i = 0; i < M; i++) {
         let boxStyle = {
-          color: textColor, //"#FFFFFF",
+          color: textColor[colorScheme], //"#FFFFFF",
           position: "absolute",
           boxSizing: "borderBox",
           borderRadius: "10px",
           fontWeight: "700",
           fontFamily: "Times New Roman, Times, serif",
-          backgroundImage: boardColor,
+          backgroundImage: boardColor[colorScheme],
           userSelect: "none",
           top: top,
           left: left,
@@ -341,7 +344,7 @@ export function BoardDetails({ props }) {
     //console.log("in first useEffect", reset);
     //we have to let React manage the styles using useState
     setCubeStyles(tmpStyles);
-  }, [M, N, boardDims, cubeRefs, game.board, game.rank, reset]);
+  }, [M, N, boardDims, cubeRefs, game.board, game.rank, reset, colorScheme]);
   //adding cubeStyles and resetPath causes infinite rerenders
 
 
@@ -408,8 +411,8 @@ export function BoardDetails({ props }) {
     //console.log(searchString.length,allSelected[i][j],mbd);
 
     if (selected.length === 0) {
-      newStyles[i][j].backgroundImage = selectColor;
-      newStyles[i][j].color = selectTextColor;
+      newStyles[i][j].backgroundImage = selectColor[colorScheme];
+      newStyles[i][j].color = selectTextColor[colorScheme];
      
     } else {
 
@@ -436,8 +439,8 @@ export function BoardDetails({ props }) {
         const style = newStyles[i][j];
         const prevStyle = cubeStyles[iOld][jOld];
 
-        style.backgroundImage = selectColor; 
-        style.color = selectTextColor;  
+        style.backgroundImage = selectColor[colorScheme]; 
+        style.color = selectTextColor[colorScheme];  
 
         pathRef.current.push(addPathDiv(style, prevStyle, i, j, iOld, jOld, torusMove));
 
@@ -457,8 +460,8 @@ export function BoardDetails({ props }) {
 
         for (let j = 0; j < N; j++) {
           for (let i = 0; i < M; i++) {
-            newStyles[i][j].backgroundImage = boardColor;
-            newStyles[i][j].color = textColor; 
+            newStyles[i][j].backgroundImage = boardColor[colorScheme];
+            newStyles[i][j].color = textColor[colorScheme]; 
           
           }
         }
@@ -470,8 +473,8 @@ export function BoardDetails({ props }) {
           allSelected[i][j] === 0 ||
           (searchString.length === 1 && allSelected[i][j] === 1)
         ) {
-          newStyles[i][j].backgroundImage = selectColor;
-          newStyles[i][j].color = selectTextColor;
+          newStyles[i][j].backgroundImage = selectColor[colorScheme];
+          newStyles[i][j].color = selectTextColor[colorScheme];
           
         } else {
           flag = false;
@@ -509,8 +512,8 @@ export function BoardDetails({ props }) {
             if ( !(ii==ix && jj==jx) && (allSelected[ii][jj]==0 || resetAll) ) {
               const style = newStyles[ii][jj];
               //console.log('hints',ij,i,j);
-              style.color = textColor;
-              style.backgroundImage = boardColor;
+              style.color = textColor[colorScheme];
+              style.backgroundImage = boardColor[colorScheme];
               
             }
           }
@@ -530,8 +533,8 @@ export function BoardDetails({ props }) {
 
             if (  !(row === ix && col === jx) && (allSelected[ii][jj]==0 || resetAll) ) {
               const style = newStyles[ii][jj];
-              style.color = hintTextColor;
-              style.backgroundImage = hintColor;
+              style.color = hintTextColor[colorScheme];
+              style.backgroundImage = hintColor[colorScheme];
               newHints.push([ii,jj]);
             }
           }
@@ -685,8 +688,8 @@ export function BoardDetails({ props }) {
 
       isWordRef.current = true;
 
-      let newBackgroundImage = wordColor;
-      let newColor = wordTextColor;
+      let newBackgroundImage = wordColor[colorScheme];
+      let newColor = wordTextColor[colorScheme];
 
       const thisUserFoundWord = newWords[searchString];
 
@@ -734,7 +737,7 @@ export function BoardDetails({ props }) {
       setIsWord(true);
       setSearchStringBackground({back:newBackgroundImage,front:newColor});
     }
-  }, [searchString, game ]);
+  }, [searchString, game, colorScheme ]);
   //React is wrong about adding foundWords and cubeStyles here: it causes infinite renders
   //also wrong about isWordRef
 
