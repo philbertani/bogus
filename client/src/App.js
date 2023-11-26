@@ -40,6 +40,7 @@ export default function App() {
 
   const [currentRoomId, setCurrentRoomId] = React.useState(0);
   const [latestWord, setLatestWord] = React.useState("");
+  const [playerInfo, setPlayerInfo] = React.useState([]);
 
   //const countx = React.useRef(0);
   //countx.current ++;
@@ -210,7 +211,29 @@ export default function App() {
       //console.log('stats',msg);
       //need to differentiate gameRooms
       if (msg.roomId == currentRoomId) {
+
         setStats(msg.stats);
+
+        console.log(msg.players);
+
+        const playerInfoOutput = [];
+
+        for ( const [key,val] of Object.entries(msg.players)) {
+          //playerInfoOutput.push( <div>{val.wordCount} "\u00a0" {val.score} </div>)
+          console.log( val.wordCount, val.score);
+
+          const userId = localStorage.getItem("bogusId");
+          let userName = key.substring(0,8);
+          if (userId) {
+            if ( userId == key ) {
+              userName = "You";
+            }
+          }
+          playerInfoOutput.push(
+            <div> {userName} {'\u00a0'} {val.wordCount} {'\u00a0'} {val.score} </div>
+          );
+        }
+        setPlayerInfo( playerInfoOutput );
       }
     }
 
@@ -255,7 +278,8 @@ export default function App() {
     currentRoomId,
     setCurrentRoomId,
     setAllWordsFound,
-    latestWord
+    latestWord,
+    playerInfo
   };
 
   //this stops all the crappy ios events but then also prevents

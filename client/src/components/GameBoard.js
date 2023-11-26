@@ -24,7 +24,8 @@ export function GameBoard({ props }) {
     currentRoomId,
     setCurrentRoomId,
     setAllWordsFound,
-    latestWord
+    latestWord,
+    playerInfo
   } = props;
 
   const [boardDims, setBoardDims] = React.useState({});
@@ -128,14 +129,14 @@ export function GameBoard({ props }) {
     //have the word list scroll to the closest match and center it in the div
 
     //at the end of the game we can run through game.words to show all words
-    for (const word of sortedWords) { // game.words){ //sortedWords) {
+    for (const word of game.words){// game.words){ //sortedWords) {
       
       let bgColor = "inherit";
       let color = "black";
       let backgroundImage = "";
       if (wordsRef[word] !== undefined) {
         //word.localeCompare(mostRecent) === 0) {
-        backgroundImage = "linear-gradient(#FFFF00,#00FFFF)";
+        backgroundImage = "radial-gradient(#FFFF00,#00FFFF)"; //"linear-gradient(#FFFF00,#00FFFF)";
         color = "#A000A0";
       }
 
@@ -157,7 +158,7 @@ export function GameBoard({ props }) {
             color: color,
             backgroundImage: backgroundImage,
             backgroundColor: bgColor,
-            fontSize: boardDims.height / 20,
+            fontSize: Math.min(window.screen.height, window.screen.width) /25, // boardDims.width / 20,
             height: "fit-content",
             width: "fit-content",
             borderRadius: "5px",
@@ -240,7 +241,7 @@ export function GameBoard({ props }) {
 
     const tch = ev.touches[0];
 
-    const [x, y] = [tch.clientX, tch.clientY];
+    const [x,y] = [tch.clientX, tch.clientY];
 
     //setTouchInfo(['xxx', x, y, window.screen.width, window.devicePixelRatio]);
 
@@ -459,25 +460,49 @@ export function GameBoard({ props }) {
           >
             There are {game.words.length} words!
           </p>
-          <div key="reset" style={{ textAlign: "center", margin: "2vw" }}>
-            <button
-              style={{
-                height: boardDims.height / 5,
-                backgroundColor: "red",
-                color: "yellow",
-                fontWeight: "bold",
-                fontSize: boardDims.height / 13,
-              }}
-              onClick={(ev) => {
-                generateNewBoard(ev);
-              }}
-              onTouchStart={(ev) => {
-                generateNewBoard(ev);
-              }}
-            >
-              GENERATE<br></br> NEW BOARD
-            </button>
-            <div> {sp} Warning RESETS EVERYONE!!</div>
+
+          <div style={{ display: "flex", flexDirection: "row", margin:"0"}}>
+
+            <div key="reset" style={{ textAlign: "center", margin: "2vw" }}>
+              <button
+                style={{
+                  height: boardDims.height / 8,
+                  backgroundColor: "red",
+                  color: "yellow",
+                  fontWeight: "bold",
+                  fontSize: boardDims.height / 20,
+                  flex: "1 0 auto"
+                }}
+                onClick={(ev) => {
+                  generateNewBoard(ev);
+                }}
+                onTouchStart={(ev) => {
+                  generateNewBoard(ev);
+                }}
+              >
+                GENERATE<br></br> NEW BOARD
+              </button>
+              <div> Warning RESETS EVERYONE!!</div>
+            </div>
+
+            <div key="setUserId" style={{ textAlign: "center", margin: "2vw" }}>
+              <button
+                style={{
+                  height: boardDims.height / 8,
+                  backgroundColor: "red",
+                  color: "yellow",
+                  fontWeight: "bold",
+                  fontSize: boardDims.height / 20,
+                  flex: "1 0 auto"
+                }}
+
+              >
+                SET<br></br> USER NAME
+              </button>
+              <div> If You Wish</div>
+            </div>
+
+
           </div>
 
           <div
@@ -617,17 +642,23 @@ export function GameBoard({ props }) {
               height: boardDims.height / 9,
               lineHeight: boardDims.height / 9 + "px",
               backgroundColor: "rgba(250,250,100,.5)",
-
             }}
-
-            onClick=
-              {ev=>{ 
-                console.log("changing color scheme", colorSchemeRef.current); 
-                colorSchemeRef.current = (colorSchemeRef.current+1)%2; 
-              }
-            }
+            onClick={(ev) => {
+              console.log("changing color scheme", colorSchemeRef.current);
+              colorSchemeRef.current = (colorSchemeRef.current + 1) % 2;
+            }}
           >
-            <img style={{position:"absolute",top:"15%",left:"15%",height:"70%",width:"70%"}} src="./rotate-colors.png" alt="Rotate Colors"></img>
+            <img
+              style={{
+                position: "absolute",
+                top: "15%",
+                left: "15%",
+                height: "70%",
+                width: "70%",
+              }}
+              src="./rotate-colors.png"
+              alt="Rotate Colors"
+            ></img>
           </div>
         </div>
 
@@ -636,7 +667,7 @@ export function GameBoard({ props }) {
           style={{
             zIndex: 100,
             position: "absolute",
-            margin: "1vw",
+            marginLeft: boardDims.width * 0.01,
             left: wordListPos.left,
             top: wordListPos.top + wordListPos.height / 3,
             backgroundColor: "black",
@@ -659,14 +690,14 @@ export function GameBoard({ props }) {
         </div>
 
         <div
-          key="i01"
+          key="wordListContainer"
           className="wordList"
           style={{
             //touchAction: "none",
             marginLeft: boardDims.width * 0.01,
             backgroundColor: "#A0B0FF",
-            maxWidth: boardDims.width,
-            minWidth: boardDims.width,
+            maxWidth: boardDims.width / 2,
+            minWidth: boardDims.width / 2,
             height: wordListPos.height,
             overflow: "auto",
             whiteSpace: "nowrap",
@@ -688,9 +719,47 @@ export function GameBoard({ props }) {
               marginLeft: boardDims.width * 0.01,
               overflow: "auto", //isTouchDevice ? "scroll" : "hidden",
               touchAction: "none",
+              width: boardDims.width / 2,
             }}
           >
             {wordOutput}
+          </div>
+        </div>
+
+        <div
+          key="playerContainer"
+          className="playerList"
+          style={{
+            //touchAction: "none",
+            marginLeft: boardDims.width * 0.01,
+            backgroundColor: "#A0B0FF",
+            maxWidth: boardDims.width / 2.05,
+            minWidth: boardDims.width / 2.05,
+            height: wordListPos.height,
+            overflow: "hidden",
+            whiteSpace: "nowrap",
+            wordBreak: "break-word",
+            borderRadius: "5px",
+            position: "absolute",
+            top: wordListPos.top,
+            left: wordListPos.left + boardDims.width / 1.95,
+          }}
+        >
+          <div
+            key="playerList"
+            style={{
+              //display: "flex",
+              //flexDirection: "row",
+              //flexWrap: "wrap",
+              marginTop: boardDims.width * 0.01,
+              marginLeft: boardDims.width * 0.01,
+              overflow: "hidden",
+              touchAction: "none",
+              width: boardDims.width / 2,
+              wordWrap: "break-word",
+            }}
+          >
+            {playerInfo}
           </div>
         </div>
       </div>,

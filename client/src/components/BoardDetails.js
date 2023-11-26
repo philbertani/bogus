@@ -71,7 +71,7 @@ export function BoardDetails({ props }) {
   //console.log("color scheme", colorScheme);
 
 
-  React.useEffect( ()=> { console.log(colorScheme); setReset(true) }, [colorScheme, setReset] );
+  React.useEffect( ()=> { setReset(true) }, [colorScheme, setReset] );
 
   React.useEffect(() => {
     //we do not need to access any of these from higher up, but we do

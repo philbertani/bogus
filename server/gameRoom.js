@@ -59,6 +59,11 @@ export class gameRoom {
         const player=this.players[userId];
         player.connected=true, 
         player.time = Date.now();
+
+        if ( !player.wordCount) {
+          player.wordCount = 0;
+          player.score = 0;
+        }
     }
 
     removePlayer( userId ) {
@@ -93,6 +98,6 @@ export class gameRoom {
 
     sendStats() {
         //console.log("sending stats for",this.id);
-        this.io.to(this.id).emit("stats",{stats:this.gameStats(),roomId:this.roomInfo.displayId});
+        this.io.to(this.id).emit("stats",{stats:this.gameStats(),roomId:this.roomInfo.displayId,players:this.players});
     }
 }

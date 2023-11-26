@@ -39,7 +39,7 @@ export class ioManager {
         ['R','D','L','L','C'],
         ['O','I','U','N','A'],
         ['N','I','C','N','N'] ];
-      this.newGameRoom(dict.spanishLoose,this.BOARDTYPES.TORUS,"spanishDebug",noLunaBoard);
+      //this.newGameRoom(dict.spanishLoose,this.BOARDTYPES.TORUS,"spanishDebug",noLunaBoard);
       
       console.log('game rooms:',this.roomInfo);
 
@@ -132,6 +132,7 @@ export class ioManager {
         console.log("touch event",socket.id,msg);
       });
     });
+
     io.on("connection", (socket) => {
       //not being used right now
       socket.on("chat message", (msg) => {
