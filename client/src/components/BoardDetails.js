@@ -308,7 +308,8 @@ export function BoardDetails({ props }) {
           height: (marginFac * boardDims.height) / N + "px",
           width: (marginFac * boardDims.width) / M + "px",
           fontSize: (0.6 * boardDims.height) / N + "px",
-          textShadow: "3px 1px 3px black"
+          textShadow: "3px 1px 3px black",
+          textAlign: "center"
         };
 
         //this gets called before the reset useEffect gets called so
@@ -378,9 +379,12 @@ export function BoardDetails({ props }) {
     //need some special logic for disabling default iOs touch events
     //add option to reset path after touchend since it bugs Catalina
 
+    //if we want to be able to click on a word and see its path we need 
+    //to save the squares in the order they were clicked on , for each word
+
     if (ev) ev.preventDefault();
 
-    setUserNamePopUp(false);
+    setUserNamePopUp(false);  //get rid of menus that user is not interested in
 
     let newStyles = deepClone(cubeStyles); //this is ugly
     let newSelected = deepClone(allSelected);

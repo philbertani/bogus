@@ -3,7 +3,6 @@ import { socket } from './socket';
 
 //import { ConnectionState } from './components/ConnectionState';
 //import { Events} from './components/Events';
-import { MyForm } from './components/MyForm';
 
 
 import { GameBoard } from './components/GameBoard';
@@ -11,6 +10,7 @@ import bogusMain from './common/bogus.js';
 import {cloneArray} from './common/utils.js';
 import {v4 as uuidv4} from 'uuid';
 import './App.css';
+
 
 //import GPU from './components/3d/GPU.js';
 
@@ -109,20 +109,12 @@ export default function App() {
       if (roomId == null) roomId = 0;
       setCurrentRoomId(roomId);
 
-      //const roomName = localStorage.getItem("bogusRoomName") ?? "English";
-
-      const userInfo = localStorage.getItem("bogusUserInfo");
-      if ( userInfo == null) {
-        //alert ('would you like to set a user id??');
-        //localStorage.setItem("bogusUserInfo","dumbass");
-      }
-      else {
-        //alert ('your user name is: ' + userInfo + ", you are in: " + roomName);
-      }
+      const userName = localStorage.getItem("bogusUserName");
 
       console.log("current room id",roomId);
 
-      socket.emit('current board',{userId,sessionId,roomId}); //since we are connected ask for the current board
+      socket.emit('current board',{userId,sessionId,roomId,userName}); //since we are connected ask for the current board
+
     }
 
     function onDisconnect() {
@@ -218,22 +210,50 @@ export default function App() {
 
         //console.log(msg.players);
 
-        const playerInfoOutput = [];
+        const playerInfoOutput = [
+          <tr style={{textAlign:"left"}}>
+            <th>Name</th>
+            <th>Words</th>
+            <th>Score</th>
+          </tr>,
+        ];
 
-        for ( const [key,val] of Object.entries(msg.players)) {
+        //this is real shit and is what we deserve when we create stupid data structures
+        const sortIndex=[];
+        for ( const [key,val] of Object.entries(msg.players) ) {
+          sortIndex.push( {id:key, score:val.score} );
+        } 
+        sortIndex.sort( (a,b) => b.score - a.score );
+
+        for ( const sortedObj of sortIndex) {
+        //for ( const [key,val] of Object.entries(msg.players)) {
           //playerInfoOutput.push( <div>{val.wordCount} "\u00a0" {val.score} </div>)
           //console.log( val.wordCount, val.score);
 
+          const key = sortedObj.id;
+          const val = msg.players[key];
+
           const userId = localStorage.getItem("bogusId");
-          let userName = key.substring(0,8);
+          let userName = val.name ? val.name.substring(0,16) : key.substring(0,16);
+
+          //console.log('stats',userName);
           if (userId) {
             if ( userId == key ) {
-              userName = "You";
+              userName = "You:" + userName;
             }
           }
+          
           playerInfoOutput.push(
-            <div key={key} > {userName} {'\u00a0'} {val.wordCount} {'\u00a0'} {val.score} </div>
-          );
+            <tr>
+              <td>{userName.substring(0,14)}</td>
+              <td style={{textAlign:"center"}}>{val.wordCount}</td>
+              <td style={{textAlign:"center"}}>{val.score}</td>
+            </tr>
+          )
+
+          //playerInfoOutput.push(
+          //  <div key={key} > {userName} {'\u00a0'} {val.wordCount} {'\u00a0'} {val.score} </div>
+          //);
         }
         setPlayerInfo( playerInfoOutput );
       }

@@ -3,7 +3,7 @@ import "./GameBoard.css";
 import { useWindowSize } from "./uiHooks.js";
 import { BoardDetails } from "./BoardDetails";
 import { vec, blank2dArray } from "../common/utils.js";
-import { MyForm} from "./MyForm.js";
+
 import { UserNameForm } from "./UserNameForm.js";
 
 //import GPU from "../components/3d/GPU.js"
@@ -134,7 +134,7 @@ export function GameBoard({ props }) {
     //have the word list scroll to the closest match and center it in the div
 
     //at the end of the game we can run through game.words to show all words
-    for (const word of game.words){// game.words){ //sortedWords) {
+    for (const word of sortedWords) {// game.words){ //sortedWords) {
       
       let bgColor = "inherit";
       let color = "black";
@@ -405,6 +405,7 @@ export function GameBoard({ props }) {
   //coming through as null sometimes but apparently the css can deal with it
   //console.log(searchStringBackGround);
 
+  //"\u2b24" is a big circle
   //"\u2261" is the 3 line menu
   const sp = "\u00a0";
   //const spx = sp + sp + sp + sp + sp;
@@ -613,6 +614,22 @@ export function GameBoard({ props }) {
           )}
         </div>
 
+        <div
+          style={{
+            fontSize: boardDims.height / 20,
+            marginLeft: boardDims.width * 0.01,
+            zIndex: 10,
+            width: boardDims.width * 0.66,
+            left: boardDims.width * 0.17,
+            textAlign: "center",
+            position: "absolute",
+            top: boardDims.height * 1.09,
+            borderStyle: "solid",
+          }}
+        >
+          {latestWord}
+        </div>
+
         <div //{!is3d ? <BoardDetails props={props2} /> : <GPU props={props2} />}
           key="header01"
           style={{
@@ -621,7 +638,7 @@ export function GameBoard({ props }) {
             textAlign: "center",
             margin: "0",
             position: "absolute",
-            top: wordListPos.top - boardDims.height / 12,
+            top: wordListPos.top - boardDims.height / 13,
             left: wordListPos.left,
             fontWeight: "bold",
             fontSize: 0.06 * boardDims.height,
@@ -633,7 +650,7 @@ export function GameBoard({ props }) {
               margin: "0",
               position: "absolute",
               top: "-2vh",
-              left: boardDims.width / 18,
+              left: boardDims.width * 0.01,
               fontSize: boardDims.height / 12,
               backgroundColor: "rgba(250,250,100,.5)",
               width: boardDims.height / 9,
@@ -659,7 +676,7 @@ export function GameBoard({ props }) {
             {"\u22ee"}
           </div>
 
-          <div key="score">
+          <div key="score" style={{ marginLeft: boardDims.width * 0.01 }}>
             You:{" "}
             {foundWordsRef.current
               ? Object.keys(foundWordsRef.current.words).length
@@ -667,30 +684,11 @@ export function GameBoard({ props }) {
             Everyone: {Object.keys(allWordsFound).length}
           </div>
 
-          {/*
-          <div
-            key="junk01"
-            style={{
-              color: isConnected ? "rgba(0,150,0,1)" : "rgba(255,0,0,1)",
-              position: "absolute",
-              right: boardDims.width / 30,
-              top: "-2vh",
-              backgroundColor: "rgba(250,250,100,.5)",
-              width: boardDims.height / 9,
-              fontSize: boardDims.height / 12,
-              height: boardDims.height / 9,
-              lineHeight: boardDims.height / 9 + "px",
-            }}
-          >
-            {"\u2b24"}
-          </div>
-        */}
-
           <div
             key="colorScheme"
             style={{
               position: "absolute",
-              right: boardDims.width / 30,
+              left: boardDims.width * 0.9,
               top: "-2vh",
               width: boardDims.height / 9,
               height: boardDims.height / 9,
@@ -793,7 +791,7 @@ export function GameBoard({ props }) {
             whiteSpace: "nowrap",
             wordBreak: "break-word",
             borderRadius: "5px",
-            //overflowY: "scroll",
+            overflowY: "scroll",
             position: "absolute",
             top: wordListPos.top,
             left: wordListPos.left + boardDims.width / 1.95,
@@ -802,18 +800,55 @@ export function GameBoard({ props }) {
           <div
             key="playerList"
             style={{
-              display: "flex",
-              flexDirection: "column",
-              flexWrap: "wrap",
-              marginTop: boardDims.width * 0.01,
-              marginLeft: boardDims.width * 0.01,
-              overflow: "hidden",
+              //marginTop: boardDims.width * 0.01,
+              //marginLeft: boardDims.width * 0.01,
               touchAction: "none",
               width: boardDims.width / 2,
               wordWrap: "break-word",
+              overFlowBlock: "scroll",
+            }}
+            //onTouchMove={ev=>{ev.preventDefault()}}
+            onTouchStart={(ev) => {
+              ev.preventDefault();
+            }}
+            onClick={(ev) => {
+              ev.preventDefault();
             }}
           >
-            {playerInfo}
+            <table
+              style={{
+                display: "block",
+                overflow: "scroll",
+                overflowY: "scroll",
+                fontSize: boardDims.width / 30,
+                marginLeft: 0,
+                zIndex: 10,
+                backgroundColor: "lightgrey",
+                position: "absolute",
+                width: "100%"
+              }}
+            >
+              {playerInfo}
+            </table>
+          </div>
+
+          <div
+            key="info"
+            style={{
+              zIndex: 0,
+              width: "auto",
+              wordBreak: "break-all",
+              whiteSpace: "normal",
+              position: "absolute",
+              bottom: 0,
+              marginBottom: 0,
+              marginLeft: boardDims.width*.01,
+              fontWeight: "bold",
+              backgroundColor: "yellow",
+              margin:0
+            }}
+          >
+            Set a UserName in 3 dot Menu
           </div>
         </div>
       </div>,
@@ -856,12 +891,15 @@ export function GameBoard({ props }) {
             height: boardDims.height / 8,
             backgroundColor: "white",
             borderStyle: "groove",
-            borderWidth: boardDims.width*.02,
-            top: boardDims.height/8,
-            zIndex: 10000
+            borderWidth: boardDims.width * 0.02,
+            top: boardDims.height / 8,
+            zIndex: 10000,
           }}
         >
-          <UserNameForm setUserNamePopUp={setUserNamePopUp} boardDims={boardDims}/>
+          <UserNameForm
+            setUserNamePopUp={setUserNamePopUp}
+            boardDims={boardDims}
+          />
         </div>
       ),
     ]

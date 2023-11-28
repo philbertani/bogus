@@ -45,7 +45,7 @@ export class ioManager {
 
       this.statsInterval = setInterval( ()=>{
         for (const gameRoom of Object.values(this.gameRooms) ) {
-          gameRoom.sendStats();
+          gameRoom.sendStats(this.users);
         }
       }, 1500);
 
@@ -155,7 +155,7 @@ export class ioManager {
         const {words,count,totalScore} = msg;
 
         console.log(Date.now(),"words found by",socket.id,"in room:",gameRoom.id, words, count, totalScore);
-        gameRoom.setPlayerWordCount(userId,count,totalScore);
+        gameRoom.setPlayerWordCount(userId,count,totalScore, this.users[userId]);
 
         let latestWord = "";
         if (words.length > 0) {
@@ -218,7 +218,7 @@ export class ioManager {
         const gameRoom = this.gameRooms[user.roomId];
 
         socket.join( gameRoom.id );
-        gameRoom.newPlayer(userId);
+        gameRoom.newPlayer(userId, this.users[userId] );
 
         this.emitGame(io, gameRoom, socket.id);
 
@@ -267,6 +267,21 @@ export class ioManager {
       });
     });
 
+
+    io.on("connection", (socket) => {
+      socket.on("setUserName", (msg) => {
+       
+        const userId = this.socketMap[socket.id];
+        if ( userId) {
+          this.users[userId].name = msg;
+        }
+        else {
+          console.log('setUserName: no user for socket, ',socket.id);
+        }
+
+      } );
+    });
+
     io.on("connection", (socket) => {
       socket.on("current board", (msg) => {
         let seqno;
@@ -285,7 +300,9 @@ export class ioManager {
           connTime: time,
           seqno: seqno,
           socketId: socket.id,
-          roomId: this.roomMap[0]  
+          roomId: this.roomMap[0],
+          name: msg.userName ?? msg.userId
+
         };
 
         if (msg.roomId) {
@@ -323,7 +340,7 @@ export class ioManager {
         } else {
           this.userIdSockets[msg.userId] = [{ id: socket.id, active: true }];
           this.socketMap[socket.id] = msg.userId;
-          gameRoom.newPlayer(msg.userId);
+          gameRoom.newPlayer(msg.userId, this.users[msg.userId]  );
         }
 
         socket.join( gameRoom.id );
