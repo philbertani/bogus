@@ -147,12 +147,6 @@ export default function App() {
       mainGameX.boardId = msg.boardId;
       mainGameX.roomId = msg.roomId;
 
-      //mainGameX.rank = msg.rank;
-      //mainGameX.words = [...msg.words];
-      //mainGameX.definitions = [...msg.defs];
-      //mainGameX.boardType = msg.boardType;
-      //mainGameX.minLetters = msg.minLetters;
-
       if ( msg.bogus3d ) {
         console.log('3d is coming through!', msg.bogus3d);
         setIs3d(true);
@@ -236,24 +230,29 @@ export default function App() {
           const userId = localStorage.getItem("bogusId");
           let userName = val.name ? val.name.substring(0,16) : key.substring(0,16);
 
+          const style={textAlign:"center"}
           //console.log('stats',userName);
           if (userId) {
             if ( userId == key ) {
               userName = "You:" + userName;
+              style.fontWeight = "bold";
+              style.color = "red";
+              style.backgroundColor = "yellow";
             }
           }
           
+          //more waste of memory - but who really cares for this kind of thing?
+          const style2 = {...style};
+          style2.textAlign = "left";
+
           playerInfoOutput.push(
             <tr>
-              <td>{userName.substring(0,14)}</td>
-              <td style={{textAlign:"center"}}>{val.wordCount}</td>
-              <td style={{textAlign:"center"}}>{val.score}</td>
+              <td style={style2}>{userName.substring(0,14)}</td>
+              <td style={style}>{val.wordCount}</td>
+              <td style={style}>{val.score}</td>
             </tr>
           )
 
-          //playerInfoOutput.push(
-          //  <div key={key} > {userName} {'\u00a0'} {val.wordCount} {'\u00a0'} {val.score} </div>
-          //);
         }
         setPlayerInfo( playerInfoOutput );
       }
