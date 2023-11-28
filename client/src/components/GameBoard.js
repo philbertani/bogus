@@ -3,6 +3,8 @@ import "./GameBoard.css";
 import { useWindowSize } from "./uiHooks.js";
 import { BoardDetails } from "./BoardDetails";
 import { vec, blank2dArray } from "../common/utils.js";
+import { MyForm} from "./MyForm.js";
+import { UserNameForm } from "./UserNameForm.js";
 
 //import GPU from "../components/3d/GPU.js"
 
@@ -36,7 +38,7 @@ export function GameBoard({ props }) {
   const [touches, setTouches] = React.useState({});
   const [touchInfo, setTouchInfo] = React.useState(); //for debugging
 
-  const { M, N } = game.rank;
+  const { M, N } = game ? game.rank : {M:5, N:5};
   const cubeRefs = React.useRef(blank2dArray(M,N,null));
   const [wordOutput, setWordOutput] = React.useState([]);
 
@@ -61,6 +63,9 @@ export function GameBoard({ props }) {
   const [unsentWords, setUnsentWords] = React.useState([]);
 
   const colorSchemeRef = React.useRef(1);
+
+  const [userNamePopUp, setUserNamePopUp] = React.useState(false);
+  const [userName, setUserName] = React.useState("random");
 
   //const countx = React.useRef(0);
   //countx.current ++;
@@ -227,7 +232,8 @@ export function GameBoard({ props }) {
     setCubeStyles,
     socket,
     setAllWordsFound,
-    colorSchemeRef
+    colorSchemeRef,
+    setUserNamePopUp
   };
 
   const touch0 = React.useRef({});
@@ -248,7 +254,8 @@ export function GameBoard({ props }) {
     let objects=[];
 
     let allD = [];
-    const {M,N} = game.rank;
+    //const {M,N} = game.rank;
+
     for (let i=0; i<M; i++) {
       for (let j=0; j<N; j++) {
         const cube = cubeRefs.current[i][j];
@@ -339,7 +346,7 @@ export function GameBoard({ props }) {
       }
     }
   }, [isWord, searchString, isWordRef, socket,
-    foundWordsRef, game.minLetters, isConnected, unsentWords]);
+    foundWordsRef, isConnected, unsentWords]);  //minLetters?
 
   React.useEffect(() => {
     if (!boardDims.width) return;
@@ -377,6 +384,7 @@ export function GameBoard({ props }) {
     socket.emit("new board");
   }
 
+
   function setGameRoom(room) {
 
     if ( !isConnected) {
@@ -398,9 +406,9 @@ export function GameBoard({ props }) {
   //console.log(searchStringBackGround);
 
   //"\u2261" is the 3 line menu
-  //pad the beginning of searchString with spaces so it does not overwrite menu
   const sp = "\u00a0";
   //const spx = sp + sp + sp + sp + sp;
+
   return (
     boardDims.height &&
     wordListPos.top && [
@@ -418,15 +426,17 @@ export function GameBoard({ props }) {
           key="searchString"
           style={{
             position: "absolute",
-            margin: 0.005 * windowSize.width + "px",
+            marginLeft: 0,
             backgroundImage: searchStringBackGround.back,
-            width: boardDims.width,
+            width: boardDims.width * 0.99,
             textAlign: "center",
-            height: boardDims.height / 10,
-            fontSize: boardDims.height / 11,
-            lineHeight: boardDims.height / 10 + "px",
+            height: boardDims.height / 11,
+            fontSize: boardDims.height / 12,
+            lineHeight: boardDims.height / 11 + "px",
             zIndex: "-10", //so it slides under the menu icon
-            border: "solid",
+            border: "groove",
+            borderWidth: boardDims.width * 0.02,
+            borderColor: "orange",
             color: searchStringBackGround.front,
           }}
         >
@@ -461,9 +471,23 @@ export function GameBoard({ props }) {
             There are {game.words.length} words!
           </p>
 
-          <div style={{ display: "flex", flexDirection: "row", margin:"0"}}>
-
-            <div key="reset" style={{ textAlign: "center", margin: "2vw" }}>
+          <div
+            key="buttonContainer"
+            style={{
+              height: boardDims.height / 5,
+              width: boardDims.width,
+              margin: "0",
+            }}
+          >
+            <div
+              key="reset"
+              style={{
+                position: "absolute",
+                left: "50%",
+                textAlign: "center",
+                margin: "0",
+              }}
+            >
               <button
                 style={{
                   height: boardDims.height / 8,
@@ -471,7 +495,6 @@ export function GameBoard({ props }) {
                   color: "yellow",
                   fontWeight: "bold",
                   fontSize: boardDims.height / 20,
-                  flex: "1 0 auto"
                 }}
                 onClick={(ev) => {
                   generateNewBoard(ev);
@@ -482,10 +505,26 @@ export function GameBoard({ props }) {
               >
                 GENERATE<br></br> NEW BOARD
               </button>
-              <div> Warning RESETS EVERYONE!!</div>
+              <div
+                key="message01"
+                style={{
+                  fontSize: Math.min(boardDims.height, boardDims.width) / 20,
+                }}
+              >
+                {" "}
+                RESETS EVERYONE!!
+              </div>
             </div>
 
-            <div key="setUserId" style={{ textAlign: "center", margin: "2vw" }}>
+            <div
+              key="setUserId"
+              style={{
+                position: "absolute",
+                left: "10%",
+                textAlign: "center",
+                margin: "0",
+              }}
+            >
               <button
                 style={{
                   height: boardDims.height / 8,
@@ -493,16 +532,26 @@ export function GameBoard({ props }) {
                   color: "yellow",
                   fontWeight: "bold",
                   fontSize: boardDims.height / 20,
-                  flex: "1 0 auto"
                 }}
-
+                onClick={(ev) => {
+                  setUserNamePopUp(true);
+                }}
+                onTouchStart={(ev) => {
+                  setUserNamePopUp(true);
+                }}
               >
-                SET<br></br> USER NAME
+                SET<br></br> USERNAME
               </button>
-              <div> If You Wish</div>
+
+              <div
+                key="message02"
+                style={{
+                  fontSize: Math.min(boardDims.height, boardDims.width) / 20,
+                }}
+              >
+                (If You Wish)
+              </div>
             </div>
-
-
           </div>
 
           <div
@@ -544,20 +593,24 @@ export function GameBoard({ props }) {
         </div>
 
         <div
+          key="g01"
           onTouchStart={processTouch}
           onTouchMove={processTouch}
           ref={boardRef}
           style={{
-            margin: 0.005 * windowSize.width + "px", //"1vw",
+            marginLeft: boardDims.width * 0.01,
             width: boardDims.width,
             height: boardDims.height,
             position: "absolute",
-            top: boardDims.height / 9,
+            top: boardDims.height / 8,
           }}
-          key="g01"
           className="GameBoard"
         >
-          {!is3d ? <BoardDetails props={props2} /> : <div>no 3d sorry</div>}
+          {!is3d ? (
+            <BoardDetails key="boardDetails" props={props2} />
+          ) : (
+            <div>no 3d sorry</div>
+          )}
         </div>
 
         <div //{!is3d ? <BoardDetails props={props2} /> : <GPU props={props2} />}
@@ -634,6 +687,7 @@ export function GameBoard({ props }) {
         */}
 
           <div
+            key="colorScheme"
             style={{
               position: "absolute",
               right: boardDims.width / 30,
@@ -665,7 +719,7 @@ export function GameBoard({ props }) {
         <div
           key="definitions"
           style={{
-            zIndex: 100,
+            zIndex: "1000",
             position: "absolute",
             marginLeft: boardDims.width * 0.01,
             left: wordListPos.left,
@@ -676,7 +730,6 @@ export function GameBoard({ props }) {
             width: boardDims.width,
             display: hideDef,
             color: "white",
-            zIndex: "1000",
             //touchAction: "none"
           }}
           onClick={(ev) => {
@@ -684,7 +737,7 @@ export function GameBoard({ props }) {
             setCount(0);
           }}
         >
-          <p style={{ marginTop: "0", marginLeft: "2vw", marginRight: "2vw" }}>
+          <p style={{ marginTop: "0", marginLeft: boardDims.width * 0.01 }}>
             {displayDefinition}
           </p>
         </div>
@@ -740,6 +793,7 @@ export function GameBoard({ props }) {
             whiteSpace: "nowrap",
             wordBreak: "break-word",
             borderRadius: "5px",
+            //overflowY: "scroll",
             position: "absolute",
             top: wordListPos.top,
             left: wordListPos.left + boardDims.width / 1.95,
@@ -748,9 +802,9 @@ export function GameBoard({ props }) {
           <div
             key="playerList"
             style={{
-              //display: "flex",
-              //flexDirection: "row",
-              //flexWrap: "wrap",
+              display: "flex",
+              flexDirection: "column",
+              flexWrap: "wrap",
               marginTop: boardDims.width * 0.01,
               marginLeft: boardDims.width * 0.01,
               overflow: "hidden",
@@ -792,7 +846,26 @@ export function GameBoard({ props }) {
             //(!is3d && (foundWordsRef.current.totalScore ?? 0))
             (foundWordsRef.current ? foundWordsRef.current.totalScore ?? 0 : 0)}
       </div>,
+
+      userNamePopUp && (
+        <div
+          key="userNamePopUp"
+          style={{
+            position: "absolute",
+            width: boardDims.width * 0.99,
+            height: boardDims.height / 8,
+            backgroundColor: "white",
+            borderStyle: "groove",
+            borderWidth: boardDims.width*.02,
+            top: boardDims.height/8,
+            zIndex: 10000
+          }}
+        >
+          <UserNameForm setUserNamePopUp={setUserNamePopUp} boardDims={boardDims}/>
+        </div>
+      ),
     ]
   );
+
 
 }

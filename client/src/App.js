@@ -2,14 +2,16 @@ import React, { useState, useEffect, useDebugValue } from 'react';
 import { socket } from './socket';
 
 //import { ConnectionState } from './components/ConnectionState';
-//import { MyForm } from './components/MyForm';
 //import { Events} from './components/Events';
+import { MyForm } from './components/MyForm';
+
 
 import { GameBoard } from './components/GameBoard';
 import bogusMain from './common/bogus.js';
 import {cloneArray} from './common/utils.js';
 import {v4 as uuidv4} from 'uuid';
 import './App.css';
+
 //import GPU from './components/3d/GPU.js';
 
 //if we lose connection and reload page, load the previous board from
@@ -107,7 +109,7 @@ export default function App() {
       if (roomId == null) roomId = 0;
       setCurrentRoomId(roomId);
 
-      const roomName = localStorage.getItem("bogusRoomName") ?? "English";
+      //const roomName = localStorage.getItem("bogusRoomName") ?? "English";
 
       const userInfo = localStorage.getItem("bogusUserInfo");
       if ( userInfo == null) {
@@ -214,13 +216,13 @@ export default function App() {
 
         setStats(msg.stats);
 
-        console.log(msg.players);
+        //console.log(msg.players);
 
         const playerInfoOutput = [];
 
         for ( const [key,val] of Object.entries(msg.players)) {
           //playerInfoOutput.push( <div>{val.wordCount} "\u00a0" {val.score} </div>)
-          console.log( val.wordCount, val.score);
+          //console.log( val.wordCount, val.score);
 
           const userId = localStorage.getItem("bogusId");
           let userName = key.substring(0,8);
@@ -230,7 +232,7 @@ export default function App() {
             }
           }
           playerInfoOutput.push(
-            <div> {userName} {'\u00a0'} {val.wordCount} {'\u00a0'} {val.score} </div>
+            <div key={key} > {userName} {'\u00a0'} {val.wordCount} {'\u00a0'} {val.score} </div>
           );
         }
         setPlayerInfo( playerInfoOutput );
@@ -284,7 +286,10 @@ export default function App() {
 
   //this stops all the crappy ios events but then also prevents
   //click event from happening
+
+  
   React.useEffect( ()=>{
+
     window.addEventListener('touchstart',ev=>ev.preventDefault());
     window.addEventListener('touchmove', ev=>ev.preventDefault());
     //window.addEventListener('touchend',processTouch);
@@ -295,15 +300,37 @@ export default function App() {
   },[]);
 
   
-  return (
-    [
-      (doneOne && !isDuplicateProcess ) &&
-      <div key="app"> 
-        <GameBoard key="k05" props={props}/>
-      </div> ,
-      isDuplicateProcess && <div key="conn">You already are Connected</div>,
-      
-    ]
-  );
+
+  /*  here is how to use refs for form control instead of states which may cause re rendering 
+  const inputRef = React.useRef();
+  const formValueRef = React.useRef("balls");
+
+  //formValueRef.current=Date.now();
+
+  return [
+
+    <input key="painInTheAss" id="inputRef" className="inputRef" 
+      ref={inputRef}
+      defaultValue={formValueRef.current} 
+      onChange={ev=>{formValueRef.current=ev.target.value }}
+      //onClick={ev=>{console.dir(ev.target)}} 
+      />,
+
+      <br></br>, <br></br>,
+    
+  */
+
+  return [
+    doneOne && !isDuplicateProcess && mainGame ? (
+      <div key="app">
+        <GameBoard key="k05" props={props} /> 
+      </div>
+    ) : (
+      <div key="serverConnProb">Server Connection Problems, try refreshing Page</div>
+    ),
+
+    isDuplicateProcess && <div key="conn">You already are Connected</div>
+    
+  ];
 
 }

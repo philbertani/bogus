@@ -17,9 +17,9 @@ export function MyForm() {
   }
 
   return (
-    <form onSubmit={ onSubmit }>
-      <input value={form.chat} onChange={ e => setForm({chat:e.target.value } )} />
-      <button type="submit" disabled={ isLoading }>Chat</button>
+    <form key="formA" onSubmit={ onSubmit }>
+      <input key="inputA" id="inputA" value={form.chat} onInput={ e => setForm({chat:e.target.value } )} />
+      <button key="buttonA" type="submit" disabled={ isLoading }>Chat</button>
     </form>
   );
 }

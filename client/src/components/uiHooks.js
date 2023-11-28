@@ -24,11 +24,11 @@ export function useMouseButton() {
   const [mouseButtonDown, setMouseButtonDown] = useState(false);
   useEffect(() => {
     window.addEventListener("mouseup", (ev) => {
-      ev.preventDefault();
+      //ev.preventDefault();
       setMouseButtonDown(false);
     });
     window.addEventListener("mousedown", (ev) => {
-      ev.preventDefault();
+      //ev.preventDefault();
       setMouseButtonDown(true);
     });
 

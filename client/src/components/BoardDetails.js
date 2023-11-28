@@ -40,7 +40,8 @@ export function BoardDetails({ props }) {
     foundWordsRef,
     cubeStyles,
     setCubeStyles,
-    colorSchemeRef
+    colorSchemeRef,
+    setUserNamePopUp
   } = props;
 
   const colorScheme = colorSchemeRef.current;
@@ -49,27 +50,15 @@ export function BoardDetails({ props }) {
   const counter = React.useRef(0);
 
   const mouseButtonDown = useMouseButton();
-
   const { M, N } = game.rank;
   const [selected, setSelected] = React.useState([]);
   const [allSelected, setAllSelected] = React.useState(blank2dArray(M, N));
-
   const lineHeight = React.useRef(0);
   const fontSize = React.useRef(0);
   const selectedRef = React.useRef([]);
   const pathRef = React.useRef([]); //may have to make this a useState
   const totalScoreRef = React.useRef(0);
-
   const [hints,setHints] = React.useState([]);
-
-  //const countx = React.useRef(0);
-  //countx.current ++;
-  //if ( countx.current%100===0) console.log('BoardDetails count',countx.current);
-
-  //console.log('zzzzz',M,N,game.rank);
-
-  //console.log("color scheme", colorScheme);
-
 
   React.useEffect( ()=> { setReset(true) }, [colorScheme, setReset] );
 
@@ -123,7 +112,7 @@ export function BoardDetails({ props }) {
           width: width,
           height: height,
           backgroundImage: pathColor[colorScheme],
-          opacity: "50%",
+          opacity: "70%",
         }}
       ></div>
     );
@@ -297,10 +286,12 @@ export function BoardDetails({ props }) {
 
     counter.current++;
     let tmpStyles = [];
-    let top = 3;
-    const marginFac = 0.95;
+    let top = boardDims.width * .01;
+    const marginFac = 0.9;
+    const spacingFac = .95;
+
     for (let j = 0; j < N; j++) {
-      let left = 3;
+      let left = boardDims.width * .03;
       let row = [];
       for (let i = 0; i < M; i++) {
         let boxStyle = {
@@ -329,13 +320,14 @@ export function BoardDetails({ props }) {
           boxStyle.color = cubeStyles[j][i].color;
         }
 
+  
         fontSize.current = (0.6 * boardDims.height) / N + "px";
         lineHeight.current = (0.9 * marginFac * boardDims.height) / N;
-        left += boardDims.width / M;
+        left += spacingFac * boardDims.width / M;
         row.push(boxStyle);
       }
       tmpStyles.push(row);
-      top += boardDims.height / N;
+      top += spacingFac * boardDims.height / N;
     }
 
     if (counter.current % 100 === 0) console.log("set styles useEffect", counter.current);
@@ -387,6 +379,8 @@ export function BoardDetails({ props }) {
     //add option to reset path after touchend since it bugs Catalina
 
     if (ev) ev.preventDefault();
+
+    setUserNamePopUp(false);
 
     let newStyles = deepClone(cubeStyles); //this is ugly
     let newSelected = deepClone(allSelected);
@@ -741,6 +735,6 @@ export function BoardDetails({ props }) {
   //React is wrong about adding foundWords and cubeStyles here: it causes infinite renders
   //also wrong about isWordRef
 
-  return <div>{output}</div>;
+  return ( <div key="gameBoardDetails">{output}</div> );
   
 }
