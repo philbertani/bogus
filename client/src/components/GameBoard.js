@@ -27,7 +27,9 @@ export function GameBoard({ props }) {
     setCurrentRoomId,
     setAllWordsFound,
     latestWord,
-    playerInfo
+    playerInfo,
+    setGiveUp,
+    giveUp
   } = props;
 
   const [boardDims, setBoardDims] = React.useState({});
@@ -65,7 +67,7 @@ export function GameBoard({ props }) {
   const colorSchemeRef = React.useRef(1);
 
   const [userNamePopUp, setUserNamePopUp] = React.useState(false);
-  const [userName, setUserName] = React.useState("random");
+  const [numWords, setNumWords] = React.useState(0);
 
   //const countx = React.useRef(0);
   //countx.current ++;
@@ -131,10 +133,16 @@ export function GameBoard({ props }) {
 
     const sortedWords = Object.keys(allWords).sort(); //keep it in alphabet order
 
+    const wordsToUse = giveUp ? game.words : sortedWords;
+    //const wordsToDisplay = searchString!=='' ? sortedWords.filter(word=>word.startsWith(searchString)) : sortedWords;
+
+    const wordsToDisplay = searchString!=='' ? wordsToUse.filter(word=>word.startsWith(searchString)) : wordsToUse;
+
+    setNumWords(wordsToDisplay.length);
     //have the word list scroll to the closest match and center it in the div
 
     //at the end of the game we can run through game.words to show all words
-    for (const word of sortedWords) {// game.words){ //sortedWords) {
+    for (const word of wordsToDisplay) {// game.words){ //sortedWords) {
       
       let bgColor = "inherit";
       let color = "black";
@@ -156,14 +164,14 @@ export function GameBoard({ props }) {
           //ref={(el) => (wordRefs.current[index] = el)}
           key={"key" + word}
           style={{
-            margin: ".5vh",
+            margin: 0, // ".5vh",
             marginBottom: "0px",
             marginTop: "0px",
             textAlign: "center",
             color: color,
             backgroundImage: backgroundImage,
             backgroundColor: bgColor,
-            fontSize: Math.min(window.screen.height, window.screen.width) /25, // boardDims.width / 20,
+            fontSize: isTouchDevice ? window.screen.width/21 : boardDims.height/40, 
             height: "fit-content",
             width: "fit-content",
             borderRadius: "5px",
@@ -202,7 +210,7 @@ export function GameBoard({ props }) {
 
     setWordOutput(newWordOutput);
 
-  }, [ foundWordsRef.current.words, allWordsFound, isConnected ] ); 
+  }, [ foundWordsRef.current.words, allWordsFound, isConnected , searchString, giveUp ] ); 
     //one of these is now causing rendering to blow up to 100k
     //reset, foundWordsRef, boardDims.height, isWordRef,
     //game.words, allWordsFound, game, isTouchDevice, isConnected]);
@@ -233,7 +241,8 @@ export function GameBoard({ props }) {
     socket,
     setAllWordsFound,
     colorSchemeRef,
-    setUserNamePopUp
+    setUserNamePopUp,
+    setGiveUp
   };
 
   const touch0 = React.useRef({});
@@ -321,15 +330,24 @@ export function GameBoard({ props }) {
   React.useEffect(() => {
     //this useEffect gets called too many times with isWord being true
     //isWordRef is the easiest solution, React is annoying
+
+    if ( giveUp ) {
+      //console.log('gave up the game, not sending word');
+      return;
+    }
+
+    //why is this being rendered so often???
+    //console.log('rendering');
+
     if (isWordRef.current) {
 
       //setTouchInfo(foundWordsRef.current.words);
 
-      if (isConnected) {
+      if (isConnected ) {
 
         //allWords is not being sent from server when this user
         //reconnects, only when they find a new word, annoying
-        const wordsToSend = [...unsentWords,searchString];
+        //const wordsToSend = [...unsentWords,searchString];
 
         const words = Object.keys(foundWordsRef.current.words);
         //console.log("trying to send words to server", isWord, wordsToSend);
@@ -345,8 +363,16 @@ export function GameBoard({ props }) {
         setUnsentWords(prev=>[...prev,searchString]);
       }
     }
-  }, [isWord, searchString, isWordRef, socket,
-    foundWordsRef, isConnected, unsentWords]);  //minLetters?
+  }, [isWord, searchString, isWordRef, 
+    foundWordsRef, isConnected, unsentWords, giveUp]);  //minLetters?
+
+  React.useEffect( ()=>{
+    //the server needs to know or else she can cheat
+    console.log('give up status',giveUp);
+    if (giveUp) {
+      socket.emit('giveUp');
+    }
+  },[giveUp, socket])
 
   React.useEffect(() => {
     if (!boardDims.width) return;
@@ -402,6 +428,10 @@ export function GameBoard({ props }) {
     socket.emit('setGameRoom',roomId);
   }
   
+  function firstElement(str) {
+    const splitStr = str.split(' ');
+    return splitStr[0];
+  }
   //coming through as null sometimes but apparently the css can deal with it
   //console.log(searchStringBackGround);
 
@@ -451,9 +481,9 @@ export function GameBoard({ props }) {
             backgroundColor: "rgba(255,255,255,.9)",
             position: "absolute",
             zIndex: "100",
-            height: 1.01 * boardDims.height,
+            height: 1.08 * boardDims.height,
             width: 1.05 * boardDims.width,
-            top: boardDims.height / 8.5,
+            top: 0, //boardDims.height / 8.5,
           }}
           onClick={(ev) => {
             setDisplayMenu("none");
@@ -590,6 +620,27 @@ export function GameBoard({ props }) {
                   {room.name}
                 </div>
               ))}
+          </div>
+
+          <br></br>
+          <div style={{ position: "absolute", left: boardDims.width / 2.8 }}>
+            <button
+              style={{
+                height: boardDims.height / 8,
+                backgroundColor: "red",
+                color: "yellow",
+                fontWeight: "bold",
+                fontSize: boardDims.height / 20,
+              }}
+              onClick={(ev) => {
+                setGiveUp(true);
+              }}
+              onTouchStart={(ev) => {
+                setGiveUp(true);
+              }}
+            >
+              GIVE UP<br></br>SEE WORDS
+            </button>
           </div>
         </div>
 
@@ -741,6 +792,24 @@ export function GameBoard({ props }) {
         </div>
 
         <div
+          style={{
+            position: "absolute",
+            textAlign: "center",
+            fontWeight: "bold",
+            fontSize: boardDims.height / 17,
+            top: wordListPos.top,
+            left: wordListPos.left,
+            width: boardDims.width/2,
+            zIndex:100,
+            backgroundColor:"lightgray",
+            marginLeft:boardDims.width*.01
+          }}
+        >
+          {roomInfo.length > 0 && (firstElement(roomInfo[currentRoomId].name) ) }  
+          <span style={{fontSize:boardDims.height/30}}>{sp} ({numWords})/{game.words.length}</span>
+        </div>
+
+        <div
           key="wordListContainer"
           className="wordList"
           style={{
@@ -749,14 +818,14 @@ export function GameBoard({ props }) {
             backgroundColor: "#A0B0FF",
             maxWidth: boardDims.width / 2,
             minWidth: boardDims.width / 2,
-            height: wordListPos.height,
+            height: wordListPos.height - boardDims.height/15,
             overflow: "auto",
             whiteSpace: "nowrap",
             wordBreak: "break-word",
             borderRadius: "5px",
             overflowY: "scroll",
             position: "absolute",
-            top: wordListPos.top,
+            top: wordListPos.top + boardDims.height/15,
             left: wordListPos.left,
           }}
         >
@@ -800,8 +869,6 @@ export function GameBoard({ props }) {
           <div
             key="playerList"
             style={{
-              //marginTop: boardDims.width * 0.01,
-              //marginLeft: boardDims.width * 0.01,
               touchAction: "none",
               width: boardDims.width / 2,
               wordWrap: "break-word",
@@ -820,15 +887,15 @@ export function GameBoard({ props }) {
                 display: "block",
                 overflow: "scroll",
                 overflowY: "scroll",
-                fontSize: boardDims.width / 30,
+                fontSize: boardDims.width / 27,
                 marginLeft: 0,
                 zIndex: 10,
                 backgroundColor: "lightgrey",
                 position: "absolute",
-                width: "100%"
+                width: "100%",
               }}
             >
-              {playerInfo}
+              <tbody>{playerInfo}</tbody>
             </table>
           </div>
 
@@ -836,19 +903,20 @@ export function GameBoard({ props }) {
             key="info"
             style={{
               zIndex: 0,
-              width: "auto",
               wordBreak: "break-all",
               whiteSpace: "normal",
               position: "absolute",
               bottom: 0,
               marginBottom: 0,
-              marginLeft: boardDims.width*.01,
               fontWeight: "bold",
               backgroundColor: "yellow",
-              margin:0
+              margin: 0,
+              width: "100%",
             }}
           >
-            Set a UserName in 3 dot Menu
+            <p style={{ margin: 0, marginLeft: boardDims.width * 0.015 }}>
+              Set a UserName in 3 dot Menu
+            </p>
           </div>
         </div>
       </div>,

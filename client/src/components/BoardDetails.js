@@ -41,7 +41,8 @@ export function BoardDetails({ props }) {
     cubeStyles,
     setCubeStyles,
     colorSchemeRef,
-    setUserNamePopUp
+    setUserNamePopUp,
+    setGiveUp
   } = props;
 
   const colorScheme = colorSchemeRef.current;
@@ -74,6 +75,7 @@ export function BoardDetails({ props }) {
       setAllSelected(blank2dArray(M, N));
       setSearchString("");
       setReset(false);
+      setGiveUp(false);
       selectedRef.current = [];
 
       //setAllWordsFound({});  we can not do this here

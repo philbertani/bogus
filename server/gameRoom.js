@@ -51,22 +51,42 @@ export class gameRoom {
         for (const player of Object.values(this.players)) {
             player.wordCount = 0;
             player.score = 0;
+            player.giveUp = false;
         }
     }
     
+    giveUp(userId) {
+      this.players[userId].giveUp = true;
+      console.log('giving up in:',this.roomInfo.name,this.players[userId]);
+    }
+
+    gaveUp(userId) {
+      return this.players[userId].giveUp;
+    }
+
     newPlayer( userId, ioManagerRef ) {
       //really newPlayer OR reconnection of previous player
-        if (!this.players[userId]) this.players[userId] = {};
+        if (!this.players[userId]) { 
+          this.players[userId] = {};
+        }
+        else {
+          console.log('player reconnecting', userId, this.players[userId]);
+        }
+
         const player=this.players[userId];
         player.connected=true, 
         player.time = Date.now();
         player.name = ioManagerRef ? ioManagerRef.name : 'unknown'; //ioManager reference for player connection data
         //we can not add too much to player obj since it is a networked item
 
-        if ( !player.wordCount) {
+        //am constantly getting burned by the fact that (=0) yields false so not good for checking existence
+        if ( !player.hasOwnProperty('wordCount') ) {
           player.wordCount = 0;
           player.score = 0;
+          player.giveUp = false;
         }
+
+        console.log(this.players[userId]);
     }
 
     removePlayer( userId ) {

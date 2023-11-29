@@ -32,7 +32,7 @@ export function loadDictionary(cb) {
       for (let i=0; i<defs.length; i++) {
         const [word,meaning] = defs[i].split(/\t/);
         words.push(word);
-        definitions.push(meaning);
+        definitions.push(word+":"+meaning);
       }
 
       console.log(words[5],definitions[5])

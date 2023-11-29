@@ -44,6 +44,8 @@ export default function App() {
   const [latestWord, setLatestWord] = React.useState("");
   const [playerInfo, setPlayerInfo] = React.useState([]);
 
+  const [giveUp, setGiveUp] = React.useState(false);
+
   //const countx = React.useRef(0);
   //countx.current ++;
   //if ( countx.current%100===0) console.log('App count',countx.current);
@@ -205,11 +207,11 @@ export default function App() {
         //console.log(msg.players);
 
         const playerInfoOutput = [
-          <tr style={{textAlign:"left"}}>
+          <tr key="tableHeader01" style={{textAlign:"left"}}>
             <th>Name</th>
             <th>Words</th>
             <th>Score</th>
-          </tr>,
+          </tr>
         ];
 
         //this is real shit and is what we deserve when we create stupid data structures
@@ -220,12 +222,11 @@ export default function App() {
         sortIndex.sort( (a,b) => b.score - a.score );
 
         for ( const sortedObj of sortIndex) {
-        //for ( const [key,val] of Object.entries(msg.players)) {
-          //playerInfoOutput.push( <div>{val.wordCount} "\u00a0" {val.score} </div>)
-          //console.log( val.wordCount, val.score);
 
           const key = sortedObj.id;
           const val = msg.players[key];
+
+          //console.log(val.name,val.giveUp);
 
           const userId = localStorage.getItem("bogusId");
           let userName = val.name ? val.name.substring(0,16) : key.substring(0,16);
@@ -234,10 +235,14 @@ export default function App() {
           //console.log('stats',userName);
           if (userId) {
             if ( userId == key ) {
-              userName = "You:" + userName;
+              //userName = "You:" + userName;
               style.fontWeight = "bold";
               style.color = "red";
               style.backgroundColor = "yellow";
+              if (val.giveUp) {
+                console.log('gave up message');
+                setGiveUp(val.giveUp);
+              }
             }
           }
           
@@ -245,9 +250,11 @@ export default function App() {
           const style2 = {...style};
           style2.textAlign = "left";
 
+          let outName = userName.substring(0,10);
+          if  (val.giveUp ) { outName = "💀" + outName}
           playerInfoOutput.push(
-            <tr>
-              <td style={style2}>{userName.substring(0,14)}</td>
+            <tr key={userName}>
+              <td style={style2}>{outName}</td>
               <td style={style}>{val.wordCount}</td>
               <td style={style}>{val.score}</td>
             </tr>
@@ -300,7 +307,9 @@ export default function App() {
     setCurrentRoomId,
     setAllWordsFound,
     latestWord,
-    playerInfo
+    playerInfo,
+    setGiveUp,
+    giveUp
   };
 
   //this stops all the crappy ios events but then also prevents
