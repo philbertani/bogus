@@ -855,7 +855,7 @@ export function GameBoard({ props }) {
             backgroundColor: "#A0B0FF",
             maxWidth: boardDims.width / 2.05,
             minWidth: boardDims.width / 2.05,
-            height: wordListPos.height,
+            height: wordListPos.height - boardDims.height/21,
             overflow: "hidden",
             whiteSpace: "nowrap",
             wordBreak: "break-word",
@@ -899,26 +899,31 @@ export function GameBoard({ props }) {
             </table>
           </div>
 
-          <div
+
+        </div>
+
+        <div
             key="info"
             style={{
-              zIndex: 0,
+              zIndex: 20,
               wordBreak: "break-all",
               whiteSpace: "normal",
               position: "absolute",
-              bottom: 0,
-              marginBottom: 0,
+              top: wordListPos.top + wordListPos.height - boardDims.height/21,
+              left: wordListPos.left + boardDims.width / 1.95 ,
+              width: boardDims.width/2,
               fontWeight: "bold",
               backgroundColor: "yellow",
               margin: 0,
-              width: "100%",
             }}
           >
-            <p style={{ margin: 0, marginLeft: boardDims.width * 0.015 }}>
-              Set a UserName in 3 dot Menu
+            <p style={{ fontSize: boardDims.width / 24, margin: 0, marginLeft: boardDims.width * 0.015 }}>
+              Set UserName in Menu
             </p>
           </div>
-        </div>
+
+
+
       </div>,
 
       <div

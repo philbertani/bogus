@@ -111,7 +111,6 @@ export class ioManager {
   setHandlers(io) {
 
     io.on("connection", (socket) => {
-      //not being used right now
       socket.on("heartbeat", (msg) => {
         //console.log("heartbeat", msg);
         io.to(socket.id).emit("heartbeat", {
