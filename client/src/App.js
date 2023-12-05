@@ -20,7 +20,9 @@ import './App.css';
 export default function App() {
 
   const [isConnected, setIsConnected] = useState(socket.connected);
-  const [fooEvents, setFooEvents] = useState([]);
+  const [chatText, setChatText] = useState([]);
+  const [chatUsers, setChatUsers] = useState([]);
+
   const [mainGame, setMainGame] = React.useState();
   const [doneOne, setDoneOne] = React.useState(false);
   const [reset, setReset] = React.useState(false);
@@ -45,6 +47,9 @@ export default function App() {
   const [playerInfo, setPlayerInfo] = React.useState([]);
 
   const [giveUp, setGiveUp] = React.useState(false);
+
+  const sp="\u00a0";
+  const spa = Array(500).fill(sp);
 
   //const countx = React.useRef(0);
   //countx.current ++;
@@ -128,8 +133,31 @@ export default function App() {
       }
     }
 
-    function onFooEvent(value) {
-      setFooEvents(previous => [...previous, value]);
+    function onChatEvent(msg) {
+
+      console.log("chat", "xxx",msg.chat.trim(),"xxx");
+
+      const maxMessages = 20;
+
+      if ( String(msg.chat).trim()==='') return;
+
+      const name = msg.user.slice(0,12);
+      const dL = String(msg.chat).length - (String(name).length+2);
+
+      const pad = spa.join('').slice(0,Math.min(500,Math.abs(dL)));
+
+      let chatPad,userPad;
+      if ( dL < 0) {
+        chatPad = pad;
+        userPad = '';
+      }
+      else {
+        chatPad = '';
+        userPad = pad;
+      }
+
+      setChatText(previous => [msg.chat+chatPad,...previous.slice(0,maxMessages)]);
+      setChatUsers(previous => ["("+name+")"+userPad,...previous.slice(0,maxMessages)]);
     }
 
     function onNewBoard(msg) {
@@ -253,8 +281,8 @@ export default function App() {
           const style2 = {...style};
           style2.textAlign = "left";
 
-          let outName = userName.substring(0,10);
-          if  (val.giveUp ) { outName = "💀" + outName}
+          let outName = userName.substring(0,11);
+          if  (val.giveUp ) { outName = "💀" + outName}  //easiest just to paste weird symbols instead of using codes
           playerInfoOutput.push(
             <tr key={userName}>
               <td style={style2}>{outName}</td>
@@ -270,7 +298,7 @@ export default function App() {
 
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
-    socket.on('chat message', onFooEvent);
+    socket.on('chat message', onChatEvent);
     socket.on('new board', onNewBoard);
     socket.on('current board', onNewBoard);
     socket.on('duplicate',onDupe);
@@ -281,7 +309,7 @@ export default function App() {
     return () => {
       socket.off('connect', onConnect);
       socket.off('disconnect', onDisconnect);
-      socket.off('chat message', onFooEvent);
+      socket.off('chat message', onChatEvent);
       socket.off('new board', onNewBoard);
       socket.off('current board', onNewBoard);
       socket.off('duplicate', onDupe);
@@ -312,7 +340,9 @@ export default function App() {
     latestWord,
     playerInfo,
     setGiveUp,
-    giveUp
+    giveUp,
+    chatText,
+    chatUsers
   };
 
   //this stops all the crappy ios events but then also prevents

@@ -288,12 +288,12 @@ export function BoardDetails({ props }) {
 
     counter.current++;
     let tmpStyles = [];
-    let top = boardDims.width * .01;
-    const marginFac = 0.9;
-    const spacingFac = .95;
+    let top = 0; // boardDims.width * .001;
+    const marginFac = 0.85;   //.9
+    const spacingFac = .9;  //.95
 
     for (let j = 0; j < N; j++) {
-      let left = boardDims.width * .03;
+      let left = boardDims.width * .08;
       let row = [];
       for (let i = 0; i < M; i++) {
         let boxStyle = {
@@ -309,7 +309,7 @@ export function BoardDetails({ props }) {
           left: left,
           height: (marginFac * boardDims.height) / N + "px",
           width: (marginFac * boardDims.width) / M + "px",
-          fontSize: (0.6 * boardDims.height) / N + "px",
+          fontSize: (0.5 * boardDims.height) / N + "px",
           textShadow: "3px 1px 3px black",
           textAlign: "center"
         };
@@ -324,7 +324,7 @@ export function BoardDetails({ props }) {
         }
 
   
-        fontSize.current = (0.6 * boardDims.height) / N + "px";
+        fontSize.current = (0.5 * boardDims.height) / N + "px";
         lineHeight.current = (0.9 * marginFac * boardDims.height) / N;
         left += spacingFac * boardDims.width / M;
         row.push(boxStyle);

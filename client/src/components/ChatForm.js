@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { socket } from '../socket';
 
-export function MyForm() {
+export function ChatForm() {
   const [form, setForm] = useState({chat:''});
   const [isLoading, setIsLoading] = useState(false);
 
@@ -18,8 +18,10 @@ export function MyForm() {
 
   return (
     <form key="formA" onSubmit={ onSubmit }>
-      <input key="inputA" id="inputA" value={form.chat} onInput={ e => setForm({chat:e.target.value } )} />
-      <button key="buttonA" type="submit" disabled={ isLoading }>Chat</button>
+      <span>
+        <input style={{width:"65%",height:"100%"}}key="inputA" id="inputA" value={form.chat} onInput={ e => setForm({chat:e.target.value } )} />
+        <button style={{height:"100%"}} key="buttonA" type="submit" disabled={ isLoading }>Chat</button>
+      </span>
     </form>
   );
 }

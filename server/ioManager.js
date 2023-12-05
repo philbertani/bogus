@@ -131,16 +131,24 @@ export class ioManager {
     });
     */
 
-    /*
+    
     io.on("connection", (socket) => {
       //not being used right now
       socket.on("chat message", (msg) => {
-        io.emit("chat message", msg);
+
+        const {gameRoom, userId} = this.getGameRoom(socket.id);
+    
+        if  ( !gameRoom ) {
+          console.log('could not find user based on socket',socket.id);
+          return;
+        }
+
+        io.to(gameRoom.id).emit("chat message", {chat:msg, user:this.users[userId].name});
         console.log(msg);
+
       });
     });
-    */
-
+    
     
     io.on("connection", socket => {
       socket.on('giveUp', msg=>{
