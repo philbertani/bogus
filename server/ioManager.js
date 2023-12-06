@@ -132,7 +132,6 @@ export class ioManager {
       });
     });
 
-
     /*
     io.on("connection", socket => {
       socket.on('info', msg=>{
@@ -140,7 +139,6 @@ export class ioManager {
       });
     });
     */
-
         
     io.on("connection", (socket) => {
 
@@ -155,7 +153,7 @@ export class ioManager {
 
         console.log('trying to start a timed game in:',gameRoom.roomInfo.name);
         if (msg.message == "requestStart") {
-          const message = gameRoom.startTimedGame();
+          const message = gameRoom.startTimedGame(msg.length);
           if (message.status == "startGame") {
             gameRoom.newBoard();
             this.emitGame(io,gameRoom, gameRoom.id);  

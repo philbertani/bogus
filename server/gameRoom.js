@@ -15,6 +15,8 @@ export class gameRoom {
     BOARDTYPES = {NORMAL:0,TORUS:1};
     boardType;
     maxScore = 0;   //need to persist maxScore separate from users who might disconnect
+    stupidMessage = "nobody scored any points - WTF?";
+    winner = this.stupidMessage;
 
     gameType;
     data;
@@ -47,6 +49,7 @@ export class gameRoom {
         this.boardId = uuidv4();
         this.allWordsFound = {};
         this.maxScore = 0;
+        this.winner = this.stupidMessage;
 
         //set all wordCounts to 0
         for (const player of Object.values(this.players)) {
@@ -101,7 +104,7 @@ export class gameRoom {
         let playerCount = 0;
         let maxWordCount = 0;
         let maxScore = this.maxScore;
-        let winner = null;
+        let winner = this.winner;
 
         //console.log(ioAllPlayers);
         for ( const [key,value] of Object.entries(this.players) ) {
@@ -123,13 +126,18 @@ export class gameRoom {
             else {
               console.log("gameStats: could not find ioManagerRef for player, ",userId);
             }
-
-
         }
+
+        const ioRef = ioAllPlayers ? ioAllPlayers[winner] : null;
+      
+        if ( ioRef) {
+          winner = ioRef.name;
+        }
+        
         this.maxScore = maxScore;
-        this.roomInfo.winner = winner;
+        this.winner = winner;
         //console.log(this.id, maxScore);
-        return {playerCount, maxWordCount, maxScore, numWords:this.game.wordsFound.length}
+        return {playerCount, maxWordCount, maxScore, winner, numWords:this.game.wordsFound.length}
     }
 
     setPlayerWordCount(userId, count, totalScore, ioManagerRef) {
@@ -144,14 +152,14 @@ export class gameRoom {
         this.io.to(this.id).emit("stats",{stats:this.gameStats(ioAllPlayers),roomId:this.roomInfo.displayId,players:this.players});
     }
 
-    startTimedGame() {
+    startTimedGame(length) {
       if (this.roomInfo.timedGame) {
         return {status:"alreadyPlaying"}
       }
       this.roomInfo.timedGame = true;
       this.roomInfo.gameStartTime = Date.now();
-      this.roomInfo.gameOverTime = Date.now() + 500*1000;
-      this.roomInfo.gameLength = 30;  //500;
+      this.roomInfo.gameOverTime = Date.now() + length*60*1000;
+      this.roomInfo.gameLength = length*60; //coming in as minutes //30;  //500;
       this.roomInfo.gameOver = false;
       this.roomInfo.winner = null;
       this.emittedResult = false;
@@ -162,6 +170,7 @@ export class gameRoom {
     checkGame(ioAllPlayers) {
       //let server decide when game is over
       if (this.roomInfo.timedGame) {
+        //all time comparisons are in seconds
         const elapsed =  Math.trunc((Date.now() - this.roomInfo.gameStartTime)/1000);
         if (  elapsed >  this.roomInfo.gameLength ) {
           this.roomInfo.gameOver = true;
@@ -172,11 +181,11 @@ export class gameRoom {
           
           if (!this.emittedResult) {
             const finalResult = this.gameStats(ioAllPlayers);
-            this.io.to(this.id).emit("gameOver",{stats:finalResult,roomId:this.roomInfo.displayId,players:this.players,roomInfo:this.roomInfo})
+            this.io.to(this.id).emit("gameOver",{stats:finalResult,roomId:this.roomInfo.displayId,players:this.players})
             this.emittedResult = true;
           }
         }
-        if ( elapsed > this.roomInfo.gameLength + 5 ) {
+        if ( elapsed > this.roomInfo.gameLength + 20 ) {
           //finally set timedGame to false so board can be reset
           this.roomInfo.timedGame = false;
         }

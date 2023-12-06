@@ -34,7 +34,8 @@ export function GameBoard({ props }) {
     chatUsers,
     gameTime,
     setGameTime,
-    gameStartTime
+    gameStartTime,
+    gameLength
   } = props;
 
   const [boardDims, setBoardDims] = React.useState({});
@@ -76,8 +77,10 @@ export function GameBoard({ props }) {
   const [userNamePopUp, setUserNamePopUp] = React.useState(false);
   const [numWords, setNumWords] = React.useState(0);
 
-  const [timedGame, setTimedGame] = React.useState(false)
-  const [alreadySetTimedGame, setAlreadySetTimedGame] = React.useState(false);
+  const [timedGame, setTimedGame] = React.useState(false);
+  const [gameLengthRequest, setGameLengthRequest] = React.useState(5);
+
+  const gameLengths = [2,5,10,17];
 
   //const countx = React.useRef(0);
   //countx.current ++;
@@ -98,12 +101,19 @@ export function GameBoard({ props }) {
 
 
   React.useEffect(()=>{
+    //gameStartTime being > 0 also tells us to count backwards for a timed game
+    //i don't feel like setting more states - phewy
     const interval = setInterval( ()=> {
-      setGameTime( Math.trunc((Date.now()-gameStartTime)/1000) );
+      if ( gameLength > 0) {
+        setGameTime( gameLength - Math.trunc((Date.now()-gameStartTime)/1000) );
+      }
+      else {
+        setGameTime(Math.trunc((Date.now()-gameStartTime)/1000) );
+      }
     }, 1000 );
 
     return ()=> clearInterval(interval);
-  },[gameTime, gameStartTime, setGameTime]);
+  },[gameTime, gameStartTime, setGameTime, gameLength]);
 
   React.useEffect(() => {
     //const currentBoardDims = boardRef.current.getBoundingClientRect();
@@ -263,8 +273,7 @@ export function GameBoard({ props }) {
     colorSchemeRef,
     setUserNamePopUp,
     setGiveUp,
-    setTimedGame,
-    setAlreadySetTimedGame
+    setTimedGame
   };
 
   const touch0 = React.useRef({});
@@ -428,13 +437,14 @@ export function GameBoard({ props }) {
 
   React.useEffect( ()=>{
 
-    if (timedGame) { // && !alreadySetTimedGame ) {
+    if (timedGame) { 
+      //the server knows to reject a duplicate call
       console.log('timed game sending');
-      socket.emit('timedGame',{message:"requestStart"})
-      setAlreadySetTimedGame(true);
+      socket.emit('timedGame',{message:"requestStart",length:gameLengthRequest});
+      setTimedGame(false);
     }
     
-  },[timedGame, socket, alreadySetTimedGame])
+  },[timedGame, socket, gameLengthRequest ])
 
   function generateNewBoard(ev) {
     ev.preventDefault();
@@ -696,27 +706,34 @@ export function GameBoard({ props }) {
             setDisplayTimer("none");
           }}
         >
-          <button
-            style={{
-              position: "absolute",
-              left: "50%",
-              top: "10%",
-              transform: "translate(-55%,0)",
-              height: boardDims.height / 8,
-              backgroundColor: "red",
-              color: "yellow",
-              fontWeight: "bold",
-              fontSize: boardDims.height / 20,
-            }}
-            onClick={(ev) => {
-              setTimedGame(true);
-            }}
-            onTouchStart={(ev) => {
-              setTimedGame(true);
-            }}
-          >
-            Start TIMED Game
-          </button>
+          {gameLengths.map((gameLength,index) => (
+            <button
+              style={{
+                position: "absolute",
+                left: "50%",
+                top: (10+index*boardDims.height*.03) + "%",
+                transform: "translate(-55%,0)",
+                height: boardDims.height*.08,
+                backgroundColor: "red",
+                color: "yellow",
+                fontWeight: "bold",
+                fontSize: boardDims.height / 20,
+              }}
+              onClick={(ev) => {
+                setTimedGame(true);
+                setGameLengthRequest(gameLength);
+              }}
+              onTouchStart={(ev) => {
+                setTimedGame(true);
+                setGameLengthRequest(gameLength);
+              }}
+            >
+              {gameLength} Minutes
+            </button>
+          ))}
+          <div style={{position:"absolute",width:boardDims.width/3,bottom:0,left:"50%",transform:"translate(-55%,0)"}}>
+              <img style={{width:"100%"}}src="yp4.jpg" alt="a Yellow Pig for Cathy and Dave Kelly"></img>
+          </div>
           <p
             style={{
               position: "absolute",
@@ -724,7 +741,7 @@ export function GameBoard({ props }) {
               textAlign: "center",
             }}
           >
-            Default Game Time is 5 Minutes
+            Pick a Game Time
           </p>
         </div>
 
@@ -771,8 +788,8 @@ export function GameBoard({ props }) {
             fontWeight: "bold",
           }}
         >
-          {chatText.join("-")} <br></br>
-          {chatUsers.join("-")}
+          {chatText.join(", ")} <br></br>
+          {chatUsers.join(", ")}
         </div>
 
         <div
@@ -797,8 +814,11 @@ export function GameBoard({ props }) {
             style={{
               position: "absolute",
               top: "0%",
-              backgroundColor: roomInfo[currentRoomId] ? 
-                (roomInfo[currentRoomId].timedGame ? "lightgreen" : "inherit") : "inherit"
+              backgroundColor: roomInfo[currentRoomId]
+                ? roomInfo[currentRoomId].timedGame
+                  ? "lightgreen"
+                  : "inherit"
+                : "inherit",
             }}
           >
             Timer: {gameTime}
@@ -915,15 +935,15 @@ export function GameBoard({ props }) {
 
           <div
             style={{
+              margin: 0,
               position: "absolute",
-              left: "52%",
-              top: "15%",
-              height: boardDims.height * 0.1,
-              width: boardDims.width * 0.5,
+              left: boardDims.width*.51,
+              width: boardDims.width * 0.5
             }}
           >
-            <ChatForm />
+            <ChatForm boardDims={boardDims}/>
           </div>
+
         </div>
 
         <div

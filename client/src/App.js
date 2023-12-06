@@ -52,6 +52,7 @@ export default function App() {
   const [gameStartTime, setGameStartTime] = React.useState(0);
   const [gameLength, setGameLength] = React.useState(500);
   const [gameOver, setGameOver] = React.useState(false);
+  const [finalResult, setFinalResult] = React.useState({});
 
   const sp="\u00a0";
   const spa = Array(500).fill(sp);
@@ -204,16 +205,14 @@ export default function App() {
         setGameStartTime(msg.roomInfo.gameStartTime);
 
         const elapsedTime =  Math.trunc((Date.now()-msg.roomInfo.gameStartTime)/1000)
-        setGameTime( elapsedTime );
-
-        if ( elapsedTime > msg.roomInfo.gameLength ) {
-          setGameOver(true);
-        }
+        setGameTime( msg.roomInfo.gameLength - elapsedTime );
+        setGameLength( msg.roomInfo.gameLength);
 
       }
       else {
         setGameStartTime(Date.now());
         setGameTime(0);
+        setGameLength(0);
       }
 
       const td = window.matchMedia("(pointer: coarse)").matches;
@@ -241,9 +240,15 @@ export default function App() {
       }
     }
 
-    function onGameOver() {
-      console.log("game over message");
-      setGameOver(true);
+    function onGameOver(msg) {
+      console.log("game over message",msg);
+
+      if (msg.roomId == currentRoomId) {
+
+        setFinalResult(msg.stats);
+        setGameOver(true);
+      }
+ 
     }
 
     function onHeartBeat(msg) {
@@ -438,6 +443,10 @@ export default function App() {
       onTouchStart={ev=>{setGameOver(false)}}
     >
         GAME OVER
+        <div style={{fontSize:"1em"}}>
+          {(finalResult.maxScore > 0) && "The WINNER is: " }
+          {finalResult.winner}
+        </div>
     </div>,
 
     isDuplicateProcess && <div key="conn">You already are Connected</div>
