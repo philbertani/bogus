@@ -439,14 +439,26 @@ export default function App() {
       fontSize: "3em",
       zIndex: 100000
       }}
-      onClick={ev=>{setGameOver(false)}}
-      onTouchStart={ev=>{setGameOver(false)}}
+
     >
         GAME OVER
         <div style={{fontSize:"1em"}}>
           {(finalResult.maxScore > 0) && "The WINNER is: " }
           {finalResult.winner}
         </div>
+
+        <button 
+          style={{
+            position:"absolute",
+            top:"55%",
+            backgroundColor:"red",
+            fontSize: "3em",
+            left: "20%"
+          }}
+          onClick={ev=>{setGameOver(false)}}
+          onTouchStart={ev=>{setGameOver(false)}}
+          >🖕
+        </button>
     </div>,
 
     isDuplicateProcess && <div key="conn">You already are Connected</div>
