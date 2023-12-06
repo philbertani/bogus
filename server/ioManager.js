@@ -46,6 +46,7 @@ export class ioManager {
       this.statsInterval = setInterval( ()=>{
         for (const gameRoom of Object.values(this.gameRooms) ) {
           gameRoom.sendStats(this.users);
+          gameRoom.checkGame(this.users);
         }
       }, 1500);
 
@@ -61,7 +62,15 @@ export class ioManager {
     const roomName = this.gameRooms[newRoomId].data.name + " "  +
       this.gameRooms[newRoomId].game.BOARDTYPE_NAMES[boardType]; // + boardType;
 
-    const roomInfo = {displayId:this.numRooms,id:newRoomId,name:roomName};
+    const roomInfo = {
+      displayId: this.numRooms,
+      id: newRoomId,
+      name: roomName,
+      createTime: Date.now(),
+      gameStartTime: 0,
+      timedGame: false,
+    };
+
     this.roomInfo.push(roomInfo);
     this.gameRooms[newRoomId].roomInfo = roomInfo;
     this.numRooms ++;   
@@ -98,7 +107,8 @@ export class ioManager {
       rank: gameRoom.game.rank,
       roomId: gameRoom.roomInfo.displayId,
       minLetters: gameRoom.game.minLetters,
-      gameType: gameRoom.game.gameType
+      gameType: gameRoom.game.gameType,
+      roomInfo: gameRoom.roomInfo
 
     });
 
@@ -131,9 +141,37 @@ export class ioManager {
     });
     */
 
-    
+        
     io.on("connection", (socket) => {
-      //not being used right now
+
+      socket.on("timedGame", (msg) => {
+
+        const {gameRoom, userId} = this.getGameRoom(socket.id);
+    
+        if  ( !gameRoom ) {
+          console.log('could not find user based on socket',socket.id);
+          return;
+        }
+
+        console.log('trying to start a timed game in:',gameRoom.roomInfo.name);
+        if (msg.message == "requestStart") {
+          const message = gameRoom.startTimedGame();
+          if (message.status == "startGame") {
+            gameRoom.newBoard();
+            this.emitGame(io,gameRoom, gameRoom.id);  
+          }
+        }
+        else if ( msg.message == "alreadyPlaying") {
+
+        }
+
+      });
+    });
+    
+
+
+    io.on("connection", (socket) => {
+
       socket.on("chat message", (msg) => {
 
         const {gameRoom, userId} = this.getGameRoom(socket.id);
@@ -153,7 +191,6 @@ export class ioManager {
     io.on("connection", socket => {
       socket.on('giveUp', msg=>{
         
-
         const {gameRoom, userId} = this.getGameRoom(socket.id);
     
         if  ( !gameRoom ) {
@@ -225,6 +262,10 @@ export class ioManager {
           return;
         }
     
+        if (gameRoom.roomInfo.timedGame) {
+          io.to(socket.id).emit('timedGame',"Timed Game in progress, you can not reset the board");
+          return;
+        }
         gameRoom.newBoard();
         
         this.emitGame(io,gameRoom, gameRoom.id);

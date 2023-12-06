@@ -48,6 +48,11 @@ export default function App() {
 
   const [giveUp, setGiveUp] = React.useState(false);
 
+  const [gameTime, setGameTime] = React.useState(0);
+  const [gameStartTime, setGameStartTime] = React.useState(0);
+  const [gameLength, setGameLength] = React.useState(500);
+  const [gameOver, setGameOver] = React.useState(false);
+
   const sp="\u00a0";
   const spa = Array(500).fill(sp);
 
@@ -170,6 +175,7 @@ export default function App() {
 
       const mainGameX = new bogusMain( {words:msg.words, definitions:msg.defs},msg.boardType, msg.gameType );
       console.log('new board msg',msg.game);
+      console.log('new board room info',msg.roomInfo);
 
       mainGameX.board = cloneArray(msg.game.board);
       mainGameX.output = cloneArray(msg.game.output);
@@ -193,6 +199,22 @@ export default function App() {
  
       setReset(true);
       console.log('setting mainGame', mainGameX.boardId);
+
+      if (msg.roomInfo.timedGame) {
+        setGameStartTime(msg.roomInfo.gameStartTime);
+
+        const elapsedTime =  Math.trunc((Date.now()-msg.roomInfo.gameStartTime)/1000)
+        setGameTime( elapsedTime );
+
+        if ( elapsedTime > msg.roomInfo.gameLength ) {
+          setGameOver(true);
+        }
+
+      }
+      else {
+        setGameStartTime(Date.now());
+        setGameTime(0);
+      }
 
       const td = window.matchMedia("(pointer: coarse)").matches;
 
@@ -219,8 +241,14 @@ export default function App() {
       }
     }
 
+    function onGameOver() {
+      console.log("game over message");
+      setGameOver(true);
+    }
+
     function onHeartBeat(msg) {
       //five seconds is good enough
+      //console.log(msg.roomInfo);
       setRoomInfo(msg.roomInfo);
       setTimeout( ()=>{setWaitingForHeartbeat(false); }, 5000 );
     }
@@ -271,7 +299,7 @@ export default function App() {
               style.color = "red";
               style.backgroundColor = "yellow";
               if (val.giveUp) {
-                console.log('gave up message');
+                //console.log('gave up message');
                 setGiveUp(val.giveUp);
               }
             }
@@ -305,6 +333,7 @@ export default function App() {
     socket.on('allWordsFound', onAllWordsFound);
     socket.on('heartbeat', onHeartBeat);
     socket.on('stats', onStats);
+    socket.on('gameOver', onGameOver);
 
     return () => {
       socket.off('connect', onConnect);
@@ -316,9 +345,10 @@ export default function App() {
       socket.off('allWordsFound', onAllWordsFound);
       socket.off('heartbeat', onHeartBeat);
       socket.off('stats', onStats);
+      socket.off('gameOver', onGameOver);
     };
 
-  }, [mainGame, isDuplicateProcess, currentRoomId]);
+  }, [mainGame, isDuplicateProcess, currentRoomId, spa]);
 
   const props = {
     game: mainGame,
@@ -342,7 +372,12 @@ export default function App() {
     setGiveUp,
     giveUp,
     chatText,
-    chatUsers
+    chatUsers,
+    gameTime,
+    setGameTime,
+    gameStartTime,
+    gameLength,
+    setGameLength
   };
 
   //this stops all the crappy ios events but then also prevents
@@ -361,7 +396,6 @@ export default function App() {
   },[]);
 
   
-
   /*  here is how to use refs for form control instead of states which may cause re rendering 
   const inputRef = React.useRef();
   const formValueRef = React.useRef("balls");
@@ -389,6 +423,22 @@ export default function App() {
     ) : (
       <div key="serverConnProb">Server Connection Problems, try refreshing Page</div>
     ),
+
+    gameOver && 
+    <div key="gameOver" style={{
+      position:"absolute",
+      width: window.screen.width,
+      height: window.screen.height,
+      backgroundColor: "rgba(0,0,255,.8)",
+      color: "white",
+      fontSize: "3em",
+      zIndex: 100000
+      }}
+      onClick={ev=>{setGameOver(false)}}
+      onTouchStart={ev=>{setGameOver(false)}}
+    >
+        GAME OVER
+    </div>,
 
     isDuplicateProcess && <div key="conn">You already are Connected</div>
     

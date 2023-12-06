@@ -6,7 +6,6 @@ import { vec, blank2dArray } from "../common/utils.js";
 
 import { UserNameForm } from "./UserNameForm.js";
 import { ChatForm} from "./ChatForm.js";
-import { Events } from "./Events.js";
 
 //import GPU from "../components/3d/GPU.js"
 
@@ -32,7 +31,10 @@ export function GameBoard({ props }) {
     setGiveUp,
     giveUp,
     chatText,
-    chatUsers
+    chatUsers,
+    gameTime,
+    setGameTime,
+    gameStartTime
   } = props;
 
   const [boardDims, setBoardDims] = React.useState({});
@@ -74,7 +76,8 @@ export function GameBoard({ props }) {
   const [userNamePopUp, setUserNamePopUp] = React.useState(false);
   const [numWords, setNumWords] = React.useState(0);
 
-  const [timedGame, setTimedGame] = React.useState(0)
+  const [timedGame, setTimedGame] = React.useState(false)
+  const [alreadySetTimedGame, setAlreadySetTimedGame] = React.useState(false);
 
   //const countx = React.useRef(0);
   //countx.current ++;
@@ -92,6 +95,15 @@ export function GameBoard({ props }) {
     //Clearing the interval
     return () => clearInterval(interval);
   }, [count]);
+
+
+  React.useEffect(()=>{
+    const interval = setInterval( ()=> {
+      setGameTime( Math.trunc((Date.now()-gameStartTime)/1000) );
+    }, 1000 );
+
+    return ()=> clearInterval(interval);
+  },[gameTime, gameStartTime, setGameTime]);
 
   React.useEffect(() => {
     //const currentBoardDims = boardRef.current.getBoundingClientRect();
@@ -250,7 +262,9 @@ export function GameBoard({ props }) {
     setAllWordsFound,
     colorSchemeRef,
     setUserNamePopUp,
-    setGiveUp
+    setGiveUp,
+    setTimedGame,
+    setAlreadySetTimedGame
   };
 
   const touch0 = React.useRef({});
@@ -412,12 +426,21 @@ export function GameBoard({ props }) {
     }
   }, [windowSize, boardDims, isTouchDevice]);
 
+  React.useEffect( ()=>{
+
+    if (timedGame) { // && !alreadySetTimedGame ) {
+      console.log('timed game sending');
+      socket.emit('timedGame',{message:"requestStart"})
+      setAlreadySetTimedGame(true);
+    }
+    
+  },[timedGame, socket, alreadySetTimedGame])
+
   function generateNewBoard(ev) {
     ev.preventDefault();
     console.log("trying to get new board");
     socket.emit("new board");
   }
-
 
   function setGameRoom(room) {
 
@@ -675,10 +698,10 @@ export function GameBoard({ props }) {
         >
           <button
             style={{
-              position:"absolute",
-              left:"50%",
-              top:"10%",
-              transform:"translate(-55%,0)",
+              position: "absolute",
+              left: "50%",
+              top: "10%",
+              transform: "translate(-55%,0)",
               height: boardDims.height / 8,
               backgroundColor: "red",
               color: "yellow",
@@ -694,7 +717,15 @@ export function GameBoard({ props }) {
           >
             Start TIMED Game
           </button>
-          <p style={{position:"absolute",width:boardDims.width,textAlign:"center"}}>Default Game Time is 5 Minutes</p>
+          <p
+            style={{
+              position: "absolute",
+              width: boardDims.width,
+              textAlign: "center",
+            }}
+          >
+            Default Game Time is 5 Minutes
+          </p>
         </div>
 
         <div
@@ -748,7 +779,7 @@ export function GameBoard({ props }) {
           style={{
             position: "absolute",
             left: boardDims.width * 0.01,
-            top: boardDims.height * 1.025,
+            top: boardDims.height * 1.03,
             width: boardDims.width,
             height: boardDims.height * 0.09,
             backgroundColor: "white",
@@ -757,13 +788,20 @@ export function GameBoard({ props }) {
             lineHeight: boardDims.height * 0.045 + "px",
           }}
         >
-          <div style={{ position: "absolute", top: "0%" }}>
+          <div style={{ position: "absolute", top: "53%" }}>
             <span>Latest:</span>
             {latestWord}
           </div>
 
-          <div style={{ position: "absolute", top: "53%" }}>
-            Game Total:{Object.keys(allWordsFound).length}
+          <div
+            style={{
+              position: "absolute",
+              top: "0%",
+              backgroundColor: roomInfo[currentRoomId] ? 
+                (roomInfo[currentRoomId].timedGame ? "lightgreen" : "inherit") : "inherit"
+            }}
+          >
+            Timer: {gameTime}
           </div>
         </div>
 
@@ -1052,37 +1090,6 @@ export function GameBoard({ props }) {
           </p>
         </div>
       </div>,
-
-      /*
-      <div
-        key="stats"
-        style={{
-          position: "absolute",
-          zIndex: "500",
-          top:
-            1.5 * window.innerHeight > window.innerWidth
-              ? boardDims.height + wordListPos.height + boardDims.height / 4.1
-              : boardDims.height + boardDims.height / 5,
-          backgroundColor: "rgba(200,100,0,.9)",
-          color: "rgba(250,250,0,1)",
-          textAlign: "Center",
-          marginLeft: boardDims.width * 0.01,
-          height: "3.5vh",
-          fontSize: "2.5vh",
-          lineHeight: "3.5vh",
-          width: boardDims.width,
-        }}
-      >
-        {stats.playerCount &&
-          "Players:" +
-            stats.playerCount +
-            ", High Score:" +
-            stats.maxScore +
-            ", Your Score:" +
-            //(!is3d && (foundWordsRef.current.totalScore ?? 0))
-            (foundWordsRef.current ? foundWordsRef.current.totalScore ?? 0 : 0)}
-      </div>,
-      */
 
       userNamePopUp && (
         <div

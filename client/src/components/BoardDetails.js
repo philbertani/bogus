@@ -42,7 +42,9 @@ export function BoardDetails({ props }) {
     setCubeStyles,
     colorSchemeRef,
     setUserNamePopUp,
-    setGiveUp
+    setGiveUp,
+    setTimedGame,
+    setAlreadySetTimedGame
   } = props;
 
   const colorScheme = colorSchemeRef.current;
@@ -76,6 +78,9 @@ export function BoardDetails({ props }) {
       setSearchString("");
       setReset(false);
       setGiveUp(false);
+      setTimedGame(false);
+      setAlreadySetTimedGame(false);
+
       selectedRef.current = [];
 
       //setAllWordsFound({});  we can not do this here
@@ -99,7 +104,10 @@ export function BoardDetails({ props }) {
       }
 
     }
-  }, [reset, setReset, M, N, setFoundWords, game.boardId, setSearchString, foundWordsRef, setTotalScore]);
+  }, [reset, setReset, M, N, setFoundWords,
+      game.boardId, setSearchString, foundWordsRef, setTotalScore,
+      setGiveUp, setTimedGame, setAlreadySetTimedGame
+    ]);
 
   function pathDiv(top,left,width,height,transformText) {
     return (

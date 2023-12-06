@@ -18,6 +18,7 @@ export class gameRoom {
 
     gameType;
     data;
+    roomInfo; //set by ioManager
 
     debugBoard = [];
     
@@ -100,6 +101,7 @@ export class gameRoom {
         let playerCount = 0;
         let maxWordCount = 0;
         let maxScore = this.maxScore;
+        let winner = null;
 
         //console.log(ioAllPlayers);
         for ( const [key,value] of Object.entries(this.players) ) {
@@ -107,7 +109,10 @@ export class gameRoom {
                 playerCount ++; 
                 //should we still count the score of a disconnected player?
                 if (value.wordCount > maxWordCount) maxWordCount = value.wordCount;
-                if (value.score > maxScore) maxScore = value.score;
+                if (value.score > maxScore) { 
+                  maxScore = value.score;
+                  winner = key
+                }
             }
 
             const userId = key;
@@ -122,6 +127,7 @@ export class gameRoom {
 
         }
         this.maxScore = maxScore;
+        this.roomInfo.winner = winner;
         //console.log(this.id, maxScore);
         return {playerCount, maxWordCount, maxScore, numWords:this.game.wordsFound.length}
     }
@@ -136,5 +142,44 @@ export class gameRoom {
     sendStats(ioAllPlayers) {
         //console.log("sending stats for",this.id);
         this.io.to(this.id).emit("stats",{stats:this.gameStats(ioAllPlayers),roomId:this.roomInfo.displayId,players:this.players});
+    }
+
+    startTimedGame() {
+      if (this.roomInfo.timedGame) {
+        return {status:"alreadyPlaying"}
+      }
+      this.roomInfo.timedGame = true;
+      this.roomInfo.gameStartTime = Date.now();
+      this.roomInfo.gameOverTime = Date.now() + 500*1000;
+      this.roomInfo.gameLength = 30;  //500;
+      this.roomInfo.gameOver = false;
+      this.roomInfo.winner = null;
+      this.emittedResult = false;
+
+      return {status:"startGame"}
+    }
+
+    checkGame(ioAllPlayers) {
+      //let server decide when game is over
+      if (this.roomInfo.timedGame) {
+        const elapsed =  Math.trunc((Date.now() - this.roomInfo.gameStartTime)/1000);
+        if (  elapsed >  this.roomInfo.gameLength ) {
+          this.roomInfo.gameOver = true;
+
+          //leave some time without other people messing arounnd so we can display results
+          this.roomInfo.gameOverTime = Date.now(); 
+          this.roomInfo.timedGame = true;
+          
+          if (!this.emittedResult) {
+            const finalResult = this.gameStats(ioAllPlayers);
+            this.io.to(this.id).emit("gameOver",{stats:finalResult,roomId:this.roomInfo.displayId,players:this.players,roomInfo:this.roomInfo})
+            this.emittedResult = true;
+          }
+        }
+        if ( elapsed > this.roomInfo.gameLength + 5 ) {
+          //finally set timedGame to false so board can be reset
+          this.roomInfo.timedGame = false;
+        }
+      }
     }
 }
