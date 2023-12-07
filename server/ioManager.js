@@ -26,13 +26,22 @@ export class ioManager {
 
       this.setHandlers(this.io);
 
+      console.log("xxxxxxxxx", dict.english.letterDist);
+
+
+
+      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"five");
+      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"five");
       this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"five");
       this.newGameRoom(dict.english,this.BOARDTYPES.NORMAL,"five");
       this.newGameRoom(dict.hebrew,this.BOARDTYPES.TORUS,"hebrewFive");
       this.newGameRoom(dict.spanish,this.BOARDTYPES.TORUS,"spanishFive");
       this.newGameRoom(dict.spanishLoose,this.BOARDTYPES.TORUS,"spanishFiveLoose");
       this.newGameRoom(dict.italian,this.BOARDTYPES.TORUS,"italianFive");
-      
+      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"englishSix");
+      this.newGameRoom(dict.english,this.BOARDTYPES.NORMAL,"four");
+      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"four");
+    
       const noLunaBoard = [
         ['O','Ñ','D','S','E'],
         ['U','N','E','I','S'],

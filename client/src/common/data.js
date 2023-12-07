@@ -1,5 +1,7 @@
 // ld = letter distribution
 
+//time to get rid of the boggle dice and just use the 
+//letter frequencies directly
 
 const gameTypes = {
   four: {
@@ -57,6 +59,13 @@ const gameTypes = {
       "NOOTUW",
       "OOOTTU",
     ]
+  },
+
+  englishSix: {
+    rank: {M:6, N:6},
+    minLetters: 4,
+    name: "English 6x6",
+    ld: []
   },
 
   hebrewFive: {
@@ -201,7 +210,7 @@ const gameTypes = {
   italianFive: {
     rank: {M:5, N:5},
     minLetters: 3,
-    name: "Italian",
+    name: "Italian 5x5",
 
     ld: [
       "EEEZOS",

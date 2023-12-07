@@ -101,10 +101,15 @@ export function BoardDetails({ props }) {
         totalScoreRef.current = savedWords.totalScore;
       }
 
+      if (cubeStyles.length !== game.rank.M) {
+        //yes I have failed somewhere in using React states properly - so what?
+        window.location.reload();
+      }
+    
     }
   }, [reset, setReset, M, N, setFoundWords,
       game.boardId, setSearchString, foundWordsRef, setTotalScore,
-      setGiveUp, setTimedGame
+      setGiveUp, setTimedGame, cubeStyles.length,game.rank.M
     ]);
 
   function pathDiv(top,left,width,height,transformText) {
@@ -292,6 +297,10 @@ export function BoardDetails({ props }) {
 
     //if ( cubeStyles.length < M) return;
 
+    if ( cubeStyles.length !== game.rank.M ) {
+      window.location.reload();
+    }
+    
     counter.current++;
     let tmpStyles = [];
     let top = 0; // boardDims.width * .001;

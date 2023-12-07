@@ -1,9 +1,79 @@
 import {promises as fs} from 'fs'
 
+class LetterFrequencyAnalyzer {
+  
+  numLetters = 0;
+  freqs = {};
+  probabilities = {};
+  rndMap = [];
+  validSymbols;
+  letterCounts={VALID:0,INVALID:0}
+
+  constructor( {validSymbols} ) {
+    if (validSymbols) this.validSymbols = this.toMap(validSymbols);
+  }
+
+  toMap(arr) {
+    const _map = {};
+    for (let i=0; i<arr.length; i++) {
+      _map[arr[i]] = 1;
+    }
+    return _map;
+  }
+
+  addLetters(word) {
+
+    if ( !word) return;
+
+    for ( let i=0; i<word.length; i++) {
+      const letter = word[i];
+      if ( !this.freqs[letter]) this.freqs[letter] = 1;
+      else  ( this.freqs[letter] ++ ); 
+    }
+  }
+
+  computeProbabilities() {
+    if ( !this.validSymbols ) {
+      //assume every symbol in the dictionary is valid - bad idea
+      this.validSymbols = this.toMap(Object.keys(this.freqs));
+    }
+
+    let validLetterCount = 0;
+    const allLetters = Object.keys(this.freqs).sort();
+    for (const letter of allLetters) {
+      const validity = this.validSymbols[letter] ? "VALID" : "INVALID";
+      this.letterCounts[validity] += this.freqs[letter];
+    }
+
+    for (const letter of allLetters) {
+      this.probabilities[letter] = this.freqs[letter]/this.letterCounts["VALID"];
+    }
+
+    const rndBase = 1000;
+    const rndMap = this.rndMap;
+    let start = 0, end=0;
+    //now create a map from 0 to 1000 where each letter is represented based on its probability
+    //we will choose a random number from 0 to 10000 and use it it index this map
+    for (const letter of allLetters) {
+      const numInstances = Math.round(this.probabilities[letter] * rndBase);
+      
+      end += numInstances;
+      for (let i=start; i<end; i++ ) {
+        rndMap.push(letter);  //the letter will appear proportional to its probability
+      }
+
+      start += numInstances + 1; 
+
+    }
+
+  }
+
+}
+
 export function loadDictionary(cb) {
 
   const loadData = async (cb) => {
-    const { words, definitions } = await loadDict();
+    const { words, definitions, letterDist } = await loadDict();
     console.log("num words is:", words.length);
     cb(); //execute the callback
 
@@ -14,13 +84,18 @@ export function loadDictionary(cb) {
     const { italianWords, italianDefs } = await loadItalian();
 
     return { 
-            english:{ words, definitions },
+            english:{ words, definitions, letterDist },
             hebrew:{ words:hebrewWords, definitions:hebrewDefinitions},
             spanish:{ words:spanishWords, definitions:spanishDefs },
             spanishLoose:{ words:spanishLooseWords, definitions:spanishLooseDefs},
             italian: { words:italianWords, definitions:italianDefs}
           };
   };
+
+  const Alphabet={};
+  Alphabet.english = [
+    'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R'
+    ,'S','T','U','V','W','X','Y','Z'];
 
   const loadDict = async () => {
     try {
@@ -29,14 +104,24 @@ export function loadDictionary(cb) {
 
       const words = [];
       const definitions = [];
+
+      const ANAL = new LetterFrequencyAnalyzer(Alphabet["english"]);
+
       for (let i=0; i<defs.length; i++) {
         const [word,meaning] = defs[i].split(/\t/);
         words.push(word);
+        ANAL.addLetters(word);
+
         definitions.push(word+":"+meaning);
       }
 
+      ANAL.computeProbabilities();
+      console.log(ANAL.probabilities);
+
+      //throw("balls");
+
       console.log(words[5],definitions[5])
-      return { words, definitions };
+      return { words, definitions, letterDist: ANAL.rndMap };
 
       //assuming already sorted
     } catch (error) {

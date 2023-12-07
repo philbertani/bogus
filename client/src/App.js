@@ -220,6 +220,8 @@ export default function App() {
       //not working
       //if (td) {  setTimeout(()=>{window.screen.orientation.lock("portrait")},2000); }
       setIsTouchDevice(td);
+
+      //window.location.reload();
     
     }
 

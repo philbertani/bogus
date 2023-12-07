@@ -473,6 +473,7 @@ export function GameBoard({ props }) {
     const splitStr = str.split(' ');
     return splitStr[0];
   }
+
   //coming through as null sometimes but apparently the css can deal with it
   //console.log(searchStringBackGround);
 
@@ -490,6 +491,7 @@ export function GameBoard({ props }) {
           touchAction: "none",
           position: "absolute",
           overFlow: "hidden",
+          overFlowY: "scroll",
         }}
       >
         <div key="debug" style={{ position: "absolute" }}>
@@ -522,10 +524,11 @@ export function GameBoard({ props }) {
             display: displayMenu,
             backgroundColor: "rgba(255,255,255,.9)",
             position: "absolute",
-            zIndex: "100",
-            height: 1.08 * boardDims.height,
-            width: 1.05 * boardDims.width,
-            top: 0, //boardDims.height / 8.5,
+            zIndex: "1000",
+            height: 1.1 * boardDims.height,
+            width: 1.02 * boardDims.width,
+            fontSize: boardDims.height/25,
+            top: 0,
           }}
           onClick={(ev) => {
             setDisplayMenu("none");
@@ -536,9 +539,11 @@ export function GameBoard({ props }) {
         >
           <p
             style={{
-              fontSize: boardDims.height / 15,
+              fontSize: boardDims.height / 17,
               textAlign: "center",
-              margin: "0",
+              margin: 1,
+              marginTop: boardDims.height*.02
+              //marginLeft: boardDims.width*.01
             }}
           >
             There are {game.words.length} words!
@@ -547,27 +552,30 @@ export function GameBoard({ props }) {
           <div
             key="buttonContainer"
             style={{
-              height: boardDims.height / 5,
+              position: "absolute",
+              height: boardDims.height / 6,
               width: boardDims.width,
-              margin: "0",
+              marginLeft: boardDims.width*.01,
+              top: boardDims.height*.12
             }}
           >
+
             <div
               key="reset"
               style={{
                 position: "absolute",
-                left: "50%",
+                left: "51%",
                 textAlign: "center",
                 margin: "0",
               }}
             >
               <button
                 style={{
-                  height: boardDims.height / 8,
+                  height: boardDims.height / 9,
                   backgroundColor: "red",
                   color: "yellow",
                   fontWeight: "bold",
-                  fontSize: boardDims.height / 20,
+                  fontSize: boardDims.height / 25,
                 }}
                 onClick={(ev) => {
                   generateNewBoard(ev);
@@ -581,7 +589,7 @@ export function GameBoard({ props }) {
               <div
                 key="message01"
                 style={{
-                  fontSize: Math.min(boardDims.height, boardDims.width) / 20,
+                  fontSize: Math.min(boardDims.height, boardDims.width) / 25,
                 }}
               >
                 {" "}
@@ -593,18 +601,18 @@ export function GameBoard({ props }) {
               key="setUserId"
               style={{
                 position: "absolute",
-                left: "10%",
+                left: "15%",
                 textAlign: "center",
                 margin: "0",
               }}
             >
               <button
                 style={{
-                  height: boardDims.height / 8,
+                  height: boardDims.height / 9,
                   backgroundColor: "red",
                   color: "yellow",
                   fontWeight: "bold",
-                  fontSize: boardDims.height / 20,
+                  fontSize: boardDims.height / 25,
                 }}
                 onClick={(ev) => {
                   setUserNamePopUp(true);
@@ -619,7 +627,7 @@ export function GameBoard({ props }) {
               <div
                 key="message02"
                 style={{
-                  fontSize: Math.min(boardDims.height, boardDims.width) / 20,
+                  fontSize: Math.min(boardDims.height, boardDims.width) / 25,
                 }}
               >
                 (If You Wish)
@@ -627,52 +635,18 @@ export function GameBoard({ props }) {
             </div>
           </div>
 
-          <div
-            key="gameRooms"
-            style={{
-              width: boardDims.width,
-              textAlign: "center",
-              fontSize: boardDims.height / 17,
-              marginLeft: boardDims.width * 0.005,
-            }}
-          >
-            Choose a Game Room
-            {roomInfo.length > 0 &&
-              roomInfo.map((room) => (
-                <div
-                  key={"room" + room.displayId}
-                  style={{
-                    width: boardDims.width,
-                    height: boardDims.height / 14,
-                    fontSize: boardDims.height / 15,
-                    border: "2px",
-                    borderStyle: "solid",
-                    //once again numbers are text sometimes and not others so use weak ==
-                    background:
-                      room.displayId == currentRoomId ? "yellow" : "inherit",
-                    lineHeight: boardDims.height / 14 + "px",
-                  }}
-                  onTouchStart={(ev) => {
-                    setGameRoom(room);
-                  }}
-                  onClick={(ev) => {
-                    setGameRoom(room);
-                  }}
-                >
-                  {room.name}
-                </div>
-              ))}
-          </div>
-
-          <br></br>
-          <div style={{ position: "absolute", left: boardDims.width / 2.8 }}>
+        
             <button
               style={{
-                height: boardDims.height / 8,
+                position:"absolute",
+                top: boardDims.height*.29,
+                width: boardDims.width*.3,
+                height: boardDims.height / 9,
+                left: boardDims.width*.35,
                 backgroundColor: "red",
                 color: "yellow",
                 fontWeight: "bold",
-                fontSize: boardDims.height / 20,
+                fontSize: boardDims.height / 25,
               }}
               onClick={(ev) => {
                 setGiveUp(true);
@@ -685,6 +659,62 @@ export function GameBoard({ props }) {
             >
               GIVE UP<br></br>SEE WORDS
             </button>
+
+        </div>
+
+        <div
+          style={{
+            display: displayMenu,
+            position: "absolute",
+            zIndex: 1000,
+            width: boardDims.width*.76,
+            top: boardDims.height*.45,
+            left: boardDims.width*.12,
+            backgroundColor: "rgba(255,255,255,.8)"
+          }}
+        >
+          <div
+            key="gameRooms"
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              flexDirection: "row",
+              alignItems: "center",
+              textAlign: "center",
+              fontSize: boardDims.height / 23,
+              marginLeft: boardDims.width * 0.005,
+              zIndex: 1000,
+              backgroundColor: "rgba(255,0,255,.2)",
+            }}
+          >
+            {roomInfo.length > 0 &&
+              roomInfo.map((room) => (
+                <div
+                  key={"room" + room.displayId}
+                  style={{
+                    flexBasis: boardDims.width*.25+"px",
+                    boxSizing: "border-box",
+                    padding: 0,
+                    width: boardDims.width*.25,
+                    height: boardDims.height*.16,
+                    border: "2px",
+                    borderStyle: "solid",
+                    //once again numbers are text sometimes and not others so use weak comparison: ==
+                    background:
+                      room.displayId == currentRoomId ? "yellow" : "inherit",
+                  }}
+                  onTouchStart={(ev) => {
+                    setGameRoom(room);
+                    setDisplayMenu("none");
+                  }}
+                  onClick={(ev) => {
+                    setGameRoom(room);
+                    setDisplayMenu("none");
+                  }}
+                >
+                  {room.name}
+                </div>
+              ))}
           </div>
         </div>
 
@@ -694,7 +724,7 @@ export function GameBoard({ props }) {
             display: displayTimer,
             backgroundColor: "rgba(255,255,255,.9)",
             position: "absolute",
-            zIndex: "100",
+            zIndex: "1005",
             height: 1.08 * boardDims.height,
             width: 1.05 * boardDims.width,
             top: 0, //boardDims.height / 8.5,
@@ -706,14 +736,14 @@ export function GameBoard({ props }) {
             setDisplayTimer("none");
           }}
         >
-          {gameLengths.map((gameLength,index) => (
+          {gameLengths.map((gameLength, index) => (
             <button
               style={{
                 position: "absolute",
                 left: "50%",
-                top: (10+index*boardDims.height*.03) + "%",
+                top: 10 + index * boardDims.height * 0.03 + "%",
                 transform: "translate(-55%,0)",
-                height: boardDims.height*.08,
+                height: boardDims.height * 0.08,
                 backgroundColor: "red",
                 color: "yellow",
                 fontWeight: "bold",
@@ -731,8 +761,20 @@ export function GameBoard({ props }) {
               {gameLength} Minutes
             </button>
           ))}
-          <div style={{position:"absolute",width:boardDims.width/3,bottom:0,left:"50%",transform:"translate(-55%,0)"}}>
-              <img style={{width:"100%"}}src="yp4.jpg" alt="a Yellow Pig for Cathy and Dave Kelly"></img>
+          <div
+            style={{
+              position: "absolute",
+              width: boardDims.width / 3,
+              bottom: 0,
+              left: "50%",
+              transform: "translate(-55%,0)",
+            }}
+          >
+            <img
+              style={{ width: "100%" }}
+              src="yp4.jpg"
+              alt="a Yellow Pig for Cathy and Dave Kelly"
+            ></img>
           </div>
           <p
             style={{
@@ -751,14 +793,13 @@ export function GameBoard({ props }) {
           onTouchMove={processTouch}
           ref={boardRef}
           style={{
-            marginLeft: 0, //boardDims.width * 0.01,
+            marginLeft: 0,
             width: boardDims.width,
             height: boardDims.height,
             position: "absolute",
             top: boardDims.height / 8,
             left: -boardDims.width * 0.02,
           }}
-          className="GameBoard"
         >
           {!is3d ? (
             <BoardDetails key="boardDetails" props={props2} />
@@ -937,13 +978,12 @@ export function GameBoard({ props }) {
             style={{
               margin: 0,
               position: "absolute",
-              left: boardDims.width*.51,
-              width: boardDims.width * 0.5
+              left: boardDims.width * 0.51,
+              width: boardDims.width * 0.5,
             }}
           >
-            <ChatForm boardDims={boardDims}/>
+            <ChatForm boardDims={boardDims} />
           </div>
-
         </div>
 
         <div
@@ -977,7 +1017,7 @@ export function GameBoard({ props }) {
             position: "absolute",
             textAlign: "center",
             fontWeight: "bold",
-            fontSize: boardDims.height / 17,
+            fontSize: boardDims.height / 18,
             top: wordListPos.top,
             left: wordListPos.left,
             width: boardDims.width / 2,
@@ -987,7 +1027,7 @@ export function GameBoard({ props }) {
           }}
         >
           {roomInfo.length > 0 && firstElement(roomInfo[currentRoomId].name)}
-          <span style={{ fontSize: boardDims.height / 30 }}>
+          <span style={{fontSize: boardDims.height / 25 }}>
             {sp} ({numWords})/{game.words.length}
           </span>
         </div>
@@ -1031,7 +1071,6 @@ export function GameBoard({ props }) {
 
         <div
           key="playerContainer"
-          className="playerList"
           style={{
             //touchAction: "none",
             marginLeft: boardDims.width * 0.01,

@@ -38,6 +38,11 @@ class bogusMain {
     } else {
       this.words = dictionary.words;
       this.definitions = dictionary.definitions;
+      if ( dictionary.letterDist) {
+        this.letterDist = dictionary.letterDist;
+        console.log("found an automated letter distribution");
+        //process.exit();
+      }
     }
 
     console.log('gameType',gameType);
@@ -319,7 +324,41 @@ class bogusMain {
     return a<0 ? a+y : a;
   }
 
+  makeBoard2() {
+
+    console.log("making board using automated letter dist process");
+
+    this.board = [];
+    this.output = [];
+
+    const maxIndex = this.letterDist.length-1;
+
+    for (let i = 0; i < this.rank.M; i++) {
+      this.board.push([]);
+      this.output.push([]);
+      for (let j = 0; j < this.rank.N; j++) {
+        const select = Math.trunc(Math.random() * (this.letterDist.length) );
+
+        const letter = this.letterDist[ Math.min(maxIndex, select)];
+        this.board[i][j] = letter;
+        this.output[i][j] = letter;
+        if (letter === "Q") {
+          this.board[i][j] = "QU";
+          //eslint has a problem but there is nothing wrong with the following:
+          this.output[i][j] = "Q" + "\u1d64" ; //"\&#7524" //a subscript u
+        }
+      }
+    }
+
+    console.log(this.output);
+    console.log("made with automated letter distribution");
+
+  }
+
   makeBoard() {
+
+    //if we have a good automated letter distribution, use it
+    if ( this.letterDist) return this.makeBoard2();
 
     //const TYPE = "five"; //old vs new boggle letter distribution vs 5x5 (five)
     //const letters = data.ld[TYPE];
