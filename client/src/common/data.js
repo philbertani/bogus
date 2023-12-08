@@ -68,6 +68,20 @@ const gameTypes = {
     ld: []
   },
 
+  englishSeven: {
+    rank: {M:7, N:7},
+    minLetters: 4,
+    name: "English 7x7",
+    ld: []
+  },
+
+  englishEight: {
+    rank: {M:8, N:8},
+    minLetters: 4,
+    name: "English 8x8",
+    ld: []
+  },
+
   hebrewFive: {
     rank: {M:5, N:5},
     minLetters: 3,

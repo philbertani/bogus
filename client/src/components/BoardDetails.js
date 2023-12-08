@@ -325,7 +325,7 @@ export function BoardDetails({ props }) {
           height: (marginFac * boardDims.height) / N + "px",
           width: (marginFac * boardDims.width) / M + "px",
           fontSize: (0.5 * boardDims.height) / N + "px",
-          textShadow: "3px 1px 3px black",
+          textShadow: "1px 1px 1px black",
           textAlign: "center"
         };
 

@@ -337,7 +337,7 @@ class bogusMain {
       this.board.push([]);
       this.output.push([]);
       for (let j = 0; j < this.rank.N; j++) {
-        const select = Math.trunc(Math.random() * (this.letterDist.length) );
+        const select = Math.trunc(Math.random() * (maxIndex+1) );
 
         const letter = this.letterDist[ Math.min(maxIndex, select)];
         this.board[i][j] = letter;

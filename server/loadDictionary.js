@@ -49,22 +49,30 @@ class LetterFrequencyAnalyzer {
       this.probabilities[letter] = this.freqs[letter]/this.letterCounts["VALID"];
     }
 
-    const rndBase = 1000;
+    const rndBase = 100;
     const rndMap = this.rndMap;
     let start = 0, end=0;
     //now create a map from 0 to 1000 where each letter is represented based on its probability
     //we will choose a random number from 0 to 10000 and use it it index this map
     for (const letter of allLetters) {
-      const numInstances = Math.round(this.probabilities[letter] * rndBase);
+      const numInstances = Math.max(1, Math.round(this.probabilities[letter] * rndBase));
       
-      end += numInstances;
-      for (let i=start; i<end; i++ ) {
+      //console.log(letter, numInstances);
+
+      console.log(letter,start,numInstances);
+      for (let i=start; i<(start+numInstances); i++ ) {
         rndMap.push(letter);  //the letter will appear proportional to its probability
       }
 
       start += numInstances + 1; 
 
     }
+
+    //console.log(this.probabilities);
+
+    //this.rndMap.map( (x,i)=>console.log(i,x,this.probabilities[x]));
+    //process.exit();
+
 
   }
 
