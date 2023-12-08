@@ -47,7 +47,7 @@ export function ChatForm( {boardDims }) {
           type="submit"
           disabled={isLoading}
         >
-          💬
+          💬  {/*we may need to specify the actual html codepoint */}
         </button>
       </span>
     </form>
