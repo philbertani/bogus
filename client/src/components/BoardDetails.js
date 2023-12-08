@@ -1,7 +1,8 @@
 import React from "react";
 import { useMouseButton } from "./uiHooks";
 import { v4 as uuidv4 } from "uuid";
-import { vec, blank2dArray } from "../common/utils.js"
+import { vec, blank2dArray } from "../common/utils.js";
+import { socket } from "../socket.js";
 
 //setting colors here
 const boardColor = ["radial-gradient(#100030,#B000C0)", "radial-gradient(#F0E0E0,#D0A000)"];
@@ -61,6 +62,8 @@ export function BoardDetails({ props }) {
   const pathRef = React.useRef([]); //may have to make this a useState
   const totalScoreRef = React.useRef(0);
   const [hints,setHints] = React.useState([]);
+  const [latestActivityTime,setLatestActivityTime] = React.useState(0);
+  const torusMoveRef = React.useState(0);
 
   React.useEffect( ()=> { setReset(true) }, [colorScheme, setReset] );
 
@@ -136,7 +139,6 @@ export function BoardDetails({ props }) {
     //we need 2 separate divs for path  
     //console.log("torusMove", i,j,iOld,jOld);
     const sc = 1.4;
-    //const {M,N} = game.rank;
     const height = ".55vh";
     let width = .6*boardDims.width / M;
     let transformText = "rotate(0deg)";
@@ -273,6 +275,7 @@ export function BoardDetails({ props }) {
   const resetPath = React.useCallback(() => {
     const refs = selectedRef.current;
     pathRef.current = [];
+    torusMoveRef.current = 0;
 
     //console.log('xxxxxxxx',refs);
     for (let n = 1; n < refs.length; n++) {
@@ -286,10 +289,22 @@ export function BoardDetails({ props }) {
         game.isValidMove(parseFloat(i),parseFloat(j),[iOld,jOld].map(x=>parseFloat(x)));
       //console.log(torusMove);
 
+      torusMoveRef.current += torusMove ? 1 : 0;
+
       pathRef.current.push(addPathDiv(style, prevStyle, i, j, iOld, jOld, torusMove));
     }
   }, [addPathDiv, cubeStyles, game]);
 
+
+  if ( navigator.userActivation.isActive ) { // || navigator.userActivation.hasBeenActive) {
+    
+
+    if ( (Date.now() - latestActivityTime) > 30000  ) {
+      console.log('activation');
+      socket.emit("heartbeat",{userIsActive:true});
+      setLatestActivityTime(Date.now());
+    }
+  }
 
   React.useEffect(() => {
 
@@ -298,6 +313,7 @@ export function BoardDetails({ props }) {
     //if ( cubeStyles.length < M) return;
 
     if ( cubeStyles.length !== game.rank.M ) {
+      //yes I have failed somewhere in using React states properly - so what?
       window.location.reload();
     }
     
@@ -338,7 +354,6 @@ export function BoardDetails({ props }) {
           boxStyle.color = cubeStyles[j][i].color;
         }
 
-  
         fontSize.current = (0.5 * boardDims.height) / N + "px";
         lineHeight.current = (0.9 * marginFac * boardDims.height) / N;
         left += spacingFac * boardDims.width / M;
@@ -434,6 +449,9 @@ export function BoardDetails({ props }) {
       //"weird" touchDevice is treating i,j,selected as numberic characters instead of numbers, who would have thought??
       const [validMove, torusMove, debug] = 
         game.isValidMove(parseFloat(i), parseFloat(j), selected.map(x=>parseFloat(x)));
+
+        torusMoveRef.current += torusMove ? 1 : 0;
+
       //console.log('isValidMove',validMove,torusMove, i,j,selected);
 
       //the annoying case of when using touch input we tap again on the last
@@ -682,7 +700,7 @@ export function BoardDetails({ props }) {
   React.useEffect(() => {
 
     let search = game.isWord(searchString, false);
-    const ln = searchString.length - (game.minLetters-1);
+    const ln = searchString.length - (game.minLetters-1) + torusMoveRef.current;
 
     //console.log(game.data);
     if ( !search[1] && game.data.hasOwnProperty("prefixes")) {
@@ -735,6 +753,7 @@ export function BoardDetails({ props }) {
         totalScoreRef.current += ln;
         foundWordsRef.current = {
           words: { ...newWords },
+          latestWordScore: ln,
           totalScore: totalScoreRef.current,
         };
 
@@ -750,8 +769,9 @@ export function BoardDetails({ props }) {
       }
 
       setIsWord(true);
-      setSearchStringBackground({back:newBackgroundImage,front:newColor});
+      setSearchStringBackground({back:newBackgroundImage,front:newColor,latestScore:ln});
     }
+
   }, [searchString, game, colorScheme ]);
   //React is wrong about adding foundWords and cubeStyles here: it causes infinite renders
   //also wrong about isWordRef

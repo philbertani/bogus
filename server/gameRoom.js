@@ -5,7 +5,11 @@ import {v4 as uuidv4} from "uuid";
 export class gameRoom {
     id;
     io;
+
     players = {};
+    numPlayers = 0;
+    playerIndex = {};
+
     game;
     board;
     output;
@@ -25,7 +29,7 @@ export class gameRoom {
     debugBoard = [];
     
 
-    constructor(roomId,io,dict,boardType,gameType, debugBoard=[]) {
+    constructor(roomId,io,dict,boardType,gameType, extraText, debugBoard=[]) {
         this.io = io;
         this.id = roomId;
         this.gameType = gameType;
@@ -68,10 +72,15 @@ export class gameRoom {
       return this.players[userId].giveUp;
     }
 
+    setLatestPlayerTime(userId) {
+      this.players[userId].latestTime = Date.now();
+    }
+
     newPlayer( userId, ioManagerRef ) {
       //really newPlayer OR reconnection of previous player
         if (!this.players[userId]) { 
-          this.players[userId] = {};
+          this.playerIndex[this.numPlayers] = userId;
+          this.players[userId] = {playerNum:this.numPlayers++,latestTime:Date.now()};
         }
         else {
           console.log('player reconnecting', userId, this.players[userId]);
@@ -145,6 +154,7 @@ export class gameRoom {
         this.players[userId].wordCount = count;
         this.players[userId].score = totalScore;
         this.players[userId].name  = ioManagerRef.name;  //may be changing
+        return this.players[userId].name;
     }
 
     sendStats(ioAllPlayers) {

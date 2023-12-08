@@ -83,14 +83,16 @@ class bogusMain {
     this.allStr = [];
     this.uniquePaths = new Set();
     this.wordsFound = new Set();
+    this.paths = {};
 
     for (let j=0; j<this.N; j++) {
       for (let i=0; i<this.M; i++) {
         const visited = Array.from(Array(this.rank.M), () =>
           new Array(this.rank.N).fill(false));
         let str="";
+        let path=[];
         let k=0;
-        wordFindingFunction.call(this, cloneArray(this.board), visited, i, j, str, k);
+        wordFindingFunction.call(this, cloneArray(this.board), visited, i, j, str, k, path);
       }
     }
 
@@ -134,7 +136,7 @@ class bogusMain {
     return bsearch(this.words, str, debug);
   }
 
-  findWords(grid, visited, i, j, str, k) {
+  findWords(grid, visited, i, j, str, k, path) {
     //this is the smarter search loop, using the dictionary to bail out if the
     //accumulated string including the next letter is not part of the beginning
     //of a word or a whole word
@@ -167,7 +169,7 @@ class bogusMain {
           if (search[0]) {
             //if we DON'T do this we get extra searching on the order
             //of 500k to 1MM per grid element!!! 10k more per path, nasty unchecked recursion
-            this.findWords(grid, visited, row, col, str, k);
+            this.findWords(grid, visited, row, col, str, k, path);
           }
         }
       }
@@ -177,7 +179,8 @@ class bogusMain {
     visited[i][j] = false;
   }
 
-  findWords2(grid, visited, i, j, str, k) {
+  //TORUS version of findWords
+  findWords2(grid, visited, i, j, str, k, path) {
     //this is the smarter search loop, using the dictionary to bail out if the
     //accumulated string including the next letter is not part of the beginning
     //of a word or a whole word
@@ -186,21 +189,29 @@ class bogusMain {
 
     //for torus we need to maintain the sign of i and j through recursion
     k++;
-    const ix = pmod(i,M);
+    const ix = pmod(i,M);  //why doesn't % function just work the way A mod B is supposed to work?
     const jx = pmod(j,N);
 
     visited[ix][jx] = true;
     const letter = grid[ix][jx];
     str = str + letter;
 
+    //keep track of the unique path taken through the board so we can display it later
+    //or determine if torus moves were used
+    path.push([ix,jx]);  
+
     this.allStr.push(str)
     //this.uniquePaths.add(str)  //useful for debugging
     const search = this.isWord(str);
+
     //console.log(str);  //, search);
+    //a modified bsearch which returns the closest match is essential 
+    //we need to know whether the searchstring is a Word or the preFix for a Word
     //search[0] is true if we found a closest match, search[1] is true if exact word match
 
     if (search[1] && str.length >= this.minLetters) {
       this.wordsFound.add(str);
+      this.paths[str] = path;
     }
 
     function pmod(x,y) {
@@ -226,7 +237,7 @@ class bogusMain {
             //if we DON'T do this we get extra searching on the order
             //of 500k to 1MM per grid element!!! 10k more per path, nasty unchecked recursion
             //this.findWords2(grid, visited, row, col, str, k);
-            this.findWords2(grid, visited, row, col, str, k);
+            this.findWords2(grid, visited, row, col, str, k, path);
           }
         }
       }
@@ -255,16 +266,19 @@ class bogusMain {
     //console.log (this.isWord('GO'));
 
     this.wordsFound = new Set();
+    this.paths = {};
+
     const visited = Array.from(Array(this.rank.M), () =>
     new Array(this.rank.N).fill(false));
 
     this.allStr = [];
     let str="";
     let k=0;
+    let path=[];
 
     console.log(this.rank);
     //findwords2 is for TORUS type of board
-    this.findWords2( cloneArray(this.board), visited, 0, 0, str, k);    
+    this.findWords2( cloneArray(this.board), visited, 0, 0, str, k, path);    
 
     console.log(this.wordsFound);
     console.log(this.allStr);

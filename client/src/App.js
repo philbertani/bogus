@@ -282,7 +282,10 @@ export default function App() {
         //this is real shit and is what we deserve when we create stupid data structures
         const sortIndex=[];
         for ( const [key,val] of Object.entries(msg.players) ) {
-            if (val.wordCount > 0 || userId == key)
+
+          const dt = (Date.now() - val.latestTime)/1000;  //5 minute threshold??
+
+          if (val.wordCount > 0 || userId == key || dt < 5*60)
               sortIndex.push( {id:key, score:val.score} );
         } 
         sortIndex.sort( (a,b) => b.score - a.score );
@@ -294,7 +297,6 @@ export default function App() {
 
           //console.log(val.name,val.giveUp);
 
-      
           let userName = val.name ? val.name.substring(0,16) : key.substring(0,16);
 
           const style={textAlign:"center"}

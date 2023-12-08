@@ -164,7 +164,6 @@ export function GameBoard({ props }) {
     const sortedWords = Object.keys(allWords).sort(); //keep it in alphabet order
 
     const wordsToUse = giveUp ? game.words : sortedWords;
-    //const wordsToDisplay = searchString!=='' ? sortedWords.filter(word=>word.startsWith(searchString)) : sortedWords;
 
     const wordsToDisplay = searchString!=='' ? wordsToUse.filter(word=>word.startsWith(searchString)) : wordsToUse;
 
@@ -515,7 +514,8 @@ export function GameBoard({ props }) {
             color: searchStringBackGround.front,
           }}
         >
-          {searchString}
+          {searchString} {searchStringBackGround.latestScore && searchStringBackGround.latestScore}
+   
         </div>
 
         <div
@@ -778,9 +778,12 @@ export function GameBoard({ props }) {
           </div>
           <p
             style={{
+              margin: 0,
               position: "absolute",
               width: boardDims.width,
               textAlign: "center",
+              fontSize: boardDims.height/20,
+              marginLeft: boardDims.width*.01
             }}
           >
             Pick a Game Time

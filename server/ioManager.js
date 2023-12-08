@@ -26,18 +26,22 @@ export class ioManager {
 
       this.setHandlers(this.io);
 
-      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"five");
-      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"five");
-      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"five");
-      this.newGameRoom(dict.english,this.BOARDTYPES.NORMAL,"five");
-      this.newGameRoom(dict.hebrew,this.BOARDTYPES.TORUS,"hebrewFive");
-      this.newGameRoom(dict.spanish,this.BOARDTYPES.TORUS,"spanishFive");
-      this.newGameRoom(dict.spanishLoose,this.BOARDTYPES.TORUS,"spanishFiveLoose");
-      this.newGameRoom(dict.italian,this.BOARDTYPES.TORUS,"italianFive");
-      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"englishSix");
-      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"four");
-      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"englishSeven");
-      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"englishEight");
+      //dumbass just change the args to an object to avoid much pain
+      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"five","#1");
+
+      
+      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"five","#2");
+      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"five","#3");
+      this.newGameRoom(dict.english,this.BOARDTYPES.NORMAL,"five","");
+      this.newGameRoom(dict.hebrew,this.BOARDTYPES.TORUS,"hebrewFive","");
+      this.newGameRoom(dict.spanish,this.BOARDTYPES.TORUS,"spanishFive","");
+      this.newGameRoom(dict.spanishLoose,this.BOARDTYPES.TORUS,"spanishFiveLoose","");
+      this.newGameRoom(dict.italian,this.BOARDTYPES.TORUS,"italianFive","");
+      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"englishSix","");
+      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"four","");
+      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"englishSeven","");
+      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"englishEight","");
+      
     
       const noLunaBoard = [
         ['O','Ñ','D','S','E'],
@@ -61,12 +65,14 @@ export class ioManager {
     }
   }
 
-  newGameRoom(dictionary,boardType,gameType,debugBoard=[]) {
+  newGameRoom(dictionary,boardType,gameType,extraText,debugBoard=[]) {
     const newRoomId = uuidv4();
-    this.gameRooms[newRoomId] = new gameRoom(newRoomId, this.io, dictionary, boardType, gameType, debugBoard);
+    this.gameRooms[newRoomId] = new gameRoom(newRoomId, this.io, dictionary, boardType, gameType, extraText, debugBoard);
     this.roomMap.push(newRoomId);
     const roomName = this.gameRooms[newRoomId].data.name + " "  +
-      this.gameRooms[newRoomId].game.BOARDTYPE_NAMES[boardType]; // + boardType;
+      this.gameRooms[newRoomId].game.BOARDTYPE_NAMES[boardType] + " " + extraText; // + boardType;
+
+    console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxxx',roomName);
 
     const roomInfo = {
       displayId: this.numRooms,
@@ -129,6 +135,21 @@ export class ioManager {
     io.on("connection", (socket) => {
       socket.on("heartbeat", (msg) => {
         //console.log("heartbeat", msg);
+
+        if (msg.userIsActive) {
+          console.log('received user activation message',socket.id);
+          const {gameRoom, userId} = this.getGameRoom(socket.id);
+    
+          if  ( !gameRoom ) {
+            console.log('could not find user based on socket',socket.id);
+            return;
+          }
+
+          gameRoom.setLatestPlayerTime(userId);
+
+          return;
+        }
+
         io.to(socket.id).emit("heartbeat", {
           heartbeatId: msg.heartbeatId,
           receive: msg.time,
@@ -191,7 +212,7 @@ export class ioManager {
       });
     });
     
-    
+
     io.on("connection", socket => {
       socket.on('giveUp', msg=>{
         
@@ -216,6 +237,8 @@ export class ioManager {
           console.log('could not find user based on socket',socket.id);
           return;
         }
+
+        gameRoom.setLatestPlayerTime(userId);
     
         if ( gameRoom.gaveUp(userId)) {
           console.log('this user gave up the game, not saving word');
@@ -226,7 +249,7 @@ export class ioManager {
         const {words,count,totalScore} = msg;
     
         console.log(Date.now(),"words found by",socket.id,"in room:",gameRoom.id, words, count, totalScore);
-        gameRoom.setPlayerWordCount(userId,count,totalScore, this.users[userId]);
+        const playerName = gameRoom.setPlayerWordCount(userId,count,totalScore, this.users[userId]);
     
         let latestWord = "";
         if (words.length > 0) {
@@ -235,7 +258,7 @@ export class ioManager {
             if (gameRoom.allWordsFound[word]) {
               gameRoom.allWordsFound[word] ++;
             } else {
-              gameRoom.allWordsFound[word] = 1;
+              gameRoom.allWordsFound[word] = playerName;  //we now know which words were found by which player
               latestWord = word;
             }
           }
@@ -245,7 +268,7 @@ export class ioManager {
             {words:gameRoom.allWordsFound,roomId:gameRoom.roomInfo.displayId,latestWord});
         }
         else {
-          console.log('weird - words is not ann array or null', words,socket.id);
+          console.log('weird - words is not an array or null', words,socket.id);
         }
     
       });
