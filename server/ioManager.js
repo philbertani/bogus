@@ -16,6 +16,8 @@ export class ioManager {
   roomInfo = [];
 
   BOARDTYPES = {NORMAL:0,TORUS:1};
+  VARIATIONS = {WORDFIND:0,WORDRACE:1}
+
   boardType;
 
   constructor(http, dict) {
@@ -27,18 +29,19 @@ export class ioManager {
       this.setHandlers(this.io);
 
       //dumbass just change the args to an object to avoid much pain
-      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"five","#1");
-      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"five","#2");
-      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"five","#3");
-      this.newGameRoom(dict.english,this.BOARDTYPES.NORMAL,"five","");
-      this.newGameRoom(dict.hebrew,this.BOARDTYPES.TORUS,"hebrewFive","");
-      this.newGameRoom(dict.spanish,this.BOARDTYPES.TORUS,"spanishFive","");
-      this.newGameRoom(dict.spanishLoose,this.BOARDTYPES.TORUS,"spanishFiveLoose","");
-      this.newGameRoom(dict.italian,this.BOARDTYPES.TORUS,"italianFive","");
-      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"englishSix","");
-      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"four","");
-      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"englishSeven","");
-      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"englishEight","");
+      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"five","#1",this.VARIATIONS.WORDFIND);
+      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"five","#2",this.VARIATIONS.WORDFIND);
+      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"five","WordRace",this.VARIATIONS.WORDRACE);
+
+      this.newGameRoom(dict.english,this.BOARDTYPES.NORMAL,"five","",this.VARIATIONS.WORDFIND);
+      this.newGameRoom(dict.hebrew,this.BOARDTYPES.TORUS,"hebrewFive","",this.VARIATIONS.WORDFIND);
+      this.newGameRoom(dict.spanish,this.BOARDTYPES.TORUS,"spanishFive","",this.VARIATIONS.WORDFIND);
+      this.newGameRoom(dict.spanishLoose,this.BOARDTYPES.TORUS,"spanishFiveLoose","",this.VARIATIONS.WORDFIND);
+      this.newGameRoom(dict.italian,this.BOARDTYPES.TORUS,"italianFive","",this.VARIATIONS.WORDFIND);
+      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"englishSix","",this.VARIATIONS.WORDFIND);
+      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"four","",this.VARIATIONS.WORDFIND);
+      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"englishSeven","",this.VARIATIONS.WORDFIND);
+      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"englishEight","",this.VARIATIONS.WORDFIND);
       
     
       const noLunaBoard = [
@@ -63,9 +66,9 @@ export class ioManager {
     }
   }
 
-  newGameRoom(dictionary,boardType,gameType,extraText,debugBoard=[]) {
+  newGameRoom(dictionary,boardType,gameType,extraText,variation,debugBoard=[]) {
     const newRoomId = uuidv4();
-    this.gameRooms[newRoomId] = new gameRoom(newRoomId, this.io, dictionary, boardType, gameType, extraText, debugBoard);
+    this.gameRooms[newRoomId] = new gameRoom(newRoomId, this.io, dictionary, boardType, gameType, extraText, variation, debugBoard);
     this.roomMap.push(newRoomId);
     const roomName = this.gameRooms[newRoomId].data.name + " "  +
       this.gameRooms[newRoomId].game.BOARDTYPE_NAMES[boardType] + " " + extraText; // + boardType;
@@ -118,8 +121,10 @@ export class ioManager {
       rank: gameRoom.game.rank,
       roomId: gameRoom.roomInfo.displayId,
       minLetters: gameRoom.game.minLetters,
-      gameType: gameRoom.game.gameType,
-      roomInfo: gameRoom.roomInfo
+      gameType: gameRoom.game.gameType,  //GRID or TORUS
+      roomInfo: gameRoom.roomInfo,
+      gameVariation: gameRoom.gameVariation, //WORDFIND or WORDRACE
+      wordToFind: gameRoom.wordRaceWord
 
     });
 
@@ -239,6 +244,11 @@ export class ioManager {
 
         gameRoom.setLatestPlayerTime(userId);
     
+        if ( msg.wordRace) {
+          console.log("found the word race word", msg.wordRace.found);
+          return;
+        }
+
         if ( gameRoom.gaveUp(userId)) {
           console.log('this user gave up the game, not saving word');
           return;
@@ -446,6 +456,8 @@ export class ioManager {
     
         io.to(socket.id).emit("allWordsFound", 
           {words:gameRoom.allWordsFound, roomId:gameRoom.roomInfo.displayId});  
+
+        //io.to(socket.id).emit("wordRace",{wordToFind:gameRoom.wordRaceWord});
     
       });
     

@@ -7,6 +7,7 @@ import { vec, blank2dArray } from "../common/utils.js";
 import { UserNameForm } from "./UserNameForm.js";
 import { ChatForm} from "./ChatForm.js";
 import { Help } from "./Help.js";
+import WordRaceDisplay  from "./WordRaceDisplay.js";
 
 //import GPU from "../components/3d/GPU.js"
 
@@ -36,7 +37,13 @@ export function GameBoard({ props }) {
     gameTime,
     setGameTime,
     gameStartTime,
-    gameLength
+    gameLength,
+    wordRace,
+    showNewWord,
+    setShowNewWord,
+    wordRaceRef,
+    wordRaceWordRef
+
   } = props;
 
   const [boardDims, setBoardDims] = React.useState({});
@@ -86,6 +93,7 @@ export function GameBoard({ props }) {
   
   const gameLengths = [2,5,10,17];
 
+
   //const countx = React.useRef(0);
   //countx.current ++;
   //if ( countx.current%100===0) console.log('GameBoard count',countx.current);
@@ -103,6 +111,15 @@ export function GameBoard({ props }) {
     return () => clearInterval(interval);
   }, [count]);
 
+  React.useEffect( ()=> {
+    if (showNewWord && game.words) {
+      //const randomIndex = Math.trunc(Math.random() * game.words6.length);
+      //console.log("wordRace",randomIndex,game.words6[randomIndex]);
+      //wordRaceWordRef.current =  game.words[ game.words6[randomIndex] ] ;
+      //setShowNewWord(false);
+      //socket.emit('word',{wordRace:"getWord"});
+    }
+  }, [socket, game.words, showNewWord])
 
   React.useEffect(()=>{
     //gameStartTime being > 0 also tells us to count backwards for a timed game
@@ -279,7 +296,9 @@ export function GameBoard({ props }) {
     setGiveUp,
     setTimedGame,
     showPath,
-    setShowPath
+    setShowPath,
+    wordRaceRef,
+    wordRaceWordRef
   };
 
   const touch0 = React.useRef({});
@@ -373,7 +392,7 @@ export function GameBoard({ props }) {
       return;
     }
 
-    //why is this being rendered so often???
+    //why is this being rendered so often??? but at least not blowing up
     //console.log('rendering');
 
     if (isWordRef.current) {
@@ -400,7 +419,7 @@ export function GameBoard({ props }) {
         setUnsentWords(prev=>[...prev,searchString]);
       }
     }
-  }, [isWord, searchString, isWordRef, 
+  }, [isWord, searchString, isWordRef, socket, 
     foundWordsRef, isConnected, unsentWords, giveUp]);  //minLetters?
 
   React.useEffect( ()=>{
@@ -521,9 +540,20 @@ export function GameBoard({ props }) {
             color: searchStringBackGround.front,
           }}
         >
-          {searchString}{" "}
-          {searchStringBackGround.latestScore &&
-            searchStringBackGround.latestScore}
+          {wordRaceRef.current === true && (
+            <WordRaceDisplay
+              searchString={searchString}
+              wordToFind={wordRaceWordRef.current}
+            />
+          )}
+
+          {wordRaceRef.current === false && (
+            <div>
+              {searchString}{" "}
+              {searchStringBackGround.latestScore &&
+                searchStringBackGround.latestScore}
+            </div>
+          )}
         </div>
 
         <div
@@ -577,6 +607,7 @@ export function GameBoard({ props }) {
               }}
             >
               <button
+                key="generateNewBoard"
                 style={{
                   height: boardDims.height / 9,
                   backgroundColor: "red",
@@ -614,6 +645,7 @@ export function GameBoard({ props }) {
               }}
             >
               <button
+                key="setUserIdButton"
                 style={{
                   height: boardDims.height / 9,
                   backgroundColor: "red",
@@ -665,7 +697,6 @@ export function GameBoard({ props }) {
           >
             GIVE UP<br></br>SEE WORDS
           </button>
-
         </div>
 
         <div
@@ -687,7 +718,7 @@ export function GameBoard({ props }) {
               flexDirection: "row",
               alignItems: "center",
               textAlign: "center",
-              fontSize: boardDims.height / 23,
+              fontSize: boardDims.height / 27,
               marginLeft: boardDims.width * 0.005,
               zIndex: 1000,
               backgroundColor: "rgba(255,0,255,.2)",
@@ -744,8 +775,8 @@ export function GameBoard({ props }) {
         >
           {gameLengths.map((gameLength, index) => (
             <button
+              key={"gameLength" + gameLength}
               style={{
-                key:"gamelength" + {gameLength},
                 position: "absolute",
                 left: "50%",
                 top: 10 + index * boardDims.height * 0.03 + "%",
@@ -797,15 +828,19 @@ export function GameBoard({ props }) {
           </p>
         </div>
 
-        <div key="helpDisplay"
+        <div
+          key="helpDisplay"
           style={{
-            display: displayHelp
+            display: displayHelp,
           }}
-          onClick = { ev=> { setDisplayHelp("none")}}
-          onTouchStart = { ev=> {setDisplayHelp("none")}}
+          onClick={(ev) => {
+            setDisplayHelp("none");
+          }}
+          onTouchStart={(ev) => {
+            setDisplayHelp("none");
+          }}
         >
-          <Help boardDims={boardDims}/>
-
+          <Help boardDims={boardDims} />
         </div>
 
         <div
@@ -995,7 +1030,6 @@ export function GameBoard({ props }) {
             ></img>
           </div>
 
- 
           <div
             key="gameInfo"
             style={{
@@ -1026,7 +1060,7 @@ export function GameBoard({ props }) {
               }
             }}
           >
-             {"\u24d8"} 
+            {"\u24d8"}
           </div>
 
           <div

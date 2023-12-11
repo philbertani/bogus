@@ -54,6 +54,12 @@ export default function App() {
   const [gameOver, setGameOver] = React.useState(false);
   const [finalResult, setFinalResult] = React.useState({});
 
+  const [wordRace, setWordRace] = React.useState( {start:false});
+  const [showNewWord, setShowNewWord] = React.useState(false);
+  
+  const wordRaceRef = React.useRef(false);
+  const wordRaceWordRef = React.useRef(false);
+
   const sp="\u00a0";
   const spa = Array(500).fill(sp);
 
@@ -175,15 +181,29 @@ export default function App() {
       //const mainGameX = new bogusMain( {words:["none"], definitions:["none"]} );
 
       const mainGameX = new bogusMain( {words:msg.words, definitions:msg.defs},msg.boardType, msg.gameType );
-      console.log('new board msg',msg.game);
-      console.log('new board room info',msg.roomInfo);
-
+      console.log('new board msg',msg);
+  
       mainGameX.board = cloneArray(msg.game.board);
       mainGameX.output = cloneArray(msg.game.output);
 
       mainGameX.boardId = msg.boardId;
       mainGameX.roomId = msg.roomId;
       mainGameX.paths = msg.paths;
+      mainGameX.gameVariation = msg.gameVariation;
+      
+
+      if (msg.gameVariation === mainGameX.VARIATIONS.WORDRACE) {
+        console.log("xxxxxxxxxxxxxxxxxxx we should be doing Word Race");
+        setWordRace({start:true});
+        wordRaceRef.current = true;
+        wordRaceWordRef.current = msg.wordToFind;
+        setShowNewWord(true);
+      }
+      else {
+        wordRaceRef.current = false;
+        wordRaceWordRef.current = "";
+      }
+
 
       if ( msg.bogus3d ) {
         console.log('3d is coming through!', msg.bogus3d);
@@ -334,6 +354,11 @@ export default function App() {
       }
     }
 
+    function onWordRace(msg) {
+      console.log("wordRace Word is:",msg);
+      wordRaceWordRef.current = msg.wordToFind;
+    }
+
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
     socket.on('chat message', onChatEvent);
@@ -344,6 +369,7 @@ export default function App() {
     socket.on('heartbeat', onHeartBeat);
     socket.on('stats', onStats);
     socket.on('gameOver', onGameOver);
+    socket.on('wordRace', onWordRace);
 
     return () => {
       socket.off('connect', onConnect);
@@ -356,6 +382,7 @@ export default function App() {
       socket.off('heartbeat', onHeartBeat);
       socket.off('stats', onStats);
       socket.off('gameOver', onGameOver);
+      socket.off('wordRace', onWordRace);
     };
 
   }, [mainGame, isDuplicateProcess, currentRoomId, spa]);
@@ -387,7 +414,12 @@ export default function App() {
     setGameTime,
     gameStartTime,
     gameLength,
-    setGameLength
+    setGameLength,
+    wordRace,
+    showNewWord,
+    setShowNewWord,
+    wordRaceRef,
+    wordRaceWordRef
   };
 
   //this stops all the crappy ios events but then also prevents

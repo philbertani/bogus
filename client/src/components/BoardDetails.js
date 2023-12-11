@@ -46,7 +46,9 @@ export function BoardDetails({ props }) {
     setGiveUp,
     setTimedGame,
     showPath,
-    setShowPath
+    setShowPath,
+    wordRaceRef,
+    wordRaceWordRef,
   } = props;
 
   const colorScheme = colorSchemeRef.current;
@@ -71,7 +73,7 @@ export function BoardDetails({ props }) {
 
   React.useEffect( ()=>{
 
-    console.log("showPath", "xxxxxx",selected);
+    //console.log("showPath", "xxxxxx",selected);
     setShowPathIndex({index:0});
     if ( selected.length > 0 ) {
       
@@ -85,7 +87,7 @@ export function BoardDetails({ props }) {
 
   React.useEffect( ()=>{
 
-    console.log("showPath:",showPath);
+    //console.log("showPath:",showPath);
     if (!showPath.path) return;
 
     //setSearchString(showPath.word);
@@ -99,7 +101,7 @@ export function BoardDetails({ props }) {
       handleClick(null, row, col, true);
 
       setTimeout(() => {
-        console.log("in timeout");
+        //console.log("in timeout");
         const newPathIndex = {...showPathIndex};
         newPathIndex.index ++;
         setShowPathIndex( newPathIndex);
@@ -772,8 +774,15 @@ export function BoardDetails({ props }) {
       setSearchStringBackground("");
       setIsWord(false);
       isWordRef.current = false;
+    } 
+    
+    else if ( search[1] && wordRaceRef.current) {
 
-    } else if (search[1]) {
+      socket.emit('word',{wordRace:{found:Date.now()}});
+
+    }
+
+    else if (search[1] && !wordRaceRef.current) {
     
       //add it to the user's found words
       const newWords = foundWordsRef.current.words;
@@ -807,6 +816,7 @@ export function BoardDetails({ props }) {
       }
 
       setCubeStyles(newStyles);
+
       if (isWordRef.current) {
 
         totalScoreRef.current += ln;
@@ -827,8 +837,10 @@ export function BoardDetails({ props }) {
         );
       }
 
+
       setIsWord(true);
       setSearchStringBackground({back:newBackgroundImage,front:newColor,latestScore:ln});
+      
     }
 
   }, [searchString, game, colorScheme ]);

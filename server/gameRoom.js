@@ -11,6 +11,9 @@ export class gameRoom {
     playerIndex = {};
 
     game;
+    VARIATIONS = {WORDFIND:0,WORDRACE:1};
+    gameVariation;
+
     board;
     output;
     allWordsFound = {};
@@ -26,13 +29,15 @@ export class gameRoom {
     data;
     roomInfo; //set by ioManager
 
+    wordRaceWord = "";
+
     debugBoard = [];
     
-
-    constructor(roomId,io,dict,boardType,gameType, extraText, debugBoard=[]) {
+    constructor(roomId,io,dict,boardType,gameType, extraText, variation, debugBoard=[]) {
         this.io = io;
         this.id = roomId;
         this.gameType = gameType;
+        this.gameVariation = variation;  //the game class does not need to know this
 
         console.log("new game room - id is: ",this.id);
 
@@ -58,6 +63,9 @@ export class gameRoom {
         this.maxScore = 0;
         this.winner = this.stupidMessage;
 
+        const randomIndex = Math.trunc(Math.random() * this.game.words6.length);
+        this.wordRaceWord =  this.game.wordsFound[ this.game.words6[randomIndex] ] ;
+        
         //set all wordCounts to 0
         for (const player of Object.values(this.players)) {
             player.wordCount = 0;

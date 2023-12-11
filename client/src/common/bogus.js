@@ -7,10 +7,13 @@ class bogusMain {
   boardId;
   output = [];
   indexMap = [];
+
   wordsFound;
   defsFound;
   words;
   definitions;
+  wordLengthHistogram = Array(100).fill(0);
+  words6 = [];  //words with letters 6 or greater
 
   rank; //= data.rank;
   M;    //= data.rank.M;
@@ -21,6 +24,7 @@ class bogusMain {
   gameType;
   data;
 
+  VARIATIONS = {WORDFIND:0,WORDRACE:1};
   BOARDTYPES = {NORMAL:0,TORUS:1};
   BOARDTYPE_NAMES = ["GRID","TORUS"];
 
@@ -103,12 +107,20 @@ class bogusMain {
     //javascript array methods are great but sometimes you need to loop through one big
     //array and do lots of stuff and have multiple outputs for efficiency sake, so: for loop
     this.defsFound = [];
+    const zeros = '00000';
+
+    //write out all words found in log file 6 columns wide for readability
     for (let i=0; i<this.wordsFound.length; i+=6) {
       let output = "";
       for (let j=0; j<6; j++) {
         if ( i+j < this.wordsFound.length ) {
           const k = i + j;
           const word = this.wordsFound[k];
+
+          if (word.length > 5) {
+            this.words6.push(k); //pushing the index to save network space 
+          }
+
           const index = bsearch(this.words,word);
           //console.log(index);
           if (index[1]===false) {
@@ -120,10 +132,13 @@ class bogusMain {
             const ii = index[3];  //final index of bsearch is returned in element 3 
             this.defsFound.push(this.definitions[ii]);
           }
-          output += k + " " + this.wordsFound[k] + "\t";
+
+          //pad k so it is 4 digits long
+          const numZeros = 4 - k.toString().length;         
+          output += zeros.slice(0,numZeros) + k + " " + this.wordsFound[k] + "\t";
         }
       }
-      console.log(output +"\n");
+      console.log(output +"\t");
 
     }
 
