@@ -82,6 +82,8 @@ export function GameBoard({ props }) {
   const [timedGame, setTimedGame] = React.useState(false);
   const [gameLengthRequest, setGameLengthRequest] = React.useState(5);
 
+  const [showPath, setShowPath] = React.useState({}); //making it an object causes the UseEffect comparison to be different every time - an arrau NOT
+  
   const gameLengths = [2,5,10,17];
 
   //const countx = React.useRef(0);
@@ -215,6 +217,7 @@ export function GameBoard({ props }) {
               setCount(0);
               setHideDef("block");
               setDisplayDefinition(definition);
+              setShowPath( {word, path:game.paths[word] ? game.paths[word] : null, index:0} );
             }
           }}
 
@@ -274,7 +277,9 @@ export function GameBoard({ props }) {
     colorSchemeRef,
     setUserNamePopUp,
     setGiveUp,
-    setTimedGame
+    setTimedGame,
+    showPath,
+    setShowPath
   };
 
   const touch0 = React.useRef({});

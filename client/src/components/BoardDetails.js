@@ -45,6 +45,8 @@ export function BoardDetails({ props }) {
     setUserNamePopUp,
     setGiveUp,
     setTimedGame,
+    showPath,
+    setShowPath
   } = props;
 
   const colorScheme = colorSchemeRef.current;
@@ -64,6 +66,56 @@ export function BoardDetails({ props }) {
   const [hints,setHints] = React.useState([]);
   const [latestActivityTime,setLatestActivityTime] = React.useState(0);
   const torusMoveRef = React.useState(0);
+
+  const [showPathIndex,setShowPathIndex] = React.useState({index:-1});
+
+  React.useEffect( ()=>{
+
+    console.log("showPath", "xxxxxx",selected);
+    setShowPathIndex({index:0});
+    if ( selected.length > 0 ) {
+      
+      const [row,col]  = selected;
+      setSelected([]);
+      handleClick(null, row, col, true, true);
+    }
+
+  },[showPath]);
+
+
+  React.useEffect( ()=>{
+
+    console.log("showPath:",showPath);
+    if (!showPath.path) return;
+
+    //setSearchString(showPath.word);
+
+    const index = showPathIndex.index;
+
+    if (index>-1 && index < showPath.path.length) {
+
+      const [row,col] = showPath.path[index];
+
+      handleClick(null, row, col, true);
+
+      setTimeout(() => {
+        console.log("in timeout");
+        const newPathIndex = {...showPathIndex};
+        newPathIndex.index ++;
+        setShowPathIndex( newPathIndex);
+      }, 400);
+
+    }
+
+    else if (index === showPath.path.length) {
+      setShowPathIndex({index:-1})
+    }
+
+    console.log("rendering showPath",showPath.index);
+
+  },[showPathIndex, showPath]);
+  //cubeStyles again cause infinite rerendering!!
+
 
   React.useEffect( ()=> { setReset(true) }, [colorScheme, setReset] );
 
@@ -395,7 +447,7 @@ export function BoardDetails({ props }) {
     return keyId
   }
 
-  function handleClick(ev, i, j, mbd = false) {
+  function handleClick(ev, i, j, mbd = false, justReset=false) {
 
     //mbd=Mouse Button Down, also true if we are swiping on touch screen
 
@@ -440,11 +492,13 @@ export function BoardDetails({ props }) {
 
     //console.log(searchString.length,allSelected[i][j],mbd);
 
-    if (selected.length === 0) {
+    if (!justReset && selected.length === 0) {
       newStyles[i][j].backgroundImage = selectColor[colorScheme];
       newStyles[i][j].color = selectTextColor[colorScheme];
      
-    } else {
+    } 
+    
+    else {
 
       //"weird" touchDevice is treating i,j,selected as numberic characters instead of numbers, who would have thought??
       const [validMove, torusMove, debug] = 
@@ -461,7 +515,7 @@ export function BoardDetails({ props }) {
 
       //setTouchInfo(['y',torusMove, validMove, i,j,iOld,jOld,selected, debug]);
 
-      if (validMove && allSelected[i][j] === 0) {
+      if (!justReset && validMove && allSelected[i][j] === 0) {
 
         //setTouchInfo(['z',torusMove, validMove, i,j,iOld,jOld,selected, debug]);
 
@@ -477,17 +531,19 @@ export function BoardDetails({ props }) {
 
         pathRef.current.push(addPathDiv(style, prevStyle, i, j, iOld, jOld, torusMove));
 
-      } else if (!klugeReset && mbd && i === iOld && j === jOld) {
+      } else if (!justReset && !klugeReset && mbd && i === iOld && j === jOld) {
         flag = false;
       }
 
-      else if (mbd && !touches.pos) {
+      else if (!justReset && mbd && !touches.pos) {
         return;
 
-      } else if (mbd && !touches.isTouchStart) {
+      } else if (!justReset && mbd && !touches.isTouchStart) {
         return;
 
       } else {
+
+        console.log("resetting all");
 
         resetAll = true;
 
@@ -501,10 +557,12 @@ export function BoardDetails({ props }) {
 
         newSelected = blank2dArray(M, N);
 
-        if (
+        if ( 
+          !justReset && (
           searchString.length === 0 ||
           allSelected[i][j] === 0 ||
           (searchString.length === 1 && allSelected[i][j] === 1)
+          )
         ) {
           newStyles[i][j].backgroundImage = selectColor[colorScheme];
           newStyles[i][j].color = selectTextColor[colorScheme];
@@ -552,17 +610,13 @@ export function BoardDetails({ props }) {
           }
         }
  
-        const shit = [];
 
         const newHints = [];
-        //const { M, N } = game.rank;
 
         for (let row = ix - 1; row <= ix + 1; row++) {
           for (let col = jx - 1; col <= jx + 1; col++) {
 
             const [ii,jj] = [pmod(row,M),pmod(col,N)];
-
-            shit.push([row,col,ii,jj]);
 
             if (  !(row === ix && col === jx) && (allSelected[ii][jj]==0 || resetAll) ) {
               const style = newStyles[ii][jj];
@@ -573,20 +627,21 @@ export function BoardDetails({ props }) {
           }
         }
         
-        //console.log('hints',newHints);
         //socket.emit('info',JSON.stringify(shit));
+
         setHints(newHints);
       }
       
 
       //console.log("setting new colors 1");
-
-      newSelected[i][j] = 1;
-      setSelected([i, j]);
-      setAllSelected(newSelected);
-      setSearchString( prev => prev + game.board[i][j]);
-      setCubeStyles(newStyles);
-      selectedRef.current.push({ i, j });
+      if (!justReset) {
+        newSelected[i][j] = 1;
+        setSelected([i, j]);
+        setAllSelected(newSelected);
+        setSearchString((prev) => prev + game.board[i][j]);
+        setCubeStyles(newStyles);
+        selectedRef.current.push({ i, j });
+      }
     }
   }
 
@@ -619,6 +674,10 @@ export function BoardDetails({ props }) {
       handleClick(ev, ix, jx, true);
     }
   }
+
+  React.useEffect(()=>{
+
+  },[]);
 
   React.useEffect(() => {
     //console.log(touches);

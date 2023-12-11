@@ -183,6 +183,7 @@ export default function App() {
 
       mainGameX.boardId = msg.boardId;
       mainGameX.roomId = msg.roomId;
+      mainGameX.paths = msg.paths;
 
       if ( msg.bogus3d ) {
         console.log('3d is coming through!', msg.bogus3d);

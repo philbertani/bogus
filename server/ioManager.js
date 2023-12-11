@@ -28,8 +28,6 @@ export class ioManager {
 
       //dumbass just change the args to an object to avoid much pain
       this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"five","#1");
-
-      
       this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"five","#2");
       this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"five","#3");
       this.newGameRoom(dict.english,this.BOARDTYPES.NORMAL,"five","");
@@ -113,6 +111,7 @@ export class ioManager {
       //write a proper function
       words: gameRoom.game.wordsFound,
       defs: gameRoom.game.defsFound,
+      paths: gameRoom.game.paths,
       boardId: gameRoom.boardId,
       boardType: gameRoom.game.boardType,
       bogus3d: process.env.bogusEnv,

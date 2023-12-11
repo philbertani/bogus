@@ -1,5 +1,6 @@
 import React from "react";
 
+// put high scores here and some stats by gameRoom as well as help for playing
 export function Help({ boardDims }) {
   return (
     <div

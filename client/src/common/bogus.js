@@ -4,6 +4,7 @@ import { cloneArray, bsearch } from "./utils.js";
 class bogusMain {
 
   board = [];
+  boardId;
   output = [];
   indexMap = [];
   wordsFound;
@@ -46,7 +47,6 @@ class bogusMain {
     }
 
     console.log('gameType',gameType);
-    //console.log("zzzzzzzzzzzzzz ", dictionary.words.slice(66100,66200));
 
     this.gameType = gameType;
     const gameData = data.gameTypes[gameType];
@@ -146,6 +146,7 @@ class bogusMain {
     const letter = grid[i][j];
     str = str + letter;
 
+    path.push([i,j]);
     //this.allStr.push(str)
     //this.uniquePaths.add(str)  //useful for debugging
     const search = this.isWord(str);
@@ -154,6 +155,7 @@ class bogusMain {
 
     if (search[1] && str.length >= this.minLetters) {
       this.wordsFound.add(str);
+      this.paths[str] = cloneArray(path);
     }
 
     const [M, N] = [this.rank.M, this.rank.N];
@@ -176,9 +178,12 @@ class bogusMain {
     }
 
     str = "" + str[str.length - letter.length];
+    path = path.pop();  //same logic as str - set it to the last one found
+
     visited[i][j] = false;
   }
 
+  
   //TORUS version of findWords
   findWords2(grid, visited, i, j, str, k, path) {
     //this is the smarter search loop, using the dictionary to bail out if the
@@ -211,7 +216,7 @@ class bogusMain {
 
     if (search[1] && str.length >= this.minLetters) {
       this.wordsFound.add(str);
-      this.paths[str] = path;
+      this.paths[str] = cloneArray(path);
     }
 
     function pmod(x,y) {
@@ -223,7 +228,7 @@ class bogusMain {
 
     for (let row = i-1; row <= i+1 ; row++) {
 
-      for (let col = j - 1; col <= j + 1 ; col++) {
+      for (let col = j-1; col <= j+1 ; col++) {
 
         const rx = pmod(row,M);
         const cx = pmod(col,N);
@@ -243,7 +248,10 @@ class bogusMain {
       }
     }
 
-    str = "" + str[str.length - letter.length];
+    str = "" + str[str.length - letter.length];  //letter.length accounts for Qu basically
+
+    path = path.pop();
+
     visited[ix][jx] = false;
   }
 

@@ -43,6 +43,9 @@ export class gameRoom {
 
         this.newBoard();
 
+        //careful wordsFound winds up being game.words in the client
+        console.log('array lengths',this.game.wordsFound.length, Object.keys(this.game.paths).length);
+
     }
 
     newBoard() {
