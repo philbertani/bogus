@@ -59,6 +59,8 @@ export default function App() {
   
   const wordRaceRef = React.useRef(false);
   const wordRaceWordRef = React.useRef(false);
+  const [searchString, setSearchString] = React.useState("");
+  const [clearSelected,setClearSelected] = React.useState(false);
 
   const sp="\u00a0";
   const spa = Array(500).fill(sp);
@@ -192,18 +194,6 @@ export default function App() {
       mainGameX.gameVariation = msg.gameVariation;
       
 
-      if (msg.gameVariation === mainGameX.VARIATIONS.WORDRACE) {
-        console.log("xxxxxxxxxxxxxxxxxxx we should be doing Word Race");
-        setWordRace({start:true});
-        wordRaceRef.current = true;
-        wordRaceWordRef.current = msg.wordToFind;
-        setShowNewWord(true);
-      }
-      else {
-        wordRaceRef.current = false;
-        wordRaceWordRef.current = "";
-      }
-
 
       if ( msg.bogus3d ) {
         console.log('3d is coming through!', msg.bogus3d);
@@ -230,11 +220,32 @@ export default function App() {
         setGameLength( msg.roomInfo.gameLength);
 
       }
+
       else {
         setGameStartTime(Date.now());
         setGameTime(0);
         setGameLength(0);
       }
+
+
+      if (msg.gameVariation === mainGameX.VARIATIONS.WORDRACE) {
+        console.log("xxxxxxxxxxxxxxxxxxx we should be doing Word Race");
+        setWordRace({start:true});
+        wordRaceRef.current = true;
+        wordRaceWordRef.current = msg.wordToFind;
+        setShowNewWord(true);
+        setSearchString("");
+        setGameStartTime( msg.wordToFindTime );
+        setGameTime( Math.trunc( (Date.now() - msg.wordToFindTime)/1000) );
+        setGameLength(0);
+
+      }
+      else {
+        wordRaceRef.current = false;
+        wordRaceWordRef.current = "";
+      }
+
+
 
       const td = window.matchMedia("(pointer: coarse)").matches;
 
@@ -255,7 +266,7 @@ export default function App() {
 
     function onAllWordsFound(msg) {
 
-      //console.log('all words', msg, currentRoomId);
+      console.log('all words', msg, currentRoomId);
 
       if (msg.roomId == currentRoomId) {
         setAllWordsFound(msg.words);
@@ -357,6 +368,12 @@ export default function App() {
     function onWordRace(msg) {
       console.log("wordRace Word is:",msg);
       wordRaceWordRef.current = msg.wordToFind;
+      wordRaceRef.current = true;
+      setSearchString("");
+      setClearSelected(true);
+      setGameStartTime( msg.wordToFindTime);
+      setGameTime( Math.trunc((Date.now() - msg.wordToFindTime)/1000) );
+      setGameLength(0);
     }
 
     socket.on('connect', onConnect);
@@ -419,7 +436,11 @@ export default function App() {
     showNewWord,
     setShowNewWord,
     wordRaceRef,
-    wordRaceWordRef
+    wordRaceWordRef,
+    searchString,
+    setSearchString,
+    clearSelected,
+    setClearSelected
   };
 
   //this stops all the crappy ios events but then also prevents

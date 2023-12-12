@@ -49,6 +49,8 @@ export function BoardDetails({ props }) {
     setShowPath,
     wordRaceRef,
     wordRaceWordRef,
+    clearSelected,
+    setClearSelected
   } = props;
 
   const colorScheme = colorSchemeRef.current;
@@ -118,6 +120,14 @@ export function BoardDetails({ props }) {
   },[showPathIndex, showPath]);
   //cubeStyles again cause infinite rerendering!!
 
+  React.useEffect( ()=> {
+    if (clearSelected) {
+
+      handleClick(null,0,0,true,true); //clears all selected
+      setClearSelected(false);
+
+    }
+  }, [clearSelected, setClearSelected]);
 
   React.useEffect( ()=> { setReset(true) }, [colorScheme, setReset] );
 
@@ -164,10 +174,10 @@ export function BoardDetails({ props }) {
       }
     
     }
-  }, [reset, setReset, M, N, setFoundWords,
+    }, [reset, setReset, M, N, setFoundWords,
       game.boardId, setSearchString, foundWordsRef, setTotalScore,
       setGiveUp, setTimedGame, cubeStyles.length,game.rank.M
-    ]);
+  ]);
 
   function pathDiv(top,left,width,height,transformText) {
     return (
@@ -778,7 +788,9 @@ export function BoardDetails({ props }) {
     
     else if ( search[1] && wordRaceRef.current) {
 
-      socket.emit('word',{wordRace:{found:Date.now()}});
+      if ( wordRaceWordRef.current === searchString) {
+        socket.emit('word',{wordRace:{word:wordRaceWordRef.current,found:Date.now()}});
+      }
 
     }
 

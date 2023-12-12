@@ -42,7 +42,11 @@ export function GameBoard({ props }) {
     showNewWord,
     setShowNewWord,
     wordRaceRef,
-    wordRaceWordRef
+    wordRaceWordRef,
+    searchString,
+    setSearchString,
+    clearSelected,
+    setClearSelected
 
   } = props;
 
@@ -62,7 +66,7 @@ export function GameBoard({ props }) {
   //const [debugString, setDebugString] = React.useState("");
 
   const isWordRef = React.useState(false);
-  const [searchString, setSearchString] = React.useState("");
+  //const [searchString, setSearchString] = React.useState("");
   const [isWord, setIsWord] = React.useState(false);
   const [searchStringBackGround, setSearchStringBackground] =
     React.useState({front:"#000000",back:"#FFFFFF"});
@@ -110,16 +114,6 @@ export function GameBoard({ props }) {
     //Clearing the interval
     return () => clearInterval(interval);
   }, [count]);
-
-  React.useEffect( ()=> {
-    if (showNewWord && game.words) {
-      //const randomIndex = Math.trunc(Math.random() * game.words6.length);
-      //console.log("wordRace",randomIndex,game.words6[randomIndex]);
-      //wordRaceWordRef.current =  game.words[ game.words6[randomIndex] ] ;
-      //setShowNewWord(false);
-      //socket.emit('word',{wordRace:"getWord"});
-    }
-  }, [socket, game.words, showNewWord])
 
   React.useEffect(()=>{
     //gameStartTime being > 0 also tells us to count backwards for a timed game
@@ -298,7 +292,9 @@ export function GameBoard({ props }) {
     showPath,
     setShowPath,
     wordRaceRef,
-    wordRaceWordRef
+    wordRaceWordRef,
+    clearSelected,
+    setClearSelected
   };
 
   const touch0 = React.useRef({});
@@ -506,6 +502,8 @@ export function GameBoard({ props }) {
   //"\u2261" is the 3 line menu
   const sp = "\u00a0";
   //const spx = sp + sp + sp + sp + sp;
+
+  console.log( wordRaceRef.current , wordRaceWordRef.current);
 
   return (
     boardDims.height &&

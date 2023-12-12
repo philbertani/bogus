@@ -88,6 +88,7 @@ class bogusMain {
     this.uniquePaths = new Set();
     this.wordsFound = new Set();
     this.paths = {};
+    this.words6 = [];  //make sure to reinitialize everything here or else! duhhh
 
     for (let j=0; j<this.N; j++) {
       for (let i=0; i<this.M; i++) {
@@ -117,7 +118,7 @@ class bogusMain {
           const k = i + j;
           const word = this.wordsFound[k];
 
-          if (word.length > 5) {
+          if (word.trim().length > 5) {
             this.words6.push(k); //pushing the index to save network space 
           }
 
@@ -323,6 +324,10 @@ class bogusMain {
     }
 
     this.findWordsDriver(this.wordFindingFunctions[this.boardType]);
+
+    console.log('long words',this.words6.length);
+    //this.words6.map(x=> console.log(this.wordsFound[x]));
+
     return {board:this.board,output:this.output};
   }
 

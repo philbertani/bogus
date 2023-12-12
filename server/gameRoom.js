@@ -51,6 +51,7 @@ export class gameRoom {
         //careful wordsFound winds up being game.words in the client
         console.log('array lengths',this.game.wordsFound.length, Object.keys(this.game.paths).length);
 
+
     }
 
     newBoard() {
@@ -63,9 +64,8 @@ export class gameRoom {
         this.maxScore = 0;
         this.winner = this.stupidMessage;
 
-        const randomIndex = Math.trunc(Math.random() * this.game.words6.length);
-        this.wordRaceWord =  this.game.wordsFound[ this.game.words6[randomIndex] ] ;
-        
+        this.newWordRaceWord();
+
         //set all wordCounts to 0
         for (const player of Object.values(this.players)) {
             player.wordCount = 0;
@@ -74,6 +74,13 @@ export class gameRoom {
         }
     }
     
+    newWordRaceWord() {
+      const randomIndex = Math.trunc( Math.random() * (this.game.words6.length-1) );
+      this.wordRaceWord =  this.game.wordsFound[ this.game.words6[randomIndex] ] ;
+      this.wordRaceWordTime = Date.now() ;
+      return {wordToFind:this.wordRaceWord, wordToFindTime:this.wordRaceWordTime};
+    }
+
     giveUp(userId) {
       this.players[userId].giveUp = true;
       console.log('giving up in:',this.roomInfo.name,this.players[userId]);

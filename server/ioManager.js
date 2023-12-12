@@ -33,6 +33,7 @@ export class ioManager {
       this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"five","#2",this.VARIATIONS.WORDFIND);
       this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"five","WordRace",this.VARIATIONS.WORDRACE);
 
+      
       this.newGameRoom(dict.english,this.BOARDTYPES.NORMAL,"five","",this.VARIATIONS.WORDFIND);
       this.newGameRoom(dict.hebrew,this.BOARDTYPES.TORUS,"hebrewFive","",this.VARIATIONS.WORDFIND);
       this.newGameRoom(dict.spanish,this.BOARDTYPES.TORUS,"spanishFive","",this.VARIATIONS.WORDFIND);
@@ -124,7 +125,8 @@ export class ioManager {
       gameType: gameRoom.game.gameType,  //GRID or TORUS
       roomInfo: gameRoom.roomInfo,
       gameVariation: gameRoom.gameVariation, //WORDFIND or WORDRACE
-      wordToFind: gameRoom.wordRaceWord
+      wordToFind: gameRoom.wordRaceWord,
+      wordToFindTime: gameRoom.wordRaceWordTime
 
     });
 
@@ -244,8 +246,18 @@ export class ioManager {
 
         gameRoom.setLatestPlayerTime(userId);
     
+        console.log(msg);
         if ( msg.wordRace) {
-          console.log("found the word race word", msg.wordRace.found);
+          console.log("found the word race word", msg);
+          if (!gameRoom.allWordsFound[msg.wordRace.word]) {
+            gameRoom.allWordsFound[msg.wordRace.word] = this.users[userId].name;
+          }
+
+          io.to(gameRoom.id).emit("allWordsFound", 
+          {words:gameRoom.allWordsFound,roomId:gameRoom.roomInfo.displayId,latestWord:msg.wordRace.word});
+
+          setTimeout( ()=>{io.to(gameRoom.id).emit("wordRace", gameRoom.newWordRaceWord() );}, 500)
+          
           return;
         }
 
@@ -265,7 +277,7 @@ export class ioManager {
     
           for (const word of words) {
             if (gameRoom.allWordsFound[word]) {
-              gameRoom.allWordsFound[word] ++;
+              //gameRoom.allWordsFound[word] ++;
             } else {
               gameRoom.allWordsFound[word] = playerName;  //we now know which words were found by which player
               latestWord = word;
