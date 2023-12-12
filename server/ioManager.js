@@ -34,7 +34,7 @@ export class ioManager {
       this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"five","WordRace",this.VARIATIONS.WORDRACE);
 
       
-      this.newGameRoom(dict.english,this.BOARDTYPES.NORMAL,"five","",this.VARIATIONS.WORDFIND);
+      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"englishEight","WordRace",this.VARIATIONS.WORDRACE);
       this.newGameRoom(dict.hebrew,this.BOARDTYPES.TORUS,"hebrewFive","",this.VARIATIONS.WORDFIND);
       this.newGameRoom(dict.spanish,this.BOARDTYPES.TORUS,"spanishFive","",this.VARIATIONS.WORDFIND);
       this.newGameRoom(dict.spanishLoose,this.BOARDTYPES.TORUS,"spanishFiveLoose","",this.VARIATIONS.WORDFIND);
