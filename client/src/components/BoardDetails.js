@@ -50,7 +50,8 @@ export function BoardDetails({ props }) {
     wordRaceRef,
     wordRaceWordRef,
     clearSelected,
-    setClearSelected
+    setClearSelected,
+    gameTime
   } = props;
 
   const colorScheme = colorSchemeRef.current;
@@ -572,8 +573,8 @@ export function BoardDetails({ props }) {
         if ( 
           !justReset && (
           searchString.length === 0 ||
-          allSelected[i][j] === 0 ||
-          (searchString.length === 1 && allSelected[i][j] === 1)
+          allSelected[i][j] === 0 
+          //|| (searchString.length === 1 && allSelected[i][j] === 1)
           )
         ) {
           newStyles[i][j].backgroundImage = selectColor[colorScheme];
@@ -622,7 +623,6 @@ export function BoardDetails({ props }) {
           }
         }
  
-
         const newHints = [];
 
         for (let row = ix - 1; row <= ix + 1; row++) {
@@ -788,8 +788,56 @@ export function BoardDetails({ props }) {
     
     else if ( search[1] && wordRaceRef.current) {
 
-      if ( wordRaceWordRef.current === searchString) {
-        socket.emit('word',{wordRace:{word:wordRaceWordRef.current,found:Date.now()}});
+      if (wordRaceWordRef.current === searchString) {
+
+        let newBackgroundImage = wordColor[colorScheme];
+        let newColor = wordTextColor[colorScheme];
+
+        let newStyles = deepClone(cubeStyles); //this is ugly
+        for (const Index of selectedRef.current) {
+          const { i, j } = Index;
+          const style = newStyles[i][j];
+          style.backgroundImage = newBackgroundImage;
+          style.color = newColor;
+        }
+
+        setCubeStyles(newStyles);
+
+        const score =
+          searchString.length -
+          5 +
+          torusMoveRef.current +
+          Math.max(0, 20 - gameTime);
+
+        const newWords = foundWordsRef.current.words;
+        newWords[searchString] = score ; 
+        totalScoreRef.current += score;
+
+        foundWordsRef.current = {
+          words: { ...newWords },
+          latestWordScore: score,
+          wordRace: true,
+          totalScore: totalScoreRef.current,
+        };
+
+        const keyId = savedWordsKeyId();
+        localStorage.setItem(
+          keyId,
+          JSON.stringify({
+            foundWords: newWords,
+            boardId: game.boardId,
+            wordRace:true,
+            totalScore: totalScoreRef.current,
+          })
+        );
+
+        isWordRef.current = true;
+        setIsWord(true);
+        setSearchStringBackground({back:newBackgroundImage,front:newColor,latestScore:score});
+        
+        //socket.emit("word", {
+        //  wordRace: { word: wordRaceWordRef.current, found: Date.now(),  },
+        //});
       }
 
     }
@@ -835,6 +883,7 @@ export function BoardDetails({ props }) {
         foundWordsRef.current = {
           words: { ...newWords },
           latestWordScore: ln,
+          wordRace:false,
           totalScore: totalScoreRef.current,
         };
 
@@ -844,11 +893,11 @@ export function BoardDetails({ props }) {
           JSON.stringify({
             foundWords: newWords,
             boardId: game.boardId,
+            wordRace: false,
             totalScore: totalScoreRef.current,
           })
         );
       }
-
 
       setIsWord(true);
       setSearchStringBackground({back:newBackgroundImage,front:newColor,latestScore:ln});

@@ -1,7 +1,7 @@
 import React from "react";
 
 
-export default function WordRaceDisplay({searchString,wordToFind}) {
+export default function WordRaceDisplay({searchString,wordToFind,score}) {
 
   const output = [];
 
@@ -20,7 +20,7 @@ export default function WordRaceDisplay({searchString,wordToFind}) {
 
     output.push(<span key={"find"+i} style={style}>{wordToFind[i]}</span>)
   }
-  return <div>{output}</div>
+  return <div>{output} {score && " " + score} </div>
 
 
 }

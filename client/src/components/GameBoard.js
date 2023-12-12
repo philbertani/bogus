@@ -294,7 +294,8 @@ export function GameBoard({ props }) {
     wordRaceRef,
     wordRaceWordRef,
     clearSelected,
-    setClearSelected
+    setClearSelected,
+    gameTime
   };
 
   const touch0 = React.useRef({});
@@ -407,6 +408,7 @@ export function GameBoard({ props }) {
         socket.emit("word", {
           words: words, //wordsToSend, //searchString,
           count: words.length,
+          wordRace: foundWordsRef.current.wordRace,
           totalScore: foundWordsRef.current.totalScore,
         });
       }
@@ -503,7 +505,7 @@ export function GameBoard({ props }) {
   const sp = "\u00a0";
   //const spx = sp + sp + sp + sp + sp;
 
-  console.log( wordRaceRef.current , wordRaceWordRef.current);
+  //console.log( wordRaceRef.current , wordRaceWordRef.current);
 
   return (
     boardDims.height &&
@@ -542,6 +544,7 @@ export function GameBoard({ props }) {
             <WordRaceDisplay
               searchString={searchString}
               wordToFind={wordRaceWordRef.current}
+              score={searchStringBackGround.latestScore}
             />
           )}
 

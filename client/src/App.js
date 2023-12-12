@@ -227,7 +227,7 @@ export default function App() {
         setGameLength(0);
       }
 
-
+      //the following overrides previous gameTime when variation is WORDRACE
       if (msg.gameVariation === mainGameX.VARIATIONS.WORDRACE) {
         console.log("xxxxxxxxxxxxxxxxxxx we should be doing Word Race");
         setWordRace({start:true});
@@ -244,8 +244,6 @@ export default function App() {
         wordRaceRef.current = false;
         wordRaceWordRef.current = "";
       }
-
-
 
       const td = window.matchMedia("(pointer: coarse)").matches;
 
@@ -367,13 +365,17 @@ export default function App() {
 
     function onWordRace(msg) {
       console.log("wordRace Word is:",msg);
-      wordRaceWordRef.current = msg.wordToFind;
-      wordRaceRef.current = true;
-      setSearchString("");
-      setClearSelected(true);
-      setGameStartTime( msg.wordToFindTime);
-      setGameTime( Math.trunc((Date.now() - msg.wordToFindTime)/1000) );
-      setGameLength(0);
+
+      setTimeout(()=>{
+        wordRaceWordRef.current = msg.wordToFind;
+        wordRaceRef.current = true;
+        setSearchString("");
+        setClearSelected(true);
+        setGameStartTime(msg.wordToFindTime);
+        setGameTime(Math.trunc((Date.now() - msg.wordToFindTime) / 1000));
+        setGameLength(0);
+      },2000);
+    
     }
 
     socket.on('connect', onConnect);

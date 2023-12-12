@@ -247,20 +247,7 @@ export class ioManager {
         gameRoom.setLatestPlayerTime(userId);
     
         console.log(msg);
-        if ( msg.wordRace) {
-          console.log("found the word race word", msg);
-          if (!gameRoom.allWordsFound[msg.wordRace.word]) {
-            gameRoom.allWordsFound[msg.wordRace.word] = this.users[userId].name;
-          }
-
-          io.to(gameRoom.id).emit("allWordsFound", 
-          {words:gameRoom.allWordsFound,roomId:gameRoom.roomInfo.displayId,latestWord:msg.wordRace.word});
-
-          setTimeout( ()=>{io.to(gameRoom.id).emit("wordRace", gameRoom.newWordRaceWord() );}, 500)
-          
-          return;
-        }
-
+ 
         if ( gameRoom.gaveUp(userId)) {
           console.log('this user gave up the game, not saving word');
           return;
@@ -284,9 +271,15 @@ export class ioManager {
             }
           }
     
+          if ( msg.wordRace) {
+            console.log("found the word race word", msg);
+            setTimeout( ()=>{io.to(gameRoom.id).emit("wordRace", gameRoom.newWordRaceWord() );}, 500)
+          }
+  
           //console.log(gameRoom.allWordsFound);
           io.to(gameRoom.id).emit("allWordsFound", 
             {words:gameRoom.allWordsFound,roomId:gameRoom.roomInfo.displayId,latestWord});
+            
         }
         else {
           console.log('weird - words is not an array or null', words,socket.id);
