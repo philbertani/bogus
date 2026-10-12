@@ -25,6 +25,7 @@ class LetterFrequencyAnalyzer {
 
     if ( !word) return;
 
+    // letter.toLowerCase should work for any UTF-8
     for ( let i=0; i<word.length; i++) {
       const letter = word[i];
       if ( !this.freqs[letter]) this.freqs[letter] = 1;
@@ -68,6 +69,10 @@ class LetterFrequencyAnalyzer {
 
     }
 
+    // we may wind up with an array slightly longer than 100 because we round up
+    // the smallest probabilities to 1 to make sure to get at least 1 letter
+    // but bogus.js uses max index of array when scaling random numbers so we are good to go
+
     //console.log(this.probabilities);
 
     //this.rndMap.map( (x,i)=>console.log(i,x,this.probabilities[x]));
@@ -81,6 +86,9 @@ class LetterFrequencyAnalyzer {
 export function loadDictionary(cb) {
 
   const loadData = async (cb) => {
+
+    const { russianWords, russianDefs, russianLetterDist } = await loadRussianDict();
+
     const { words, definitions, letterDist } = await loadDict();
     console.log("num words is:", words.length);
     cb(); //execute the callback
@@ -96,7 +104,8 @@ export function loadDictionary(cb) {
             hebrew:{ words:hebrewWords, definitions:hebrewDefinitions},
             spanish:{ words:spanishWords, definitions:spanishDefs },
             spanishLoose:{ words:spanishLooseWords, definitions:spanishLooseDefs},
-            italian: { words:italianWords, definitions:italianDefs}
+            italian: { words:italianWords, definitions:italianDefs},
+            russian: { words:russianWords, definitions:russianDefs, letterDist:russianLetterDist}
           };
   };
 
@@ -104,6 +113,19 @@ export function loadDictionary(cb) {
   Alphabet.english = [
     'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R'
     ,'S','T','U','V','W','X','Y','Z'];
+
+  
+  Alphabet.russian_upcase = [
+    'А', 'б', 'в', 'г', 'д', 'е', 'ё', 'ж', 'з', 'и', 'й', 'к', 
+    'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х', 'ц', 
+    'ч', 'ш', 'щ', 'ъ', 'ы', 'ь', 'э', 'ю', 'я'
+  ];
+
+  Alphabet.russian_lowcase = [
+    'а', 'б', 'в', 'г', 'д', 'е', 'ё', 'ж', 'з', 'и', 'й', 'к', 
+    'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х', 'ц', 
+    'ч', 'ш', 'щ', 'ъ', 'ы', 'ь', 'э', 'ю', 'я'
+  ];
 
   const loadDict = async () => {
     try {
@@ -136,6 +158,92 @@ export function loadDictionary(cb) {
       throw error;
     }
   };
+
+  function toLower( word, validMap ) {
+    let lowerCaseWord = '';
+    let isValid = true;
+    for (const letter of word) {
+      lowerCaseWord += letter.toLowerCase();
+
+      isValid &&= (validMap?.[letter] ?? false);  // cute trick
+
+      //isValid = isValid && !!validMap[letter];  //this forces boolean
+      //if ( !letter ) { isValid &= false; }
+      //else { isValid &= Object.hasOwn(validMap,letter); }
+
+      isValid &&= word.length > 2;
+
+    }
+    return {lower:lowerCaseWord,valid:isValid};
+  }
+
+  const checkWords = (words, validSymbols) => {
+
+    const allLowerCaseWords = [];
+    const notLower = [];
+    const invalidWords = [];
+    const validWords = [];
+
+    const validMap = {};
+    //convert to map for fast lookup
+    for (const letter of validSymbols) {
+      validMap[letter] = 1;
+    }
+
+    for (const word of words) {
+
+      const {lower:lcase,valid} = toLower(word, validMap);
+
+      if ( !valid ) {
+        invalidWords.push(word);
+      }
+      else {
+        validWords.push(word);
+      }
+
+      if ( word !== lcase ) {
+        //keep track of words that are not all lowercase
+        notLower.push(word);
+      }
+
+      allLowerCaseWords.push( lcase );
+
+    }
+
+    console.log( "valid: ",validWords.length, " invalid: ", invalidWords.length, " not lower: ", notLower.length );
+
+    return validWords;
+  }
+
+  const loadRussianDict = async() => {
+
+    // the Russian word list has a bunch of words with dashes and dots
+    // also it has around 21k proper names which are capitalized
+    // we only want words that are just all lower case with no non alphabetic symbols for now
+
+    try {
+      const dictText = await fs.readFile("./russian.utf-8", "utf-8");
+      const words = dictText.replace(/\r/g, "").split(/\n/); //making sure to remove carriage controls first
+      
+      const validWords = checkWords(words, Alphabet["russian_lowcase"]);
+
+      const ANAL = new LetterFrequencyAnalyzer( Alphabet["russian_lowcase"] );
+
+      for (const word of validWords) {
+        ANAL.addLetters(word);
+      }
+
+      ANAL.computeProbabilities();
+      console.log(ANAL.probabilities);
+
+      //return { words, definitions, letterDist: ANAL.rndMap };
+      return {russianWords: words, russianDefs:[...words], russianLetterDist: ANAL.rndMap }
+      
+    } catch (error) {
+      throw error;
+    }
+
+  }
 
   const loadHebrewDict = async () => {
     try {
