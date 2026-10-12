@@ -237,7 +237,7 @@ export function loadDictionary(cb) {
       console.log(ANAL.probabilities);
 
       //return { words, definitions, letterDist: ANAL.rndMap };
-      return {russianWords: words, russianDefs:[...words], russianLetterDist: ANAL.rndMap }
+      return {russianWords: validWords, russianDefs:[...validWords], russianLetterDist: ANAL.rndMap }
       
     } catch (error) {
       throw error;
