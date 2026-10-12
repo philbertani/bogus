@@ -29,8 +29,8 @@ export class ioManager {
       this.setHandlers(this.io);
 
       //dumbass just change the args to an object to avoid much pain
-      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"five","#1",this.VARIATIONS.WORDFIND);
-      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"five","#2",this.VARIATIONS.WORDFIND);
+      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"five","",this.VARIATIONS.WORDFIND);
+      this.newGameRoom(dict.english,this.BOARDTYPES.NORMAL,"five","",this.VARIATIONS.WORDFIND);
       this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"five","WordRace",this.VARIATIONS.WORDRACE);
 
       
@@ -39,9 +39,16 @@ export class ioManager {
       this.newGameRoom(dict.spanish,this.BOARDTYPES.TORUS,"spanishFive","",this.VARIATIONS.WORDFIND);
       this.newGameRoom(dict.spanishLoose,this.BOARDTYPES.TORUS,"spanishFiveLoose","",this.VARIATIONS.WORDFIND);
       this.newGameRoom(dict.italian,this.BOARDTYPES.TORUS,"italianFive","",this.VARIATIONS.WORDFIND);
-      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"englishSix","",this.VARIATIONS.WORDFIND);
-      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"four","",this.VARIATIONS.WORDFIND);
-      this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"englishSeven","",this.VARIATIONS.WORDFIND);
+
+
+      //this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"englishSix","",this.VARIATIONS.WORDFIND);
+      this.newGameRoom(dict.russian,this.BOARDTYPES.NORMAL,"russianFive","",this.VARIATIONS.WORDFIND);
+
+      //this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"four","",this.VARIATIONS.WORDFIND);
+      this.newGameRoom(dict.russian,this.BOARDTYPES.TORUS,"russianFive","WordRace",this.VARIATIONS.WORDRACE);
+
+      //this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"englishSeven","",this.VARIATIONS.WORDFIND);
+      this.newGameRoom(dict.russian,this.BOARDTYPES.TORUS,"russianFive","",this.VARIATIONS.WORDFIND);
       this.newGameRoom(dict.english,this.BOARDTYPES.TORUS,"englishEight","",this.VARIATIONS.WORDFIND);
       
     
@@ -197,6 +204,7 @@ export class ioManager {
         }
 
       });
+      
     });
     
 
