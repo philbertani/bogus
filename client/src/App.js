@@ -149,6 +149,7 @@ export default function App() {
 
     function onChatEvent(msg) {
 
+
       console.log("chat", "xxx",msg.chat.trim(),"xxx");
 
       const maxMessages = 20;

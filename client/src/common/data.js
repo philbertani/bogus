@@ -4,6 +4,13 @@
 //letter frequencies directly
 
 const gameTypes = {
+  russianFive:{
+    rank: {M:5, N:5},
+    minLetters: 3,
+    name: "Russian 5x5",
+    ld: []    
+  },
+
   four: {
     rank: {M:4, N:4},
     minLetters: 3,
