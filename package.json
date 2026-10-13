@@ -3,6 +3,10 @@
     "type" : "module",
     "description" : "boggle like multiplayer game using socket.io",
 
+    "engines": {
+      "node": ">=20.0.0 <22.0.0"
+    },
+
     "scripts" : {
         "installWin":"(cd server && npm install) && (cd ../client && npm install)",
         "startWin":"(cd server && start npm start) && (cd ../client && start npm start)",

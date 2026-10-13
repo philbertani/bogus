@@ -4,11 +4,11 @@
     "description": "socket.io and backend for game",
     "type": "module",
     "dependencies": {
-        "cors": "^2.8.5",
-        "express": "^4.18.2",
-        "nodemon": "^1.14.10",
-        "prettier": "^3.0.3",
-        "socket.io": "^4.7.2",
+        "cors": "latest",
+        "express": "latest",
+        "nodemon": "latest",
+        "prettier": "latest",
+        "socket.io": "latest",
         "uuid": "latest"
     },
     "scripts": {
